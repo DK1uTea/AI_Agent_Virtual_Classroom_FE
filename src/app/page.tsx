@@ -1,3 +1,5 @@
+'use client';
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 export default function Home() {
@@ -50,6 +52,10 @@ export default function Home() {
             Read our docs
           </a>
         </div>
+        <Button onClick={() => {
+          console.log("fuck you")
+          alert("fuck you");
+        }}>Fuck you</Button>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <a
