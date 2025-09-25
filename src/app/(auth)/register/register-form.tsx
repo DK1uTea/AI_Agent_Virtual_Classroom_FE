@@ -1,0 +1,88 @@
+'use client'
+
+import { authApis } from "@/app/apis/gateways/auth-apis";
+import { RegisterReq } from "@/app/apis/requests/auth-req";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { RegisterSchema, RegisterType } from "@/shemaValidations/auth.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2Icon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+
+const RegisterForm = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
+    reset,
+  } = useForm<RegisterType>({
+    mode: "onChange",
+    resolver: zodResolver(RegisterSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  })
+
+  const handleRegisterFormSubmit = async (data: RegisterType) => {
+    try {
+      setIsLoading(true);
+      const res = await authApis.register(data);
+      console.log("check res register >>>>: ", res);
+      toast.success("Register successfully");
+      reset();
+      router.push("/");
+    } catch (error) {
+      console.error('Error registering: ', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <form className="flex flex-col justify-center items-center gap-5 w-full" onSubmit={handleSubmit(handleRegisterFormSubmit)}>
+      <div className="flex flex-col gap-3 w-full">
+        <div className="w-full flex flex-col items-start gap-2">
+          <label>Name</label>
+          <Input type="string" placeholder="Enter your name" {...register("name")} />
+          {errors.name && <span className="text-red-500 dark:text-red-300">{errors.name.message}</span>}
+        </div>
+        <div className="w-full flex flex-col items-start gap-2">
+          <label>Email</label>
+          <Input type="email" placeholder="Enter your email" {...register("email")} />
+          {errors.email && <span className="text-red-500 dark:text-red-300">{errors.email.message}</span>}
+        </div>
+        <div className="w-full flex flex-col items-start gap-2">
+          <label>Password</label>
+          <Input type="password" placeholder="Enter your password" {...register("password")} />
+          {errors.password && <span className="text-red-500 dark:text-red-300">{errors.password.message}</span>}
+        </div>
+        <div className="w-full flex flex-col items-start gap-2">
+          <label>Confirm Password</label>
+          <Input type="password" placeholder="Confirm your password" {...register("confirmPassword")} />
+          {errors.confirmPassword && <span className="text-red-500 dark:text-red-300">{errors.confirmPassword.message}</span>}
+        </div>
+      </div>
+      <Button className="w-full" type="submit" disabled={isLoading}>
+        {isLoading ? (
+          <>
+            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+            Registering...
+          </>
+        ) : (
+          "Register"
+        )}
+      </Button>
+    </form>
+  );
+};
+
+export default RegisterForm;
