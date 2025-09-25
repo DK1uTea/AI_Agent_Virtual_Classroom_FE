@@ -1,7 +1,8 @@
+import { ModeToggle } from "@/components/mode-toggle";
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <main>
-      <div>Header</div>
       {children}
     </main>
   );
