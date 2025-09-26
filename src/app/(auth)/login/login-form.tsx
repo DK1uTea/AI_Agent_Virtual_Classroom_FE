@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LoginSchema, LoginType } from "@/shemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,7 +12,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 const LoginForm = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const {
@@ -28,19 +28,22 @@ const LoginForm = () => {
     }
   })
 
-  const handleLoginFormSubmit = async (data: LoginType) => {
-    try {
-      setIsLoading(true);
-      const res = await authApis.login(data);
+  const loginMutation = useMutation({
+    mutationFn: (data: LoginType) => authApis.login(data),
+    onSuccess: (res) => {
       console.log('check res login >>>: ', res);
       toast.success('Login successful!');
       reset();
-      router.push("/");
-    } catch (error) {
+      router.push('/');
+    },
+    onError: (error) => {
       console.error('Error login: ', error);
-    } finally {
-      setIsLoading(false);
+      toast.error('Login failed!');
     }
+  });
+
+  const handleLoginFormSubmit = async (data: LoginType) => {
+    loginMutation.mutate(data);
   };
 
   return (
@@ -58,8 +61,8 @@ const LoginForm = () => {
         </div>
 
       </div>
-      <Button className="w-full" type="submit" disabled={isLoading}>
-        {isLoading ? (
+      <Button className="w-full" type="submit" disabled={loginMutation.isPending}>
+        {loginMutation.isPending ? (
           <>
             <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
             Loading...
