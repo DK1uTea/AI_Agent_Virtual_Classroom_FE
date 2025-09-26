@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RegisterSchema, RegisterType } from "@/shemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -13,7 +14,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 const RegisterForm = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const {
@@ -32,19 +32,22 @@ const RegisterForm = () => {
     },
   })
 
-  const handleRegisterFormSubmit = async (data: RegisterType) => {
-    try {
-      setIsLoading(true);
-      const res = await authApis.register(data);
-      console.log("check res register >>>>: ", res);
-      toast.success("Register successful!");
+  const registerMutation = useMutation({
+    mutationFn: (data: RegisterType) => authApis.register(data),
+    onSuccess: (res) => {
+      console.log('check res register >>>: ', res);
+      toast.success('Register successful!');
       reset();
-      router.push("/");
-    } catch (error) {
-      console.error('Error registering: ', error);
-    } finally {
-      setIsLoading(false);
+      router.push('/');
+    },
+    onError: (error) => {
+      console.error('Error register: ', error);
+      toast.error('Register failed!');
     }
+  });
+
+  const handleRegisterFormSubmit = async (data: RegisterType) => {
+    registerMutation.mutate(data);
   }
 
   return (
@@ -71,8 +74,8 @@ const RegisterForm = () => {
           {errors.confirmPassword && <span className="text-red-500 dark:text-red-300">{errors.confirmPassword.message}</span>}
         </div>
       </div>
-      <Button className="w-full" type="submit" disabled={isLoading}>
-        {isLoading ? (
+      <Button className="w-full" type="submit" disabled={registerMutation.isPending}>
+        {registerMutation.isPending ? (
           <>
             <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
             Loading...

@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import Header from "@/components/header";
+import Header from '@/components/ui/header';
 import ToastProvider from "@/components/toast-provider";
+import { QueryProvider } from "@/components/query-provider";
 
 const inter = Inter({
   subsets: ["vietnamese"],
@@ -30,8 +31,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          {children}
+          <QueryProvider>
+            <Header />
+            {children}
+          </QueryProvider>
         </ThemeProvider>
         <ToastProvider />
       </body>
