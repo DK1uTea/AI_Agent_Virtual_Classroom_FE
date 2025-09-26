@@ -1,10 +1,8 @@
 'use client'
-
 import { authApis } from "@/app/apis/gateways/auth-apis";
-import { RegisterReq } from "@/app/apis/requests/auth-req";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { RegisterSchema, RegisterType } from "@/shemaValidations/auth.schema";
+import { LoginSchema, LoginType } from "@/shemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -12,49 +10,42 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
-const RegisterForm = () => {
+const LoginForm = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
-    reset,
-  } = useForm<RegisterType>({
+    formState: { errors },
+    reset
+  } = useForm<LoginType>({
     mode: "onChange",
-    resolver: zodResolver(RegisterSchema),
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
-      name: "",
       email: "",
-      password: "",
-      confirmPassword: "",
-    },
+      password: ""
+    }
   })
 
-  const handleRegisterFormSubmit = async (data: RegisterType) => {
+  const handleLoginFormSubmit = async (data: LoginType) => {
     try {
       setIsLoading(true);
-      const res = await authApis.register(data);
-      console.log("check res register >>>>: ", res);
-      toast.success("Register successful!");
+      const res = await authApis.login(data);
+      console.log('check res login >>>: ', res);
+      toast.success('Login successful!');
       reset();
       router.push("/");
     } catch (error) {
-      console.error('Error registering: ', error);
+      console.error('Error login: ', error);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <form className="flex flex-col justify-center items-center gap-5 w-full" onSubmit={handleSubmit(handleRegisterFormSubmit)}>
+    <form className="flex flex-col justify-center items-center gap-5 w-full" onSubmit={handleSubmit(handleLoginFormSubmit)}>
       <div className="flex flex-col gap-3 w-full">
-        <div className="w-full flex flex-col items-start gap-2">
-          <label>Name</label>
-          <Input type="string" placeholder="Enter your name" {...register("name")} />
-          {errors.name && <span className="text-red-500 dark:text-red-300">{errors.name.message}</span>}
-        </div>
         <div className="w-full flex flex-col items-start gap-2">
           <label>Email</label>
           <Input type="email" placeholder="Enter your email" {...register("email")} />
@@ -65,11 +56,7 @@ const RegisterForm = () => {
           <Input type="password" placeholder="Enter your password" {...register("password")} />
           {errors.password && <span className="text-red-500 dark:text-red-300">{errors.password.message}</span>}
         </div>
-        <div className="w-full flex flex-col items-start gap-2">
-          <label>Confirm Password</label>
-          <Input type="password" placeholder="Confirm your password" {...register("confirmPassword")} />
-          {errors.confirmPassword && <span className="text-red-500 dark:text-red-300">{errors.confirmPassword.message}</span>}
-        </div>
+
       </div>
       <Button className="w-full" type="submit" disabled={isLoading}>
         {isLoading ? (
@@ -78,11 +65,11 @@ const RegisterForm = () => {
             Loading...
           </>
         ) : (
-          "Register"
+          "Login"
         )}
       </Button>
     </form>
   );
 };
 
-export default RegisterForm;
+export default LoginForm;

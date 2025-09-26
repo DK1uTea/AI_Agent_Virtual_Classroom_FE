@@ -4,3 +4,8 @@ export interface RegisterReq {
   password: string;
   confirmPassword: string;
 }
+
+export interface LoginReq {
+  email: string;
+  password: string;
+}

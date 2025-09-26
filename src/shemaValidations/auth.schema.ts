@@ -24,3 +24,10 @@ export const RegisterSchema = z
   });
 
 export type RegisterType = z.infer<typeof RegisterSchema>;
+
+export const LoginSchema = z.object({
+  email: z.email().regex(/^\S+@\S+\.\S+$/, { message: "Invalid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" })
+})
+
+export type LoginType = z.infer<typeof LoginSchema>;
