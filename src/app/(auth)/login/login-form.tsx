@@ -2,6 +2,7 @@
 import { authApis } from "@/app/apis/gateways/auth-apis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { kyLocalInstance } from "@/config/ky";
 import { LoginSchema, LoginType } from "@/shemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -30,11 +31,15 @@ const LoginForm = () => {
 
   const loginMutation = useMutation({
     mutationFn: (data: LoginType) => authApis.login(data),
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       console.log('check res login >>>: ', res);
+      const resFromNextServer = await kyLocalInstance.post('/api/auth', {
+        json: res,
+      }).json();
+      console.log("resFromNextServer >>>", resFromNextServer);
       toast.success('Login successful!');
       reset();
-      router.push('/');
+      router.push('/me');
     },
     onError: (error) => {
       console.error('Error login: ', error);
