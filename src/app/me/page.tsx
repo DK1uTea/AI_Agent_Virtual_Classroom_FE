@@ -1,6 +1,6 @@
 import { profile } from "console";
-import { accountApis } from "../apis/gateways/account-apis";
-import { AccountRes } from "../apis/responses/account-res";
+import { accountApis } from "../../apis/gateways/account-apis";
+import { AccountRes } from "../../apis/responses/account-res";
 
 const Profile = async () => {
   const profile: AccountRes = await accountApis.getMe();

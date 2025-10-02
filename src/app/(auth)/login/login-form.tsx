@@ -1,9 +1,10 @@
 'use client'
-import { authApis } from "@/app/apis/gateways/auth-apis";
+import { authApis } from "@/apis/gateways/auth-apis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { kyLocalInstance } from "@/config/ky";
 import { LoginSchema, LoginType } from "@/shemaValidations/auth.schema";
+import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
@@ -11,9 +12,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { useShallow } from "zustand/shallow";
 
 const LoginForm = () => {
   const router = useRouter();
+
+  const { setSessionToken } = useAuthStore(useShallow((state) => ({
+    setSessionToken: state.setSessionToken,
+  })));
 
   const {
     register,
@@ -33,9 +39,8 @@ const LoginForm = () => {
     mutationFn: (data: LoginType) => authApis.login(data),
     onSuccess: async (res) => {
       console.log('check res login >>>: ', res);
-      const resFromNextServer = await kyLocalInstance.post('/api/auth', {
-        json: res,
-      }).json();
+      setSessionToken(res.token);
+      const resFromNextServer = await authApis.requestNextServerSetCookies(res);
       console.log("resFromNextServer >>>", resFromNextServer);
       toast.success('Login successful!');
       reset();
