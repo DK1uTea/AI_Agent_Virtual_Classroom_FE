@@ -1,11 +1,12 @@
 'use client'
 
-import { authApis } from "@/app/apis/gateways/auth-apis";
-import { RegisterReq } from "@/app/apis/requests/auth-req";
+import { authApis } from "@/apis/gateways/auth-apis";
+import { RegisterReq } from "@/apis/requests/auth-req";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { kyLocalInstance } from "@/config/ky";
 import { RegisterSchema, RegisterType } from "@/shemaValidations/auth.schema";
+import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
@@ -13,10 +14,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import { useShallow } from "zustand/shallow";
 
 const RegisterForm = () => {
   const router = useRouter();
-
+  const { setSessionToken } = useAuthStore(useShallow((state) => ({
+    setSessionToken: state.setSessionToken,
+  })));
   const {
     register,
     handleSubmit,
@@ -37,9 +41,8 @@ const RegisterForm = () => {
     mutationFn: (data: RegisterType) => authApis.register(data),
     onSuccess: async (res) => {
       console.log('check res register >>>: ', res);
-      const resFromNextServer = await kyLocalInstance.post('/api/auth', {
-        json: res,
-      }).json();
+      setSessionToken(res.token);
+      const resFromNextServer = await authApis.requestNextServerSetCookies(res);
       console.log("resFromNextServer >>>", resFromNextServer);
       toast.success('Register successful!');
       reset();

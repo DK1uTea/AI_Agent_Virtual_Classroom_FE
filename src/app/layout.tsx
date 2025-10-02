@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Header from '@/components/ui/header';
 import ToastProvider from "@/components/toast-provider";
 import { QueryProvider } from "@/components/query-provider";
+import { AuthProvider } from "@/components/auth-provider";
 
 const inter = Inter({
   subsets: ["vietnamese"],
@@ -31,10 +32,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>
-            <Header />
-            {children}
-          </QueryProvider>
+          <AuthProvider>
+            <QueryProvider>
+              <Header />
+              {children}
+            </QueryProvider>
+          </AuthProvider>
         </ThemeProvider>
         <ToastProvider />
       </body>
