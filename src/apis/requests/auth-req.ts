@@ -1,15 +1,19 @@
-export interface RegisterReq {
+import { LoginRes, RegisterRes } from "../responses/auth-res";
+
+export type RegisterReq = {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
 }
 
-export interface LoginReq {
+export type LoginReq = {
   email: string;
   password: string;
 }
 
-export interface SessionTokenRes {
+export type NextServerSetCookiesReq = LoginRes & RegisterRes
+
+export type LogoutNextServerReq = {
   sessionToken: string;
 }

@@ -1,4 +1,4 @@
-export interface RegisterRes {
+export type RegisterRes = {
   token: string;
   expiresAt: string;
   account: {
@@ -8,7 +8,7 @@ export interface RegisterRes {
   }
 }
 
-export interface LoginRes {
+export type LoginRes = {
   token: string;
   expiresAt: string;
   account: {
@@ -16,4 +16,8 @@ export interface LoginRes {
     name: string;
     email: string;
   }
+}
+
+export type SessionTokenRes = {
+  sessionToken: string;
 }

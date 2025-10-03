@@ -49,6 +49,7 @@ const RegisterForm = () => {
       console.log("resFromNextServer >>>", resFromNextServer);
       toast.success('Register successful!');
       reset();
+      router.refresh();
       router.push('/me');
     },
     onError: (error) => {
