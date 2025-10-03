@@ -2,14 +2,13 @@
 import { authApis } from "@/apis/gateways/auth-apis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { kyLocalInstance } from "@/config/ky";
+import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { LoginSchema, LoginType } from "@/shemaValidations/auth.schema";
 import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useShallow } from "zustand/shallow";
@@ -25,6 +24,8 @@ const LoginForm = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
+    clearErrors,
     reset
   } = useForm<LoginType>({
     mode: "onChange",
@@ -47,12 +48,27 @@ const LoginForm = () => {
       router.push('/me');
     },
     onError: (error) => {
-      console.error('Error login: ', error);
-      toast.error('Login failed!');
+      if (isHTTPError(error)) {
+        getErrorJson(error).then((res) => {
+          console.error('Error login: ', error);
+          if (res.errors[0].field === 'email') {
+            setError('email', {
+              message: res.errors[0].message
+            });
+          }
+          if (res.errors[0].field === 'password') {
+            setError('password', {
+              message: res.errors[0].message
+            });
+          }
+          toast.error(res.errors[0].message);
+        })
+      }
     }
   });
 
   const handleLoginFormSubmit = async (data: LoginType) => {
+    clearErrors();
     loginMutation.mutate(data);
   };
 
