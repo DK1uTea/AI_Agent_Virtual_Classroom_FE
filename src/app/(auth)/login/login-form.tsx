@@ -45,6 +45,7 @@ const LoginForm = () => {
       console.log("resFromNextServer >>>", resFromNextServer);
       toast.success('Login successful!');
       reset();
+      router.refresh();
       router.push('/me');
     },
     onError: (error) => {

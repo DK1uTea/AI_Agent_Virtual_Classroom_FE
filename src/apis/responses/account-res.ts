@@ -1,4 +1,4 @@
-export interface AccountRes {
+export type AccountRes = {
   id: number;
   name: string;
   email: string;
