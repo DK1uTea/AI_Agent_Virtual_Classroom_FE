@@ -5,6 +5,7 @@ import { RegisterReq } from "@/apis/requests/auth-req";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { kyLocalInstance } from "@/config/ky";
+import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { RegisterSchema, RegisterType } from "@/shemaValidations/auth.schema";
 import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +26,8 @@ const RegisterForm = () => {
     register,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
+    setError,
+    clearErrors,
     reset,
   } = useForm<RegisterType>({
     mode: "onChange",
@@ -49,12 +52,27 @@ const RegisterForm = () => {
       router.push('/me');
     },
     onError: (error) => {
-      console.error('Error register: ', error);
-      toast.error('Register failed!');
+      if (isHTTPError(error)) {
+        getErrorJson(error).then((res) => {
+          console.error('Error register: ', error);
+          if (res.errors[0].field === 'email') {
+            setError('email', {
+              message: res.errors[0].message
+            })
+          }
+          if (res.errors[0].field === 'password') {
+            setError('password', {
+              message: res.errors[0].message
+            });
+          }
+          toast.error(res.errors[0].message);
+        })
+      }
     }
   });
 
   const handleRegisterFormSubmit = async (data: RegisterType) => {
+    clearErrors();
     registerMutation.mutate(data);
   }
 
