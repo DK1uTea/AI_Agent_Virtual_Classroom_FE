@@ -48,7 +48,8 @@ class AuthApis {
     const reqPath = 'api/auth/logout';
     const headers = { 'Authorization': `Bearer ${req.sessionToken}` };
     await kyLocalInstance.post(reqPath, {
-      headers
+      headers,
+      json: { forced: req.forced }
     })
   }
 }

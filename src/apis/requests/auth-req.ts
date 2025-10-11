@@ -16,4 +16,5 @@ export type NextServerSetCookiesReq = LoginRes & RegisterRes
 
 export type LogoutNextServerReq = {
   sessionToken: string;
+  forced?: boolean;
 }

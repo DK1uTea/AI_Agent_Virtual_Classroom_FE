@@ -33,28 +33,44 @@ export const POST = async (request: Request) => {
       };
       return Response.json(unauthorizedResponse, { status: 401 });
     }
-    try {
-      await authApis.logout();
-    } catch (error) {
-      console.error('Logout error:', error);
 
-      const errorResponse: ApiResult<null> = {
-        data: null,
-        message: "Internal server error during logout!"
+    const data = await request.json();
+    const forced = data.forced;
+    if (forced) {
+      const successResponse = {
+        message: "Logout successful!"
       };
-      return Response.json(errorResponse, { status: 500 });
+
+      return Response.json(successResponse, {
+        status: 200,
+        headers: {
+          'Set-Cookie': 'sessionToken=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'
+        }
+      });
+    } else {
+      try {
+        await authApis.logout();
+        const successResponse = {
+          message: "Logout successful!"
+        };
+
+        return Response.json(successResponse, {
+          status: 200,
+          headers: {
+            'Set-Cookie': 'sessionToken=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'
+          }
+        });
+      } catch (error) {
+        console.error('Logout error:', error);
+
+        const errorResponse: ApiResult<null> = {
+          data: null,
+          message: "Internal server error during logout!"
+        };
+        return Response.json(errorResponse, { status: 500 });
+      }
     }
 
-    const successResponse = {
-      message: "Logout successful!"
-    };
-
-    return Response.json(successResponse, {
-      status: 200,
-      headers: {
-        'Set-Cookie': 'sessionToken=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'
-      }
-    });
 
   } catch (error) {
     console.error('Logout error:', error);
