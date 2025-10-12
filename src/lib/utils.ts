@@ -1,13 +1,23 @@
+import { authApis } from "@/apis/gateways/auth-apis";
 import { clsx, type ClassValue } from "clsx"
-import { cookies } from "next/headers";
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const forceSignOut = () => {
-  console.log("forceSignOut");
+export const forcedSignOut = async () => {
+  try {
+    const res = await authApis.getSessionTokenFromNextServer();
+    if (!res.sessionToken) {
+      console.log("No session token found! Forced Logout");
+      return;
+    }
+    await authApis.reqLogoutNextServer({ sessionToken: res.sessionToken, forced: true });
+    console.log("Forced sign out successfully!");
+  } catch (error) {
+    console.error("Error during forced sign out: ", error);
+  }
 }
 
 export const getServerAuthHeaders = async () => {

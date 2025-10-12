@@ -8,7 +8,7 @@ import { LogoutNextServerReq } from "@/apis/requests/auth-req";
 import { authApis } from "@/apis/gateways/auth-apis";
 import { useRouter } from "next/navigation";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 
@@ -28,7 +28,7 @@ const LogoutButton = () => {
       clearSessionToken();
       router.refresh();
       router.push('/login');
-      toast.success('Logout successful!');
+      toast.success("Logout successful!");
     },
     onError: (error) => {
       if (isHTTPError(error)) {

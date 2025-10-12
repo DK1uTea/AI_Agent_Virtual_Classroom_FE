@@ -6,6 +6,7 @@ import Header from '@/components/ui/header';
 import ToastProvider from "@/components/toast-provider";
 import { QueryProvider } from "@/components/query-provider";
 import { AuthProvider } from "@/components/auth-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   subsets: ["vietnamese"],
@@ -40,6 +41,7 @@ export default function RootLayout({
           </AuthProvider>
         </ThemeProvider>
         <ToastProvider />
+        <Toaster />
       </body>
     </html>
   );
