@@ -1,6 +1,10 @@
+import { cookies } from "next/headers";
 import LoginForm from "./login-form";
+import FlashToast from "@/components/ui/flash-toast";
 
-const LoginPage = () => {
+const LoginPage = async () => {
+  const cookieStore = await cookies();
+  const logoutType = cookieStore.get('logoutType')?.value;
 
   return (
     <main className="flex-1 flex flex-col justify-center items-center md:p-8">
@@ -8,6 +12,10 @@ const LoginPage = () => {
         <h1 className="text-2xl font-semibold">Login Page</h1>
         <LoginForm />
       </div>
+      {
+        logoutType === 'forced' &&
+        <FlashToast toastType="info" message="Your session is expired, please login again!" />
+      }
     </main>
   );
 }

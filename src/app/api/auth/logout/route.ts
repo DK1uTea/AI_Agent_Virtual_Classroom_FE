@@ -40,25 +40,46 @@ export const POST = async (request: Request) => {
       const successResponse = {
         message: "Logout successful!"
       };
+      cookieStore.set('sessionToken', '', {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 0,
+      })
+
+      cookieStore.set('logoutType', 'forced', {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 10,
+      })
 
       return Response.json(successResponse, {
         status: 200,
-        headers: {
-          'Set-Cookie': 'sessionToken=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'
-        }
-      });
+      })
+
     } else {
       try {
         await authApis.logout();
         const successResponse = {
           message: "Logout successful!"
         };
+        cookieStore.set('sessionToken', '', {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          maxAge: 0,
+        })
+
+        cookieStore.set('logoutType', 'normal', {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          maxAge: 10,
+        })
 
         return Response.json(successResponse, {
           status: 200,
-          headers: {
-            'Set-Cookie': 'sessionToken=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'
-          }
         });
       } catch (error) {
         console.error('Logout error:', error);
