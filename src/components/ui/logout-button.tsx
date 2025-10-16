@@ -11,21 +11,22 @@ import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-
 const LogoutButton = () => {
 
   const router = useRouter();
 
-  const { sessionToken, clearSessionToken } = useAuthStore
+  const { setIsAuth, clearUser } = useAuthStore
     (useShallow((state) => ({
-      sessionToken: state.sessionToken,
-      clearSessionToken: state.clearSessionToken,
+      isAuth: state.isAuth,
+      setIsAuth: state.setIsAuth,
+      clearUser: state.clearUser,
     })))
 
   const logoutMutation = useMutation({
     mutationFn: (req: LogoutNextServerReq) => authApis.reqLogoutNextServer(req),
     onSuccess: () => {
-      clearSessionToken();
+      setIsAuth(false);
+      clearUser();
       router.refresh();
       router.push('/login');
       toast.success("Logout successful!");
@@ -41,7 +42,7 @@ const LogoutButton = () => {
   });
 
   const onClickLogout = async () => {
-    logoutMutation.mutate({ sessionToken });
+    logoutMutation.mutate({ forced: false });
     console.log("Logout ne!!!");
   }
 

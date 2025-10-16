@@ -18,9 +18,7 @@ import { useShallow } from "zustand/shallow";
 
 const RegisterForm = () => {
   const router = useRouter();
-  const { setSessionToken } = useAuthStore(useShallow((state) => ({
-    setSessionToken: state.setSessionToken,
-  })));
+
   const {
     register,
     handleSubmit,
@@ -32,7 +30,7 @@ const RegisterForm = () => {
     mode: "onChange",
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
-      name: "",
+      username: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -43,13 +41,10 @@ const RegisterForm = () => {
     mutationFn: (data: RegisterType) => authApis.register(data),
     onSuccess: async (res) => {
       console.log('check res register >>>: ', res);
-      setSessionToken(res.token);
-      const resFromNextServer = await authApis.requestNextServerSetCookies(res);
-      console.log("resFromNextServer >>>", resFromNextServer);
-      toast.success('Register successful!');
+      toast.success('Register successful! Please login to continue.');
       reset();
       router.refresh();
-      router.push('/me');
+      router.push('/login');
     },
     onError: (error) => {
       if (isHTTPError(error)) {
@@ -80,9 +75,9 @@ const RegisterForm = () => {
     <form className="flex flex-col justify-center items-center gap-5 w-full" onSubmit={handleSubmit(handleRegisterFormSubmit)}>
       <div className="flex flex-col gap-3 w-full">
         <div className="w-full flex flex-col items-start gap-2">
-          <label>Name</label>
-          <Input type="string" placeholder="Enter your name" {...register("name")} />
-          {errors.name && <span className="text-red-500 dark:text-red-300">{errors.name.message}</span>}
+          <label>User Name</label>
+          <Input type="string" placeholder="Enter your username" {...register("username")} />
+          {errors.username && <span className="text-red-500 dark:text-red-300">{errors.username.message}</span>}
         </div>
         <div className="w-full flex flex-col items-start gap-2">
           <label>Email</label>

@@ -5,42 +5,27 @@ import { cookies } from "next/headers";
 export const POST = async (request: Request) => {
   try {
     const cookieStore = await cookies();
-    const sessionToken = cookieStore.get('sessionToken');
-
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      const unauthorizedResponse: ApiResult<null> = {
-        data: null,
-        message: "Authorization header missing!"
-      };
-      return Response.json(unauthorizedResponse, { status: 401 });
-    }
-
-    const clientSessionToken = authHeader.split(' ')[1];
-
-    if (!sessionToken) {
-      const notFoundResponse: ApiResult<null> = {
-        data: null,
-        message: "Session token not found!"
-      };
-      return Response.json(notFoundResponse, { status: 404 });
-    }
-
-    if (!clientSessionToken || clientSessionToken !== sessionToken?.value) {
-      const unauthorizedResponse: ApiResult<null> = {
-        data: null,
-        message: "Invalid session token!"
-      };
-      return Response.json(unauthorizedResponse, { status: 401 });
-    }
-
     const data = await request.json();
     const forced = data.forced;
     if (forced) {
       const successResponse = {
         message: "Logout successful!"
       };
-      cookieStore.set('sessionToken', '', {
+      cookieStore.set('ACCESS_TOKEN', '', {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 0,
+      })
+
+      cookieStore.set('REFRESH_TOKEN', '', {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 0,
+      })
+
+      cookieStore.set('user', '', {
         path: '/',
         httpOnly: true,
         sameSite: 'lax',
@@ -64,7 +49,7 @@ export const POST = async (request: Request) => {
         const successResponse = {
           message: "Logout successful!"
         };
-        cookieStore.set('sessionToken', '', {
+        cookieStore.set('user', '', {
           path: '/',
           httpOnly: true,
           sameSite: 'lax',
