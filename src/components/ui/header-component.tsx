@@ -5,14 +5,15 @@ import { useShallow } from "zustand/shallow";
 import LogoutButton from "./logout-button";
 
 const HeaderComponent = () => {
-  const { sessionToken } = useAuthStore(useShallow((state) => ({
-    sessionToken: state.sessionToken,
+  const { isAuth, user } = useAuthStore(useShallow((state) => ({
+    isAuth: state.isAuth,
+    user: state.user,
   })))
 
   return (
     <>
       {
-        !sessionToken && (
+        !isAuth && (
           <ul className="flex items-center gap-2">
             <li>
               <Link href={'/login'}>Login</Link>
@@ -23,7 +24,7 @@ const HeaderComponent = () => {
           </ul>
         )
       }
-      {sessionToken && (
+      {isAuth && (
         <LogoutButton />
       )}
     </>

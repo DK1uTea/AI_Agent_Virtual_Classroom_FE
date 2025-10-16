@@ -1,20 +1,16 @@
 import { LoginRes, RegisterRes } from "../responses/auth-res";
 
 export type RegisterReq = {
-  name: string;
+  username: string;
   email: string;
   password: string;
-  confirmPassword: string;
 }
 
 export type LoginReq = {
-  email: string;
+  username: string;
   password: string;
 }
 
-export type NextServerSetCookiesReq = LoginRes & RegisterRes
-
 export type LogoutNextServerReq = {
-  sessionToken: string;
   forced?: boolean;
 }

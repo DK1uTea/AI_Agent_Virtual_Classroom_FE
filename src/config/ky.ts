@@ -1,4 +1,4 @@
-import { forcedSignOut } from "@/lib/utils"
+import { refreshToken } from "@/lib/utils"
 import camelcaseKeys from "camelcase-keys"
 import ky from "ky"
 import envConfig from "./config"
@@ -39,7 +39,7 @@ const kyInstance = kyDefault.extend({
         // 401: Unauthorized
         if (response.status === 401) {
           console.error("Session expired, please login again");
-          forcedSignOut();
+          refreshToken();
         }
         return response
       },
@@ -69,7 +69,7 @@ const kyLocalInstance = kyDefault.extend({
         // 401: Unauthorized
         if (response.status === 401) {
           console.error("Session expired, please login again");
-          forcedSignOut();
+          refreshToken();
         }
         return response
       },

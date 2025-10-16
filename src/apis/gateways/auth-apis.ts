@@ -1,13 +1,13 @@
 
-import { LoginReq, LogoutNextServerReq, NextServerSetCookiesReq, RegisterReq } from "../requests/auth-req";
-import { LoginRes, RegisterRes, SessionTokenRes } from "../responses/auth-res";
+import { LoginReq, LogoutNextServerReq, RegisterReq } from "../requests/auth-req";
+import { LoginRes, RegisterRes } from "../responses/auth-res";
 import { ApiResult } from "../responses/api-res";
 import { kyInstance, kyLocalInstance } from "@/config/ky";
-import { getServerAuthHeaders } from "@/lib/utils";
+import { User } from "@/types/user-types";
 
 class AuthApis {
   public async register(req: RegisterReq): Promise<RegisterRes> {
-    const reqPath = `auth/register`;
+    const reqPath = `api/v1/auth/signup`;
     const res = await kyInstance.post<RegisterReq>(reqPath, {
       json: req,
     }).json<ApiResult<RegisterRes>>();
@@ -15,40 +15,52 @@ class AuthApis {
   }
 
   public async login(req: LoginReq): Promise<LoginRes> {
-    const reqPath = `auth/login`;
+    const reqPath = `api/v1/auth/login`;
     const res = await kyInstance.post<LoginReq>(reqPath, {
       json: req,
     }).json<ApiResult<LoginRes>>();
     return res.data;
   }
 
-  public async requestNextServerSetCookies(req: NextServerSetCookiesReq): Promise<LoginRes | RegisterRes> {
+  public async refresh(): Promise<void> {
+    const reqPath = `api/v1/auth/refresh`;
+    await kyInstance.post(reqPath);
+  }
+
+  public async logout(): Promise<void> {
+    const reqPath = `api/v1/auth/logout`;
+    await kyInstance.post(reqPath);
+  }
+
+  public async requestNextServerSetUserDataToCookies(req: {
+    user: User
+  }): Promise<{
+    user: User
+  }> {
     const reqPath = '/api/auth';
     const res = await kyLocalInstance.post(reqPath, {
       json: req,
-    }).json<ApiResult<LoginRes | RegisterRes>>();
+    }).json<ApiResult<{
+      user: User
+    }>>();
     return res.data;
   }
 
-  public async getSessionTokenFromNextServer(): Promise<SessionTokenRes> {
+  public async getAuthFromNextServer(): Promise<{
+    isAuth: boolean;
+    user: User
+  }> {
     const reqPath = '/api/auth';
-    const res = await kyLocalInstance.get<SessionTokenRes>(reqPath).json<ApiResult<SessionTokenRes>>();
+    const res = await kyLocalInstance.get(reqPath).json<ApiResult<{
+      isAuth: boolean;
+      user: User
+    }>>();
     return res.data;
-  }
-
-  public async logout() {
-    const reqPath = 'auth/logout';
-    const headers = await getServerAuthHeaders();
-    await kyInstance.post(reqPath, {
-      headers,
-    });
   }
 
   public async reqLogoutNextServer(req: LogoutNextServerReq) {
     const reqPath = 'api/auth/logout';
-    const headers = { 'Authorization': `Bearer ${req.sessionToken}` };
     await kyLocalInstance.post(reqPath, {
-      headers,
       json: { forced: req.forced }
     })
   }

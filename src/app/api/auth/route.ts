@@ -2,27 +2,30 @@ import { ApiResult } from "@/apis/responses/api-res";
 import { cookies } from "next/headers";
 
 export const POST = async (request: Request) => {
-  const data = await request.json();
-  const sessionToken = data.token;
-  console.log("sessionToken receive from NextClient: ", sessionToken);
+  const res = await request.json();
+  const userData = res.user;
+  const data = {
+    user: userData
+  }
+  console.log("user receive from NextClient: ", userData);
 
-  if (!sessionToken) {
+  if (!userData) {
     const errorResponse: ApiResult<null> = {
       data: null,
-      message: "Session token not received!"
+      message: "User data not received!"
     };
     return Response.json(errorResponse, { status: 400 });
   }
 
   const successResponse: ApiResult<typeof data> = {
     data: data,
-    message: "Session token set successfully"
+    message: "User data set successfully"
   };
 
   return Response.json(successResponse, {
     status: 200,
     headers: {
-      'Set-Cookie': `sessionToken=${sessionToken}; Path=/; HttpOnly; SameSite=Lax`
+      'Set-Cookie': `user=${userData}; Path=/; HttpOnly; SameSite=Lax`
     }
   });
 };
@@ -30,27 +33,37 @@ export const POST = async (request: Request) => {
 export const GET = async () => {
   try {
     const cookieStore = await cookies();
-    const sessionToken = cookieStore.get('sessionToken')?.value || '';
+    const accessToken = cookieStore.get('ACCESS_TOKEN')?.value || '';
+    const refreshToken = cookieStore.get('REFRESH_TOKEN')?.value || '';
+
+    console.log('Access Token from cookie: ', accessToken);
+    console.log('Refresh Token from cookie: ', refreshToken);
+
+    const isAuth = (accessToken && refreshToken);
+
+    const userData = cookieStore.get('user')?.value || '';
+    console.log('User from cookie: ', userData);
     const data = {
-      sessionToken: sessionToken
+      isAuth: isAuth,
+      user: userData
     }
-    if (!sessionToken) {
+    if (!isAuth || !userData) {
       const notFoundResponse: ApiResult<null> = {
         data: null,
-        message: "SessionToken not found!"
+        message: "Authentication failed!"
       }
       return Response.json(notFoundResponse, { status: 404 });
     }
     const successResponse: ApiResult<typeof data> = {
       data: data,
-      message: "Get sessionToken successful!"
+      message: "Authentication successful!"
     }
     return Response.json(successResponse, { status: 200 });
 
   } catch {
     const errorResponse: ApiResult<null> = {
       data: null,
-      message: "Error when getting sessionToken!"
+      message: "Error when getting auth from NextServer!"
     }
     return Response.json(errorResponse, { status: 500 });
   }

@@ -5,12 +5,14 @@ import { immer } from "zustand/middleware/immer";
 
 
 type AuthState = {
-  sessionToken: string;
+  isAuth: boolean;
+  user: User
 }
 
 type AuthStateAction = {
-  setSessionToken: (token: string) => void;
-  clearSessionToken: () => void;
+  setIsAuth: (isAuth: boolean) => void;
+  setUser: (user: User) => void;
+  clearUser: () => void;
 }
 
 type AuthStore = AuthState & AuthStateAction;
@@ -19,17 +21,32 @@ export const useAuthStore = create<AuthStore>()(
   immer(
     devtools(
       (set, get) => ({
-        sessionToken: '',
-        setSessionToken: (token: string) => {
+        isAuth: false,
+        setIsAuth: (isAuth: boolean) => {
           set((state) => {
-            state.sessionToken = token;
-          })
+            state.isAuth = isAuth;
+          });
         },
-        clearSessionToken: () => {
+
+        user: {
+          userId: null,
+          username: '',
+          email: ''
+        },
+        setUser: (user: User) => {
           set((state) => {
-            state.sessionToken = '';
-          })
+            state.user = user;
+          });
         },
+        clearUser: () => {
+          set((state) => {
+            state.user = {
+              userId: null,
+              username: '',
+              email: ''
+            };
+          });
+        }
       }),
       {
         name: 'auth-store'
