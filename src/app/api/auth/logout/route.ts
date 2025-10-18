@@ -11,19 +11,6 @@ export const POST = async (request: Request) => {
       const successResponse = {
         message: "Logout successful!"
       };
-      cookieStore.set('ACCESS_TOKEN', '', {
-        path: '/',
-        httpOnly: true,
-        sameSite: 'lax',
-        maxAge: 0,
-      })
-
-      cookieStore.set('REFRESH_TOKEN', '', {
-        path: '/',
-        httpOnly: true,
-        sameSite: 'lax',
-        maxAge: 0,
-      })
 
       cookieStore.set('user', '', {
         path: '/',

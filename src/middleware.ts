@@ -6,17 +6,18 @@ const authPaths = ['/login', '/register'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get('ACCESS_TOKEN')?.value;
-  const refreshToken = request.cookies.get('REFRESH_TOKEN')?.value;
+  const user = request.cookies.get('user')?.value || '';
+
+  console.log('User from in middleware: ', user);
 
   const isPrivatePath = pathname === '/' || privatePaths.some(path => path !== '/' && pathname.startsWith(path));
 
-  if (isPrivatePath && !accessToken && !refreshToken) {
+  if (isPrivatePath && !user) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (authPaths.some(path => pathname.startsWith(path)) && accessToken && refreshToken) {
-    return NextResponse.redirect(new URL('/me', request.url));
+  if (authPaths.some(path => pathname.startsWith(path)) && user) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();

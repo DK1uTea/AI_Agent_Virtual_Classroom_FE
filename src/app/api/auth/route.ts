@@ -2,6 +2,7 @@ import { ApiResult } from "@/apis/responses/api-res";
 import { cookies } from "next/headers";
 
 export const POST = async (request: Request) => {
+  const cookieStore = await cookies();
   const res = await request.json();
   const userData = res.user;
   const data = {
@@ -22,31 +23,29 @@ export const POST = async (request: Request) => {
     message: "User data set successfully"
   };
 
+  cookieStore.set({
+    name: 'user',
+    value: JSON.stringify(userData),
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax'
+  });
+
   return Response.json(successResponse, {
     status: 200,
-    headers: {
-      'Set-Cookie': `user=${userData}; Path=/; HttpOnly; SameSite=Lax`
-    }
+    // headers: {
+    //   'Set-Cookie': `user=${JSON.stringify(userData)}; Path=/; HttpOnly; SameSite=Lax`
+    // }
   });
 };
 
 export const GET = async () => {
   try {
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get('ACCESS_TOKEN')?.value || '';
-    const refreshToken = cookieStore.get('REFRESH_TOKEN')?.value || '';
-
-    console.log('Access Token from cookie: ', accessToken);
-    console.log('Refresh Token from cookie: ', refreshToken);
-
-    const isAuth = (accessToken && refreshToken);
-
     const userData = cookieStore.get('user')?.value || '';
+    const isAuth = !!userData;
     console.log('User from cookie: ', userData);
-    const data = {
-      isAuth: isAuth,
-      user: userData
-    }
+
     if (!isAuth || !userData) {
       const notFoundResponse: ApiResult<null> = {
         data: null,
@@ -54,6 +53,22 @@ export const GET = async () => {
       }
       return Response.json(notFoundResponse, { status: 404 });
     }
+    let parsedUser;
+    try {
+      parsedUser = JSON.parse(userData);
+    } catch (e) {
+      const errorResponse: ApiResult<null> = {
+        data: null,
+        message: "Invalid user cookie data"
+      }
+      return Response.json(errorResponse, { status: 400 });
+    }
+
+    const data = {
+      isAuth: isAuth,
+      user: parsedUser,
+    }
+
     const successResponse: ApiResult<typeof data> = {
       data: data,
       message: "Authentication successful!"

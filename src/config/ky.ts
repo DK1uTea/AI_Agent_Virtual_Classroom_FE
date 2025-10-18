@@ -28,6 +28,7 @@ const kyInstance = kyDefault.extend({
           const camelcase = JSON.stringify(camelcaseKeys(json, { deep: true }))
           return new Request(request, {
             body: camelcase,
+            credentials: "include",
           })
         } catch (_error) {
           return request
