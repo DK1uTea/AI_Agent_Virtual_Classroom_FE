@@ -66,7 +66,7 @@ const LoginForm = () => {
         username: res.username,
         email: res.email
       });
-      await reqNextServerSetUserDataToCookiesMutation.mutate({
+      await reqNextServerSetUserDataToCookiesMutation.mutateAsync({
         user: {
           userId: res.userId,
           username: res.username,
@@ -76,7 +76,7 @@ const LoginForm = () => {
       toast.success('Login successful!');
       reset();
       router.refresh();
-      router.push('/me');
+      router.push('/');
     },
     onError: (error) => {
       if (isHTTPError(error)) {
