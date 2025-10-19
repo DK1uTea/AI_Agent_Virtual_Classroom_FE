@@ -9,6 +9,7 @@ import { User } from "@/types/user-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -108,7 +109,12 @@ const LoginForm = () => {
           {errors.username && <span className="text-red-500 dark:text-red-300">{errors.username.message}</span>}
         </div>
         <div className="w-full flex flex-col items-start gap-2">
-          <label>Password</label>
+          <label className="flex justify-between w-full">
+            <span>Password</span>
+            <Link href="/forgot-password" className="text-muted-foreground hover:text-foreground">
+              Forgot password?
+            </Link>
+          </label>
           <Input type="password" placeholder="Enter your password" {...register("password")} />
           {errors.password && <span className="text-red-500 dark:text-red-300">{errors.password.message}</span>}
         </div>
