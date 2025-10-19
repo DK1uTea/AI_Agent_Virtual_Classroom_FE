@@ -5,6 +5,7 @@ import envConfig from "./config"
 
 const kyDefault = ky.create({
   mode: "cors",
+  credentials: "include",
   timeout: 600_000, // 1 minutes
   parseJson(text) {
     return camelcaseKeys(JSON.parse(text), { deep: true })
@@ -28,7 +29,6 @@ const kyInstance = kyDefault.extend({
           const camelcase = JSON.stringify(camelcaseKeys(json, { deep: true }))
           return new Request(request, {
             body: camelcase,
-            credentials: "include",
           })
         } catch (_error) {
           return request
