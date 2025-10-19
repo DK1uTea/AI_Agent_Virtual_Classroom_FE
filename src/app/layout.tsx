@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} antialiased min-h-screen flex flex-col`}
+        className={`${inter.className} antialiased`}
       >
         <ThemeProvider
           attribute="class"
@@ -35,8 +35,10 @@ export default function RootLayout({
         >
           <AuthProvider>
             <QueryProvider>
-              <Header />
-              {children}
+              <div className="min-h-screen bg-background">
+                <Header />
+                {children}
+              </div>
             </QueryProvider>
           </AuthProvider>
         </ThemeProvider>
