@@ -59,7 +59,7 @@ class AuthApis {
   }
 
   public async reqLogoutNextServer(req: LogoutNextServerReq) {
-    const reqPath = 'api/auth/logout';
+    const reqPath = '/api/auth/logout';
     await kyLocalInstance.post(reqPath, {
       json: { forced: req.forced }
     })

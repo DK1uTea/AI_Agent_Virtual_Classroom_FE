@@ -54,7 +54,7 @@ export const POST = async (request: Request) => {
           status: 200,
         });
       } catch (error) {
-        console.error('Logout error:', error);
+        console.error('Logout Spring error:', error);
 
         const errorResponse: ApiResult<null> = {
           data: null,
@@ -66,7 +66,7 @@ export const POST = async (request: Request) => {
 
 
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error('Logout Next error:', error);
 
     const errorResponse: ApiResult<null> = {
       data: null,
