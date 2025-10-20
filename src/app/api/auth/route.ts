@@ -5,22 +5,26 @@ export const POST = async (request: Request) => {
   const cookieStore = await cookies();
   const res = await request.json();
   const userData = res.user;
+  const accessToken = res.accessToken;
+  const refreshToken = res.refreshToken;
   const data = {
-    user: userData
+    user: userData,
+    accessToken: accessToken,
+    refreshToken: refreshToken
   }
-  console.log("user receive from NextClient: ", userData);
+  console.log('Data received from Next Client', data);
 
-  if (!userData) {
+  if (!userData || !accessToken || !refreshToken) {
     const errorResponse: ApiResult<null> = {
       data: null,
-      message: "User data not received!"
+      message: "Invalid data provided"
     };
     return Response.json(errorResponse, { status: 400 });
   }
 
   const successResponse: ApiResult<typeof data> = {
     data: data,
-    message: "User data set successfully"
+    message: "Auth data set successfully"
   };
 
   cookieStore.set({
@@ -31,11 +35,24 @@ export const POST = async (request: Request) => {
     sameSite: 'lax'
   });
 
+  cookieStore.set({
+    name: 'accessToken',
+    value: accessToken,
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax'
+  });
+
+  cookieStore.set({
+    name: 'refreshToken',
+    value: refreshToken,
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax'
+  });
+
   return Response.json(successResponse, {
     status: 200,
-    // headers: {
-    //   'Set-Cookie': `user=${JSON.stringify(userData)}; Path=/; HttpOnly; SameSite=Lax`
-    // }
   });
 };
 
@@ -43,10 +60,11 @@ export const GET = async () => {
   try {
     const cookieStore = await cookies();
     const userData = cookieStore.get('user')?.value || '';
-    const isAuth = !!userData;
-    console.log('User from cookie: ', userData);
+    const accessToken = cookieStore.get('accessToken')?.value || '';
+    const refreshToken = cookieStore.get('refreshToken')?.value || '';
+    const isAuth = !!(userData && accessToken && refreshToken);
 
-    if (!isAuth || !userData) {
+    if (!isAuth || !userData || !accessToken || !refreshToken) {
       const notFoundResponse: ApiResult<null> = {
         data: null,
         message: "Authentication failed!"
@@ -67,6 +85,8 @@ export const GET = async () => {
     const data = {
       isAuth: isAuth,
       user: parsedUser,
+      accessToken: accessToken,
+      refreshToken: refreshToken
     }
 
     const successResponse: ApiResult<typeof data> = {

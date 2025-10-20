@@ -1,24 +1,24 @@
 
 import { LoginReq, LogoutNextServerReq, RegisterReq } from "../requests/auth-req";
-import { LoginRes, RegisterRes } from "../responses/auth-res";
+import { AuthRes } from "../responses/auth-res";
 import { ApiResult } from "../responses/api-res";
 import { kyInstance, kyLocalInstance } from "@/config/ky";
 import { User } from "@/types/user-types";
 
 class AuthApis {
-  public async register(req: RegisterReq): Promise<RegisterRes> {
+  public async register(req: RegisterReq): Promise<AuthRes> {
     const reqPath = `api/v1/auth/signup`;
     const res = await kyInstance.post<RegisterReq>(reqPath, {
       json: req,
-    }).json<ApiResult<RegisterRes>>();
+    }).json<ApiResult<AuthRes>>();
     return res.data;
   }
 
-  public async login(req: LoginReq): Promise<LoginRes> {
+  public async login(req: LoginReq): Promise<AuthRes> {
     const reqPath = `api/v1/auth/login`;
     const res = await kyInstance.post<LoginReq>(reqPath, {
       json: req,
-    }).json<ApiResult<LoginRes>>();
+    }).json<ApiResult<AuthRes>>();
     return res.data;
   }
 
@@ -32,28 +32,29 @@ class AuthApis {
     await kyInstance.post(reqPath);
   }
 
-  public async requestNextServerSetUserDataToCookies(req: {
-    user: User
-  }): Promise<{
-    user: User
-  }> {
+  public async reqSetAuthNextServer(req: {
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+  }): Promise<void> {
     const reqPath = '/api/auth';
-    const res = await kyLocalInstance.post(reqPath, {
+    await kyLocalInstance.post(reqPath, {
       json: req,
-    }).json<ApiResult<{
-      user: User
-    }>>();
-    return res.data;
+    });
   }
 
   public async getAuthFromNextServer(): Promise<{
     isAuth: boolean;
-    user: User
+    user: User;
+    accessToken: string;
+    refreshToken: string;
   }> {
     const reqPath = '/api/auth';
     const res = await kyLocalInstance.get(reqPath).json<ApiResult<{
       isAuth: boolean;
-      user: User
+      user: User;
+      accessToken: string;
+      refreshToken: string;
     }>>();
     return res.data;
   }

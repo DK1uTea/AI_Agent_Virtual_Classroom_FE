@@ -9,22 +9,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const {
     isAuth,
     user,
-    setIsAuth,
-    setUser
+    accessToken,
+    refreshToken,
+    setAuthState
   } = useAuthStore(useShallow((state) => ({
     isAuth: state.isAuth,
     user: state.user,
-    setIsAuth: state.setIsAuth,
-    setUser: state.setUser,
+    accessToken: state.accessToken,
+    refreshToken: state.refreshToken,
+    setAuthState: state.setAuthState
   })));
 
   const fetchAuth = async () => {
-    if (!isAuth || !user) {
+    if (!isAuth || !user || !accessToken || !refreshToken) {
       try {
         const res = await authApis.getAuthFromNextServer();
         console.log('Get auth from NextServer: ', res);
-        setIsAuth(res.isAuth);
-        setUser(res.user);
+        setAuthState(res.isAuth,
+          {
+            userId: res.user.userId,
+            username: res.user.username,
+            email: res.user.email
+          },
+          res.accessToken,
+          res.refreshToken
+        );
       } catch (error) {
         console.error('Error fetching auth from NextServer: ', error);
       }
@@ -33,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     fetchAuth();
-  }, [isAuth, user]);
+  }, [isAuth, user, accessToken, refreshToken]);
 
   return <>
     {children}
