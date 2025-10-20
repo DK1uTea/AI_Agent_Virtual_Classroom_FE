@@ -1,5 +1,3 @@
-import { LoginRes, RegisterRes } from "../responses/auth-res";
-
 export type RegisterReq = {
   username: string;
   email: string;

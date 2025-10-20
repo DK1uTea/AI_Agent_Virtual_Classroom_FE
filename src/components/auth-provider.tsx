@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     fetchAuth();
-  }, [isAuth, user, accessToken, refreshToken]);
+  }, []);
 
   return <>
     {children}

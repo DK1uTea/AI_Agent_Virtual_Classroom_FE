@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const refreshToken = async () => {
   try {
-    await authApis.refresh();
+    // await authApis.refresh();
     console.log("Token refreshed successfully!");
   } catch (error) {
     console.error("Error refreshing token: ", error);
@@ -23,4 +23,20 @@ export const forcedSignOut = async () => {
   } catch (error) {
     console.error("Error during forced sign out: ", error);
   }
+}
+
+export const getServerAuthHeaders = async () => {
+  const { cookies } = await import('next/headers');
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get('sessionToken')?.value;
+
+  return {
+    'Authorization': `Bearer ${sessionToken}`
+  };
+}
+
+export const getClientAuthHeaders = (token: string) => {
+  return {
+    'Authorization': `Bearer ${token}`
+  };
 }

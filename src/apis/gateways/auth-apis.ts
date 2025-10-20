@@ -22,14 +22,33 @@ class AuthApis {
     return res.data;
   }
 
-  public async refresh(): Promise<void> {
+  public async refresh(req: {
+    token: string;
+  }): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
     const reqPath = `api/v1/auth/refresh`;
-    await kyInstance.post(reqPath);
+    const res = await kyInstance.post(reqPath).json<ApiResult<{
+      accessToken: string;
+      refreshToken: string;
+    }>>();
+    return res.data;
   }
 
-  public async logout(): Promise<void> {
+  public async logout(req: {
+    accessToken: string;
+    refreshToken: string;
+  }): Promise<void> {
     const reqPath = `api/v1/auth/logout`;
-    await kyInstance.post(reqPath);
+    await kyInstance.post(reqPath, {
+      headers: {
+        Authorization: `Bearer ${req.accessToken}`,
+      },
+      json: {
+        token: req.refreshToken
+      }
+    });
   }
 
   public async reqSetAuthNextServer(req: {

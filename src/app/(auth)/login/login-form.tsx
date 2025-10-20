@@ -67,7 +67,6 @@ const LoginForm = () => {
       })
       toast.success('Login successful! Welcome back.');
       reset();
-      router.refresh();
       router.push('/dashboard');
     },
     onError: (error) => {

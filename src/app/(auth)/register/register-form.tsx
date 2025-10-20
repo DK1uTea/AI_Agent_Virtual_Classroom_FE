@@ -4,7 +4,6 @@ import { authApis } from "@/apis/gateways/auth-apis";
 import { RegisterReq } from "@/apis/requests/auth-req";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { kyLocalInstance } from "@/config/ky";
 import { useSetAuthNextServerMutation } from "@/hooks/useSetAuthNextServer";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { RegisterSchema, RegisterType } from "@/shemaValidations/auth.schema";
@@ -70,7 +69,6 @@ const RegisterForm = () => {
       })
       toast.success('Register successful! Welcome aboard.');
       reset();
-      router.refresh();
       router.push('/dashboard');
     },
     onError: (error) => {
