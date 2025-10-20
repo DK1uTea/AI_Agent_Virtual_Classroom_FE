@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import Header from '@/components/ui/header';
 import ToastProvider from "@/components/toast-provider";
 import { QueryProvider } from "@/components/query-provider";
 import { AuthProvider } from "@/components/auth-provider";
@@ -36,7 +35,6 @@ export default function RootLayout({
           <AuthProvider>
             <QueryProvider>
               <div className="min-h-screen bg-background">
-                <Header />
                 {children}
               </div>
             </QueryProvider>
