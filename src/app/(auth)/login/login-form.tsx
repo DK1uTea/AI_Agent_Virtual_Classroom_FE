@@ -2,6 +2,7 @@
 import { authApis } from "@/apis/gateways/auth-apis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useSetAuthNextServerMutation } from "@/hooks/useSetAuthNextServer";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { LoginSchema, LoginType } from "@/shemaValidations/auth.schema";
 import { useAuthStore } from "@/stores/auth-store";
@@ -19,12 +20,12 @@ const LoginForm = () => {
   const router = useRouter();
 
   const {
-    setIsAuth,
-    setUser,
+    setAuthState,
   } = useAuthStore(useShallow((state) => ({
-    setIsAuth: state.setIsAuth,
-    setUser: state.setUser,
+    setAuthState: state.setAuthState,
   })));
+
+  const { mutateAsync: setAuthNextServer } = useSetAuthNextServerMutation();
 
   const {
     register,
@@ -42,42 +43,31 @@ const LoginForm = () => {
     }
   })
 
-  const reqNextServerSetUserDataToCookiesMutation = useMutation({
-    mutationFn: (data: { user: User }) => authApis.requestNextServerSetUserDataToCookies(data),
-    onSuccess: (res) => {
-      console.log('Set user data to cookies success: ', res);
-    },
-    onError: (error) => {
-      if (isHTTPError(error)) {
-        getErrorJson(error).then((res) => {
-          console.error('Error set user data to cookies: ', error);
-          toast.error(res.message);
-        })
-      }
-    }
-  })
-
   const loginMutation = useMutation({
     mutationFn: (data: LoginType) => authApis.login(data),
     onSuccess: async (res) => {
       console.log('check res login >>>: ', res);
-      setIsAuth(true);
-      setUser({
-        userId: res.userId,
-        username: res.username,
-        email: res.email
-      });
-      await reqNextServerSetUserDataToCookiesMutation.mutateAsync({
+      setAuthState(true,
+        {
+          userId: res.userId,
+          username: res.username,
+          email: res.email
+        },
+        res.accessToken,
+        res.refreshToken
+      );
+      await setAuthNextServer({
         user: {
           userId: res.userId,
           username: res.username,
           email: res.email
-        }
+        },
+        accessToken: res.accessToken,
+        refreshToken: res.refreshToken
       })
-      toast.success('Login successful!');
+      toast.success('Login successful! Welcome back.');
       reset();
-      router.refresh();
-      router.push('/');
+      router.push('/dashboard');
     },
     onError: (error) => {
       if (isHTTPError(error)) {

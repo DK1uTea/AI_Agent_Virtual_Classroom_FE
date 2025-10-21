@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 export const POST = async (request: Request) => {
   try {
     const cookieStore = await cookies();
+    const refreshToken = cookieStore.get('refreshToken')?.value;
+    const accessToken = cookieStore.get('accessToken')?.value;
     const data = await request.json();
     const forced = data.forced;
     if (forced) {
@@ -13,6 +15,20 @@ export const POST = async (request: Request) => {
       };
 
       cookieStore.set('user', '', {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 0,
+      })
+
+      cookieStore.set('accessToken', '', {
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 0,
+      })
+
+      cookieStore.set('refreshToken', '', {
         path: '/',
         httpOnly: true,
         sameSite: 'lax',
@@ -32,11 +48,25 @@ export const POST = async (request: Request) => {
 
     } else {
       try {
-        await authApis.logout();
+        await authApis.logout({ accessToken: accessToken || '', refreshToken: refreshToken || '' });
         const successResponse = {
           message: "Logout successful!"
         };
         cookieStore.set('user', '', {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          maxAge: 0,
+        })
+
+        cookieStore.set('accessToken', '', {
+          path: '/',
+          httpOnly: true,
+          sameSite: 'lax',
+          maxAge: 0,
+        })
+
+        cookieStore.set('refreshToken', '', {
           path: '/',
           httpOnly: true,
           sameSite: 'lax',

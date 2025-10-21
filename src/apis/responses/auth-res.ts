@@ -1,11 +1,12 @@
-export type RegisterRes = {
+export type AuthRes = {
   userId: number;
   username: string;
   email: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
-export type LoginRes = {
-  userId: number;
-  username: string;
-  email: string;
+export type RefreshRes = {
+  accessToken: string;
+  refreshToken: string;
 }

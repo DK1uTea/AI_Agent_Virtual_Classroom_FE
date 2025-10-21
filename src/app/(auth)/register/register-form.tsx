@@ -4,7 +4,7 @@ import { authApis } from "@/apis/gateways/auth-apis";
 import { RegisterReq } from "@/apis/requests/auth-req";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { kyLocalInstance } from "@/config/ky";
+import { useSetAuthNextServerMutation } from "@/hooks/useSetAuthNextServer";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { RegisterSchema, RegisterType } from "@/shemaValidations/auth.schema";
 import { useAuthStore } from "@/stores/auth-store";
@@ -20,9 +20,17 @@ const RegisterForm = () => {
   const router = useRouter();
 
   const {
+    setAuthState,
+  } = useAuthStore(useShallow((state) => ({
+    setAuthState: state.setAuthState,
+  })));
+
+  const { mutateAsync: setAuthNextServer } = useSetAuthNextServerMutation();
+
+  const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors },
     setError,
     clearErrors,
     reset,
@@ -41,26 +49,33 @@ const RegisterForm = () => {
     mutationFn: (data: RegisterType) => authApis.register(data),
     onSuccess: async (res) => {
       console.log('check res register >>>: ', res);
-      toast.success('Register successful! Please login to continue.');
+      setAuthState(true,
+        {
+          userId: res.userId,
+          username: res.username,
+          email: res.email
+        },
+        res.accessToken,
+        res.refreshToken
+      );
+      await setAuthNextServer({
+        user: {
+          userId: res.userId,
+          username: res.username,
+          email: res.email
+        },
+        accessToken: res.accessToken,
+        refreshToken: res.refreshToken
+      })
+      toast.success('Register successful! Welcome aboard.');
       reset();
-      router.refresh();
-      router.push('/login');
+      router.push('/dashboard');
     },
     onError: (error) => {
       if (isHTTPError(error)) {
         getErrorJson(error).then((res) => {
           console.error('Error register: ', error);
-          if (res.errors[0].field === 'email') {
-            setError('email', {
-              message: res.errors[0].message
-            })
-          }
-          if (res.errors[0].field === 'password') {
-            setError('password', {
-              message: res.errors[0].message
-            });
-          }
-          toast.error(res.errors[0].message);
+          toast.error(res.message);
         })
       }
     }

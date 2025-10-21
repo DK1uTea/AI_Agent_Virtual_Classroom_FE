@@ -24,7 +24,7 @@ const MenuButton = () => {
         isOpen ? onClose() : onOpen()
       }}
     >
-      <Menu h-5 w-5 />
+      <Menu className="h-5 w-5" />
     </Button>
   );
 }

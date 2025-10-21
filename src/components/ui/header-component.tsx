@@ -1,8 +1,6 @@
 'use client'
 import { useAuthStore } from "@/stores/auth-store";
-import Link from "next/link";
 import { useShallow } from "zustand/shallow";
-import LogoutButton from "./logout-button";
 import { ModeToggle } from "../mode-toggle";
 import { Button } from "./button";
 import { Bell } from "lucide-react";
@@ -15,20 +13,19 @@ import { authApis } from "@/apis/gateways/auth-apis";
 import { toast } from "sonner";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 
+
 const HeaderComponent = () => {
-  const { setIsAuth, user, clearUser } = useAuthStore(useShallow((state) => ({
-    setIsAuth: state.setIsAuth,
+  const { user, clearAuthState } = useAuthStore(useShallow((state) => ({
     user: state.user,
-    clearUser: state.clearUser,
+    clearAuthState: state.clearAuthState,
   })))
 
   const router = useRouter();
 
   const logoutMutation = useMutation({
-    mutationFn: (req: LogoutNextServerReq) => authApis.reqLogoutNextServer(req),
+    mutationFn: (req: LogoutNextServerReq) => authApis.logoutNextServer(req),
     onSuccess: () => {
-      setIsAuth(false);
-      clearUser();
+      clearAuthState();
       router.refresh();
       router.push('/login');
       toast.success("Logout successful!");
