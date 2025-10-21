@@ -49,6 +49,7 @@ const kyInstance = kyDefault.extend({
 })
 
 const kyLocalInstance = kyDefault.extend({
+  prefixUrl: envConfig.NEXT_PUBLIC_BASE_URL,
   hooks: {
     beforeRequest: [
       async (request) => {

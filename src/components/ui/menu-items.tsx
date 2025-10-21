@@ -22,7 +22,7 @@ const MenuItems = ({ onClose }: MenuItemProps) => {
   const router = useRouter();
 
   return (
-    <ScrollArea>
+    <ScrollArea className="flex-1 px-3">
       <div className="space-y-1 py-4">
         {menuItems.map((item) => {
           const Icon = item.icon;
@@ -31,7 +31,7 @@ const MenuItems = ({ onClose }: MenuItemProps) => {
             <Button
               key={item.id}
               variant={isActive ? 'secondary' : 'ghost'}
-              className={cn('w-full justify-start gap-2', isActive && 'bg-secondary')}
+              className={cn('w-full justify-start gap-2', isActive && 'bg-secondary', 'hover:bg-secondary hover:cursor-pointer')}
               onClick={() => {
                 router.push(`/${item.id}`);
                 onClose?.();

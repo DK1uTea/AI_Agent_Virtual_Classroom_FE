@@ -38,7 +38,7 @@ class AuthApis {
   }
 
   public async refreshNextServer(): Promise<RefreshRes> {
-    const reqPath = '/api/auth/refresh';
+    const reqPath = 'api/auth/refresh';
     const res = await kyLocalInstance.post(reqPath).json<ApiResult<RefreshRes>>();
     return res.data;
   }
@@ -61,7 +61,7 @@ class AuthApis {
     accessToken: string;
     refreshToken: string;
   }): Promise<void> {
-    const reqPath = '/api/auth';
+    const reqPath = 'api/auth';
     await kyLocalInstance.post(reqPath, {
       json: req,
     });
@@ -73,7 +73,7 @@ class AuthApis {
     accessToken: string;
     refreshToken: string;
   }> {
-    const reqPath = '/api/auth';
+    const reqPath = 'api/auth';
     const res = await kyLocalInstance.get(reqPath).json<ApiResult<{
       isAuth: boolean;
       user: User;
@@ -84,7 +84,7 @@ class AuthApis {
   }
 
   public async logoutNextServer(req: LogoutNextServerReq) {
-    const reqPath = '/api/auth/logout';
+    const reqPath = 'api/auth/logout';
     await kyLocalInstance.post(reqPath, {
       json: { forced: req.forced }
     })

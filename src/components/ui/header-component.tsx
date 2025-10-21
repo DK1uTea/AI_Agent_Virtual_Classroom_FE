@@ -27,7 +27,7 @@ const HeaderComponent = () => {
     onSuccess: () => {
       clearAuthState();
       router.refresh();
-      router.push('/login');
+      // router.push('/login');
       toast.success("Logout successful!");
     },
     onError: (error) => {
