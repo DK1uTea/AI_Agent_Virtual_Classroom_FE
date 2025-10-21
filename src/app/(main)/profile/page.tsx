@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Camera } from "lucide-react";
 import { cookies } from "next/headers";
+import ProfileForm from "./components/profile-form";
 
 
 const Profile = async () => {
@@ -80,6 +81,11 @@ const Profile = async () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          <ProfileForm user={user} />
+        </div>
       </div>
 
     </div>

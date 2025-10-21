@@ -6,6 +6,8 @@ import { User } from "@/types/user-types";
 import { headers } from "next/headers";
 import { get } from "http";
 import { getAuthHeaders } from "@/lib/utils";
+import { Update } from "next/dist/build/swc/types";
+import { UpdateUserType } from "@/shemaValidations/user.schema";
 
 class UserApis {
   public async getUserProfile(req: {
@@ -21,7 +23,7 @@ class UserApis {
 
   public async updateUserProfile(req: {
     accessToken: string;
-    data: Partial<User>;
+    data: UpdateUserType;
   }): Promise<User> {
     const reqPath = 'api/v1/me';
     const res = await kyInstance.patch(reqPath, {
