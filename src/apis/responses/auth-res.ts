@@ -5,3 +5,8 @@ export type AuthRes = {
   accessToken: string;
   refreshToken: string;
 }
+
+export type RefreshRes = {
+  accessToken: string;
+  refreshToken: string;
+}

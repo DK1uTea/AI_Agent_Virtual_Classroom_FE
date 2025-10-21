@@ -8,35 +8,26 @@ export function cn(...inputs: ClassValue[]) {
 
 export const refreshToken = async () => {
   try {
-    // await authApis.refresh();
+    const res = await authApis.refreshNextServer();
     console.log("Token refreshed successfully!");
+    return res;
   } catch (error) {
-    console.error("Error refreshing token: ", error);
     forcedSignOut();
+    console.error("Error refreshing token: ", error);
   }
 }
 
 export const forcedSignOut = async () => {
   try {
-    await authApis.reqLogoutNextServer({ forced: true });
+    await authApis.logoutNextServer({ forced: true });
     console.log("Forced sign out successfully!");
   } catch (error) {
     console.error("Error during forced sign out: ", error);
   }
 }
 
-export const getServerAuthHeaders = async () => {
-  const { cookies } = await import('next/headers');
-  const cookieStore = await cookies();
-  const sessionToken = cookieStore.get('sessionToken')?.value;
-
+export const getAuthHeaders = (accessToken: string) => {
   return {
-    'Authorization': `Bearer ${sessionToken}`
-  };
-}
-
-export const getClientAuthHeaders = (token: string) => {
-  return {
-    'Authorization': `Bearer ${token}`
+    'Authorization': `Bearer ${accessToken}`
   };
 }

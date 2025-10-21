@@ -1,6 +1,5 @@
 'use client'
 import { useAuthStore } from "@/stores/auth-store";
-import Link from "next/link";
 import { useShallow } from "zustand/shallow";
 import { ModeToggle } from "../mode-toggle";
 import { Button } from "./button";
@@ -13,8 +12,7 @@ import { LogoutNextServerReq } from "@/apis/requests/auth-req";
 import { authApis } from "@/apis/gateways/auth-apis";
 import { toast } from "sonner";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
-import { clear } from "console";
-import { use } from "react";
+
 
 const HeaderComponent = () => {
   const { user, clearAuthState } = useAuthStore(useShallow((state) => ({
@@ -25,7 +23,7 @@ const HeaderComponent = () => {
   const router = useRouter();
 
   const logoutMutation = useMutation({
-    mutationFn: (req: LogoutNextServerReq) => authApis.reqLogoutNextServer(req),
+    mutationFn: (req: LogoutNextServerReq) => authApis.logoutNextServer(req),
     onSuccess: () => {
       clearAuthState();
       router.refresh();

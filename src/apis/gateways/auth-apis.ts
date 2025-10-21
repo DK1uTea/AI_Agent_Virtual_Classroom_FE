@@ -1,9 +1,10 @@
 
 import { LoginReq, LogoutNextServerReq, RegisterReq } from "../requests/auth-req";
-import { AuthRes } from "../responses/auth-res";
+import { AuthRes, RefreshRes } from "../responses/auth-res";
 import { ApiResult } from "../responses/api-res";
 import { kyInstance, kyLocalInstance } from "@/config/ky";
 import { User } from "@/types/user-types";
+import { getAuthHeaders } from "@/lib/utils";
 
 class AuthApis {
   public async register(req: RegisterReq): Promise<AuthRes> {
@@ -23,16 +24,22 @@ class AuthApis {
   }
 
   public async refresh(req: {
-    token: string;
-  }): Promise<{
     accessToken: string;
     refreshToken: string;
-  }> {
+  }): Promise<RefreshRes> {
     const reqPath = `api/v1/auth/refresh`;
-    const res = await kyInstance.post(reqPath).json<ApiResult<{
-      accessToken: string;
-      refreshToken: string;
-    }>>();
+    const res = await kyInstance.post(reqPath, {
+      headers: getAuthHeaders(req.accessToken),
+      json: {
+        token: req.refreshToken
+      }
+    }).json<ApiResult<RefreshRes>>();
+    return res.data;
+  }
+
+  public async refreshNextServer(): Promise<RefreshRes> {
+    const reqPath = '/api/auth/refresh';
+    const res = await kyLocalInstance.post(reqPath).json<ApiResult<RefreshRes>>();
     return res.data;
   }
 
@@ -42,9 +49,7 @@ class AuthApis {
   }): Promise<void> {
     const reqPath = `api/v1/auth/logout`;
     await kyInstance.post(reqPath, {
-      headers: {
-        Authorization: `Bearer ${req.accessToken}`,
-      },
+      headers: getAuthHeaders(req.accessToken),
       json: {
         token: req.refreshToken
       }
@@ -78,7 +83,7 @@ class AuthApis {
     return res.data;
   }
 
-  public async reqLogoutNextServer(req: LogoutNextServerReq) {
+  public async logoutNextServer(req: LogoutNextServerReq) {
     const reqPath = '/api/auth/logout';
     await kyLocalInstance.post(reqPath, {
       json: { forced: req.forced }
