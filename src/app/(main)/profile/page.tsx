@@ -3,10 +3,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Camera } from "lucide-react";
+import { Camera, CheckCircle2 } from "lucide-react";
 import { cookies } from "next/headers";
 import ProfileForm from "./components/profile-form";
 import ProfileLinkService from "./components/profile-link-service";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 
 
 const Profile = async () => {
@@ -88,12 +90,134 @@ const Profile = async () => {
           <ProfileForm user={user} />
           <ProfileLinkService user={user} />
         </div>
-
-        {/* Courses and Badges */}
-
-
       </div>
+      {/* Courses and Badges */}
+      <Tabs defaultValue="courses" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="courses">Courses</TabsTrigger>
+          <TabsTrigger value="badges">Badges</TabsTrigger>
+        </TabsList>
 
+        <TabsContent value="courses" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Courses in progress (2)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center gap-4 rounded-lg border p-4 hover:bg-accent cursor-pointer">
+                  <div className="h-16 w-16 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    📚
+                  </div>
+                  <div className="flex-1">
+                    <h4>Basic JavaScript Programming</h4>
+                    <p className="text-muted-foreground">45% completed</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 rounded-lg border p-4 hover:bg-accent cursor-pointer">
+                  <div className="h-16 w-16 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    📚
+                  </div>
+                  <div className="flex-1">
+                    <h4>React for Beginners</h4>
+                    <p className="text-muted-foreground">30% completed</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Completed courses (2)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center gap-4 rounded-lg border p-4">
+                  <div className="h-16 w-16 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="h-8 w-8 text-green-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h4>HTML and CSS from Basic to Advanced</h4>
+                    <Badge variant="secondary" className="gap-1">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Completed
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 rounded-lg border p-4">
+                  <div className="h-16 w-16 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="h-8 w-8 text-green-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h4>Introduction to Programming</h4>
+                    <Badge variant="secondary" className="gap-1">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Completed
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="badges">
+          <Card>
+            <CardHeader>
+              <CardTitle>Badges (3/5)</CardTitle>
+              <CardDescription>Complete challenges to earn badges</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="rounded-lg border p-6 text-center bg-primary/5 border-primary/20">
+                  <div className="mb-3 text-4xl">🔥</div>
+                  <h4>7-Day Streak</h4>
+                  <p className="text-muted-foreground">Complete lessons 7 days in a row</p>
+                  <Badge variant="secondary" className="mt-3 gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Earned
+                  </Badge>
+                </div>
+
+                <div className="rounded-lg border p-6 text-center bg-primary/5 border-primary/20">
+                  <div className="mb-3 text-4xl">🚀</div>
+                  <h4>Outstanding Newcomer</h4>
+                  <p className="text-muted-foreground">Complete your first course</p>
+                  <Badge variant="secondary" className="mt-3 gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Earned
+                  </Badge>
+                </div>
+
+                <div className="rounded-lg border p-6 text-center bg-primary/5 border-primary/20">
+                  <div className="mb-3 text-4xl">⭐</div>
+                  <h4>Bright Star</h4>
+                  <p className="text-muted-foreground">Get a perfect score on a test</p>
+                  <Badge variant="secondary" className="mt-3 gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Earned
+                  </Badge>
+                </div>
+
+                <div className="rounded-lg border p-6 text-center opacity-50">
+                  <div className="mb-3 text-4xl">🏆</div>
+                  <h4>Master</h4>
+                  <p className="text-muted-foreground">Complete 5 courses</p>
+                </div>
+
+                <div className="rounded-lg border p-6 text-center opacity-50">
+                  <div className="mb-3 text-4xl">💎</div>
+                  <h4>Diamond</h4>
+                  <p className="text-muted-foreground">Learn for 30 consecutive days</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

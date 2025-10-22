@@ -27,12 +27,8 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const {
     accessToken,
-    userAuth,
-    setUser,
   } = useAuthStore(useShallow((state) => ({
     accessToken: state.accessToken,
-    userAuth: state.user,
-    setUser: state.setUser,
   })));
   const router = useRouter();
 
@@ -47,8 +43,6 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
     mode: "onChange",
     resolver: zodResolver(UpdateUserSchema),
     defaultValues: {
-      username: user.username,
-      email: user.email,
       phone: user.phone,
       gender: user.gender,
       description: user.description,
@@ -64,14 +58,6 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
     }) => userApis.updateUserProfile(data),
     onSuccess: (res) => {
       console.log("User profile updated successfully: ", res);
-      setUser({
-        ...userAuth,
-        username: res.username,
-        email: res.email,
-        phone: res.phone,
-        gender: res.gender,
-        description: res.description,
-      })
       toast.success("Profile updated successfully");
       setIsEditing(false);
       router.refresh();
@@ -99,8 +85,6 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
   const handleCancel = () => {
     // Reset form to original values
     reset({
-      username: user.username,
-      email: user.email,
       phone: user.phone,
       gender: user.gender,
       description: user.description,
@@ -132,22 +116,20 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
         <div className="space-y-2">
           <Label htmlFor="username">Username</Label>
           <Input
-            {...register("username")}
             id="username"
-            disabled={!isEditing || updateUserMutation.isPending}
+            value={user.username}
+            disabled={true}
             className="bg-input-background"
           />
-          {errors.username && <p className="text-sm text-red-500">{errors.username.message}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
-            {...register("email")}
             id="email"
-            disabled={!isEditing || updateUserMutation.isPending}
+            value={user.email}
+            disabled={true}
             className="bg-input-background"
           />
-          {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
         </div>
         <div className="space-y-2">
           <Label>Gender</Label>
@@ -193,6 +175,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
             id="phone"
             disabled={!isEditing || updateUserMutation.isPending}
             className="bg-input-background"
+            placeholder="Enter your phone number!"
           />
           {errors.phone && <p className="text-sm text-red-500">{errors.phone.message}</p>}
         </div>
@@ -204,6 +187,7 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
             disabled={!isEditing || updateUserMutation.isPending}
             className="bg-input-background"
             rows={3}
+            placeholder="Write something about you!"
           />
           {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
         </div>
