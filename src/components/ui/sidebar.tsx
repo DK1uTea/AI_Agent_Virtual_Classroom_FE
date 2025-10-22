@@ -6,9 +6,6 @@ import MenuItems from "./menu-items";
 import { useHeaderSidebarStore } from "@/stores/header-sidebar-store";
 import { useShallow } from "zustand/shallow";
 
-
-
-
 const Sidebar = () => {
   const {
     isOpen,
@@ -37,7 +34,7 @@ const Sidebar = () => {
               <X className="h-5 w-5" />
             </Button>
           </div>
-          <MenuItems />
+          <MenuItems onClose={onClose} />
           <div className="border-t p-4">
             <div className="rounded-lg bg-accent p-3">
               <p className="mb-2">💡 Study tips</p>
