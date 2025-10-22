@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Camera } from "lucide-react";
 import { cookies } from "next/headers";
 import ProfileForm from "./components/profile-form";
+import ProfileLinkService from "./components/profile-link-service";
 
 
 const Profile = async () => {
@@ -85,7 +86,12 @@ const Profile = async () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           <ProfileForm user={user} />
+          <ProfileLinkService user={user} />
         </div>
+
+        {/* Courses and Badges */}
+
+
       </div>
 
     </div>

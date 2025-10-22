@@ -14,6 +14,7 @@ type AuthState = {
 type AuthStateAction = {
   setAuthState: (isAuth: boolean, user: User, accessToken: string, refreshToken: string) => void;
   clearAuthState: () => void;
+  setUser: (user: User) => void;
 }
 
 type AuthStore = AuthState & AuthStateAction;
@@ -48,6 +49,11 @@ export const useAuthStore = create<AuthStore>()(
             };
             state.accessToken = '';
             state.refreshToken = '';
+          });
+        },
+        setUser: (user: User) => {
+          set((state) => {
+            state.user = user;
           });
         },
       }),
