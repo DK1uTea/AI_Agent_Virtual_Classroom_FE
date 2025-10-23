@@ -34,3 +34,19 @@ export const LoginSchema = z.object({
 })
 
 export type LoginType = z.infer<typeof LoginSchema>;
+
+export const ForgotPasswordSchema = z.object({
+  email: z.email().regex(/^\S+@\S+\.\S+$/, { message: "Invalid email address" }),
+});
+
+export type ForgotPasswordType = z.infer<typeof ForgotPasswordSchema>;
+
+export const ResetPasswordSchema = z.object({
+  newPassword: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" })
+    .max(50, { message: "Password must be at most 50 characters" })
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,50}$/, { message: "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character" }),
+});
+
+export type ResetPasswordType = z.infer<typeof ResetPasswordSchema>;
