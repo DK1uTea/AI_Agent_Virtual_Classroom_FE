@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
-import LoginForm from "./login-form";
+import LoginForm from "./components/login-form";
 import FlashToast from "@/components/ui/flash-toast";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import LoginGoogle from "./login-google";
+import LoginGoogle from "./components/login-google";
 
 const LoginPage = async () => {
   const cookieStore = await cookies();

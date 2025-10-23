@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import RegisterForm from "./register-form";
-import LoginGoogle from "../login/login-google";
+import LoginGoogle from "../login/components/login-google";
 import Link from "next/link";
 
 const RegisterPage = () => {

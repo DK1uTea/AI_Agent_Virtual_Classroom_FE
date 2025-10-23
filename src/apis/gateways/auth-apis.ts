@@ -89,6 +89,20 @@ class AuthApis {
       json: { forced: req.forced }
     })
   }
+
+  public async forgotPassword(req: { email: string }): Promise<void> {
+    const reqPath = 'api/v1/auth/forgot-password';
+    await kyInstance.post(reqPath, {
+      json: req
+    })
+  }
+
+  public async resetPassword(req: { newPassword: string, token: string }): Promise<void> {
+    const reqPath = 'api/v1/auth/reset-password';
+    await kyInstance.post(reqPath, {
+      json: req
+    })
+  }
 }
 
 export const authApis = new AuthApis();
