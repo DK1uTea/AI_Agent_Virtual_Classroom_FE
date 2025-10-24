@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import ResetPasswordForm from "./reset-password-form";
+import { Suspense } from "react";
 
 const ResetPasswordPage = () => {
   return (
