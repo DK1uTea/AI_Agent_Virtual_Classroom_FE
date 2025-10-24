@@ -14,7 +14,7 @@ const LoginPage = async () => {
       <div className="w-full max-w-md space-y-6 rounded-xl border bg-card p-8 shadow-lg">
         <div className="space-y-2 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <span>A</span>
+            <span>AI</span>
           </div>
           <h1>Login to AI Virtual Classroom</h1>
           <p className="text-muted-foreground">

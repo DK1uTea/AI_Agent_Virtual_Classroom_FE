@@ -1,59 +1,95 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import { Brain, Video, MessageSquare, LineChart, Sparkles, BookOpenCheck, Bot, ShieldCheck, GraduationCap, Network } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
-// ---- SEO ----
-export const metadata: Metadata = {
-  title: "AI Virtual Classroom — Adaptive, Interactive Learning with AI",
-  description:
-    "AI Virtual Classroom: personalized learning paths, AI-powered tutoring, interactive lessons and progress tracking. Start learning faster with intelligent recommendations.",
-  metadataBase: new URL("https://your-domain.example/"),
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "AI Virtual Classroom — Adaptive, Interactive Learning with AI",
-    description:
-      "Personalized, AI-powered online classroom. Adaptive lessons, practice exercises, and certificates.",
-    url: "https://your-domain.example/",
-    siteName: "AI Virtual Classroom",
-    images: [
-      {
-        // Free Unsplash image with AI/tech vibe
-        url: "https://images.unsplash.com/photo-1555255707-c07966088b7b?q=80&w=1200&auto=format&fit=crop",
-        width: 1200,
-        height: 630,
-        alt: "Neural network abstract — AI Virtual Classroom",
-      },
-    ],
-    locale: "vi-VN",
-    type: "website",
+const features = [
+  {
+    title: "Video‑based courses",
+    description: "HD lessons with transcripts, captions, and playback speed control.",
+    icon: Video,
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "AI Virtual Classroom",
-    description:
-      "Adaptive lessons, AI tutors, practice exercises and certificates — learn smarter with AI.",
-    images: [
-      "https://images.unsplash.com/photo-1555255707-c07966088b7b?q=80&w=1200&auto=format&fit=crop",
+  {
+    title: "AI Agent feedback",
+    description: "Your personal AI analyzes answers, explains mistakes, and scores rubrics.",
+    icon: Bot,
+  },
+  {
+    title: "Study assistant",
+    description: "Ask context‑aware questions, get examples, and generate practice tasks.",
+    icon: MessageSquare,
+  },
+  {
+    title: "Mind‑map generator",
+    description: "Turn topics into clean, exportable mindmaps for faster revision.",
+    icon: Network,
+  },
+  {
+    title: "Interactive practice",
+    description: "Quizzes, coding sandboxes, and projects with instant hints.",
+    icon: BookOpenCheck,
+  },
+  {
+    title: "Progress & certificates",
+    description: "Track mastery, earn badges, and get shareable certificates.",
+    icon: GraduationCap,
+  },
+];
+
+const sellingPoints = [
+  {
+    title: "Adaptive lessons",
+    description: "Difficulty auto‑adjusts to your skill level and learning pace.",
+    icon: Brain,
+  },
+  {
+    title: "Real assessment",
+    description: "Scenario‑based tasks, rubric grading, and skill gap analysis.",
+    icon: LineChart,
+  },
+  {
+    title: "Trusted & private",
+    description: "FERPA‑friendly defaults, SSO, and role‑based access control.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Powered by modern AI",
+    description: "Latest LLMs with safe‑guarded prompts and retrieval.",
+    icon: Sparkles,
+  },
+];
+
+const steps = [
+  { n: 1, title: "Tell us your goal", body: "Pick a path (e.g., Web Dev, Data, IELTS)." },
+  { n: 2, title: "Baseline check", body: "Quick diagnostic to place you at the right level." },
+  { n: 3, title: "Adaptive roadmap", body: "Personalized modules with videos, readings, and projects." },
+  { n: 4, title: "Learn with AI help", body: "Agent explains, reviews, and generates mindmaps & notes." },
+  { n: 5, title: "Validate & certify", body: "Finish capstone; earn a certificate you can share." },
+];
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "AI Virtual Classroom",
+  url: "https://example.com",
+  logo: "https://example.com/logo.png",
+  sameAs: ["https://twitter.com/ai_virtual_classroom"],
+  offers: {
+    "@type": "OfferCatalog",
+    name: "Courses",
+    itemListElement: [
+      { "@type": "Course", name: "Web Development", provider: { "@type": "Organization", name: "AI Virtual Classroom" } },
+      { "@type": "Course", name: "Data Analysis", provider: { "@type": "Organization", name: "AI Virtual Classroom" } },
     ],
   },
 };
 
-export default function Home() {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "AI Virtual Classroom",
-    url: "https://your-domain.example/",
-    description:
-      "AI Virtual Classroom offers personalized learning paths, interactive lessons, AI tutors and progress tracking to help learners succeed.",
-    publisher: {
-      "@type": "Organization",
-      name: "AI Virtual Classroom",
-    },
-  };
 
+
+export default function LandingPage() {
   return (
-    <main className="relative min-h-screen mx-auto max-w-6xl px-6 md:px-8 py-12 md:py-16">
+    <main className="relative min-h-screen mx-auto max-w-7xl px-6 md:px-8 py-12 md:py-16">
       {/* Decorative background */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
         {/* subtle grid */}
@@ -63,17 +99,12 @@ export default function Home() {
         <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full blur-3xl bg-gradient-to-tr from-cyan-300/30 via-sky-300/30 to-indigo-400/30" />
       </div>
 
-      {/* ---- NAV ---- */}
+      {/* ---- HEADER ---- */}
       <header className="flex items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2">
           <div className="h-9 w-9 rounded-xl bg-primary/10 ring-1 ring-primary/20 flex items-center justify-center font-bold">AI</div>
           <span className="font-semibold">AI Virtual Classroom</span>
         </Link>
-        <nav className="hidden sm:flex items-center gap-6 text-sm">
-          <Link href="#features" className="hover:underline">Features</Link>
-          <Link href="#why" className="hover:underline">Why us</Link>
-          <Link href="/course-catalog" className="hover:underline">Courses</Link>
-        </nav>
         <div className="flex items-center gap-3">
           <Link href="/login" className="rounded-full border px-4 py-2 text-sm">Sign in</Link>
           <Link href="/register" className="rounded-full bg-primary px-4 py-2 text-white text-sm font-semibold shadow">Get started</Link>
@@ -83,14 +114,14 @@ export default function Home() {
       {/* ---- HERO ---- */}
       <section aria-label="Hero" className="mt-12 grid gap-8 lg:grid-cols-2 items-center">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 text-xs font-medium backdrop-blur">
+          <Badge variant="outline" className="gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> AI · Adaptive · Interactive
-          </span>
+          </Badge>
           <h1 className="mt-4 text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
             Learn faster with <span className="bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-500 bg-clip-text text-transparent">AI‑powered</span> lessons
           </h1>
           <p className="mt-4 text-lg text-muted-foreground max-w-xl">
-            Personalized learning paths, instant feedback from an AI tutor, and real assessments to prove your skills.
+            Personalized paths, HD video courses, and an AI Agent that explains, evaluates, and helps you study smarter.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -108,24 +139,19 @@ export default function Home() {
             </Link>
           </div>
 
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2" id="features">
-            <li className="rounded-xl border bg-background/50 p-4 backdrop-blur">
-              <strong className="block">Adaptive lessons</strong>
-              <div className="text-sm text-muted-foreground">Content adjusts to your skill level.</div>
-            </li>
-            <li className="rounded-xl border bg-background/50 p-4 backdrop-blur">
-              <strong className="block">AI Tutor</strong>
-              <div className="text-sm text-muted-foreground">Instant feedback and guidance.</div>
-            </li>
-            <li className="rounded-xl border bg-background/50 p-4 backdrop-blur">
-              <strong className="block">Interactive practice</strong>
-              <div className="text-sm text-muted-foreground">Hands-on exercises with solutions.</div>
-            </li>
-            <li className="rounded-xl border bg-background/50 p-4 backdrop-blur">
-              <strong className="block">Progress tracking</strong>
-              <div className="text-sm text-muted-foreground">See improvement over time.</div>
-            </li>
-          </ul>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2" id="features">
+            {features.map(({ title, description, icon: Icon }) => (
+              <Card key={title}>
+                <CardHeader className="flex flex-row items-start gap-3">
+                  <Icon className="h-5 w-5" />
+                  <div>
+                    <CardTitle>{title}</CardTitle>
+                    <CardDescription>{description}</CardDescription>
+                  </div>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
         </div>
 
         <div className="order-first lg:order-last flex items-center justify-center">
@@ -140,6 +166,9 @@ export default function Home() {
                 height={840}
                 className="h-auto w-full object-cover"
               />
+              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5 bg-gradient-to-t from-black/60 to-transparent text-white">
+                <p className="text-xs md:text-sm opacity-90">Sample lesson: "Intro to Algorithms" · 12m video · 3 practice tasks</p>
+              </div>
             </div>
           </div>
         </div>
@@ -148,26 +177,35 @@ export default function Home() {
       {/* ---- WHY ---- */}
       <section aria-label="Why choose us" id="why" className="mt-20">
         <h2 className="text-2xl md:text-3xl font-semibold">Why choose AI Virtual Classroom?</h2>
-        <div className="mt-6 grid gap-6 sm:grid-cols-3">
-          <article className="rounded-2xl border p-6 bg-background/60 backdrop-blur">
-            <h3 className="font-semibold">Personalized Path</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              Algorithms create a study path tailored to your goals and pace.
-            </p>
-          </article>
-          <article className="rounded-2xl border p-6 bg-background/60 backdrop-blur">
-            <h3 className="font-semibold">AI Tutor</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              Get on-demand help, explanations and code review from AI.
-            </p>
-          </article>
-          <article className="rounded-2xl border p-6 bg-background/60 backdrop-blur">
-            <h3 className="font-semibold">Real Assessments</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              Practical exercises, quizzes and certificates to validate skills.
-            </p>
-          </article>
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {sellingPoints.map(({ title, description, icon: Icon }) => (
+            <Card key={title}>
+              <CardHeader className="flex flex-row items-start gap-3">
+                <div className="p-2 rounded-lg border">
+                  <Icon className="h-5 w-5" aria-hidden />
+                </div>
+                <div>
+                  <CardTitle>{title}</CardTitle>
+                  <CardDescription>{description}</CardDescription>
+                </div>
+              </CardHeader>
+            </Card>
+          ))}
         </div>
+      </section>
+
+      {/* ---- HOW IT WORKS ---- */}
+      <section aria-label="How it works" className="mt-20">
+        <h2 className="text-2xl md:text-3xl font-semibold">How it works</h2>
+        <ol className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {steps.map((s) => (
+            <li key={s.n} className="rounded-2xl border p-5 bg-background/60 backdrop-blur">
+              <div className="text-xs text-muted-foreground">Step {s.n}</div>
+              <div className="mt-1 font-semibold">{s.title}</div>
+              <p className="mt-1 text-sm text-muted-foreground">{s.body}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       {/* ---- SOCIAL PROOF ---- */}
