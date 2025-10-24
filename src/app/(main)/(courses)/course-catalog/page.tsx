@@ -1,7 +1,7 @@
 import CourseFilter from "./components/course-filter";
+import CourseList from "./components/course-list";
 
 const CourseCatalogPage = () => {
-
 
   return (
     <div className="space-y-6 p-6">
@@ -12,7 +12,7 @@ const CourseCatalogPage = () => {
       {/* Filter courses */}
       <CourseFilter />
       {/* Course list */}
-      
+      <CourseList />
     </div>
   );
 };
