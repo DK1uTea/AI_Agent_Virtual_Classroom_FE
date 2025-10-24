@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import ResetPasswordForm from "./reset-password-form";
+import { Suspense } from "react";
 
 const ResetPasswordPage = () => {
   return (
@@ -9,7 +10,9 @@ const ResetPasswordPage = () => {
         <p className="text-muted-foreground">
           Please enter your new password!
         </p>
-        <ResetPasswordForm />
+        <Suspense fallback={<div>Loading...</div>}>
+          <ResetPasswordForm />
+        </Suspense>
       </Card>
     </div>
   );

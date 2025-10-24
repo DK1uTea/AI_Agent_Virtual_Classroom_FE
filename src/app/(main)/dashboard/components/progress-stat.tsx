@@ -1,3 +1,4 @@
+'use client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -20,8 +21,8 @@ const ProgressStat = () => {
       {/* Course Progress */}
       <Card>
         <CardHeader>
-          <CardTitle>Tiến độ khóa học</CardTitle>
-          <CardDescription>Các khóa học bạn đang theo học</CardDescription>
+          <CardTitle>Course Progress</CardTitle>
+          <CardDescription>Courses you are currently enrolled in</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* {enrolledCourses.map((course) => (
