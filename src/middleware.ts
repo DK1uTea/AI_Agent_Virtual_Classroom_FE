@@ -37,5 +37,17 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [...privatePaths, ...authPaths],
+  matcher: [
+    '/',
+    '/login',
+    '/register',
+    '/dashboard',
+    '/dashboard/:path*',
+    '/profile',
+    '/profile/:path*',
+    '/course-catalog',
+    '/course-catalog/:path*',
+    '/course-detail',
+    '/course-detail/:path*'
+  ],
 };
