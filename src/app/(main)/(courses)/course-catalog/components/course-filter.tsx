@@ -7,14 +7,14 @@ import { Search } from "lucide-react";
 const CourseFilter = () => {
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardContent>
         <div className="flex flex-col gap-4 lg:flex-row">
           {/* Search */}
-          <div className="relative flex flex-1 gap-3">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search courses..."
-              className="bg-input-background"
+              className="pl-10 bg-input-background"
             />
           </div>
           {/* Category Filter */}
