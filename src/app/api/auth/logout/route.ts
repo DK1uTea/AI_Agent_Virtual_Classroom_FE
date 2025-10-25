@@ -1,6 +1,11 @@
 import { authApis } from "@/apis/gateways/auth-apis";
 import { ApiResult } from "@/apis/responses/api-res";
+import { buildCorsHeaders } from "@/lib/cors";
 import { cookies } from "next/headers";
+
+export const OPTIONS = async (request: Request) => {
+  return new Response(null, { status: 204, headers: buildCorsHeaders(request) });
+};
 
 export const POST = async (request: Request) => {
   try {
