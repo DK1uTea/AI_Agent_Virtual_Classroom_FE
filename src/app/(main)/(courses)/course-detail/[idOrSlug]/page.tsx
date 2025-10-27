@@ -1,19 +1,34 @@
 import { Course } from "@/types/main-flow";
-import CourseDetailBreadcrumb from "./components/course-detail-breadcrumb";
+import CourseDetailBreadcrumb from "../components/course-detail-breadcrumb";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
-import ContinueLearnButton from "./components/continue-learn-btn";
+import ContinueLearnButton from "../components/continue-learn-btn";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, CheckCircle2, Clock, Star } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import EnrollLessonButton from "./components/enroll-lesson-btn";
+import EnrollLessonButton from "../components/enroll-lesson-btn";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import CurriculumTab from "./components/curriculum-tab";
-import DescriptionTab from "./components/description-tab";
-import RequirementsTab from "./components/requirement-tab";
+import CurriculumTab from "../components/curriculum-tab";
+import DescriptionTab from "../components/description-tab";
+import RequirementsTab from "../components/requirement-tab";
 
-const CourseDetailPage = async () => {
+type CourseDetailPageProps = {
+  params: {
+    idOrSlug: string;
+  };
+}
+
+const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
+
+  const key = params.idOrSlug;
+
+  if (/^\d+$/.test(key)) {
+    // Fetch by ID
+  } else {
+    // Fetch by Slug
+  }
+
   const course: Course = {
     id: '1',
     title: 'Introduction to Programming',
