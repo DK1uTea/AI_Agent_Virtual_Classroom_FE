@@ -15,8 +15,8 @@ const Dashboard = async () => {
       {/* Recent Lessons */}
       <Card>
         <CardHeader>
-          <CardTitle>Bài học gần đây</CardTitle>
-          <CardDescription>Tiếp tục từ nơi bạn đã dừng lại</CardDescription>
+          <CardTitle>Recent Lessons</CardTitle>
+          <CardDescription>Continue from where you left off</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

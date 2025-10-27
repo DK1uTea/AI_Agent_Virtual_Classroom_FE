@@ -32,3 +32,12 @@ export type TranscriptItem = {
   time: number;
   text: string;
 }
+
+export interface ActivityLog {
+  id: string;
+  type: 'video-watch' | 'quiz-complete' | 'lesson-complete';
+  timestamp: Date;
+  details: string;
+  duration?: string;
+  score?: number;
+}
