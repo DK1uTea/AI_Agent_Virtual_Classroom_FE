@@ -14,14 +14,12 @@ import DescriptionTab from "../components/description-tab";
 import RequirementsTab from "../components/requirement-tab";
 
 type CourseDetailPageProps = {
-  params: {
-    idOrSlug: string;
-  };
+  params: Promise<{ idOrSlug: string }>;
 }
 
 const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
 
-  const key = params.idOrSlug;
+  const { idOrSlug: key } = await params;
 
   if (/^\d+$/.test(key)) {
     // Fetch by ID
