@@ -13,16 +13,17 @@ export type Course = {
   isHot?: boolean;
   progress?: number;
   enrolled?: boolean;
+  lessons?: Lesson[];
 };
 
 export type Lesson = {
   id: string;
-  courseId: string;
+  courseId?: string;
   title: string;
   duration: string;
-  status: 'not-started' | 'in-progress' | 'completed';
-  videoUrl: string;
-  transcript: TranscriptItem[];
+  status?: 'not-started' | 'in-progress' | 'completed';
+  videoUrl?: string;
+  transcript?: TranscriptItem[];
   order: number;
 }
 
