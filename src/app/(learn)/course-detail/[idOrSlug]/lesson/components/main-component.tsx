@@ -7,12 +7,22 @@ import { Course, Lesson } from "@/types/main-flow";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import LessonListTab from "./lesson-list-tab";
+import VideoPlayer from "./video-player";
+import VideoControls from "./video-controls";
+import { useVideoPlayerStore } from "@/stores/video-player-store";
+import { useShallow } from "zustand/shallow";
 
 type MainComponentProps = {
   currentCourse: Course;
   currentLesson: Lesson;
 }
 const MainComponent = ({ currentCourse, currentLesson }: MainComponentProps) => {
+
+  const {
+    setShowControls,
+  } = useVideoPlayerStore(useShallow((state) => ({
+    setShowControls: state.setShowControls,
+  })))
 
   const [isVideoPauseByChat, setIsVideoPauseByChat] = useState<boolean>(false);
 
@@ -29,7 +39,19 @@ const MainComponent = ({ currentCourse, currentLesson }: MainComponentProps) => 
       {/* Video Section */}
       <div className="flex flex-1 flex-col">
         {/* Video Player */}
-
+        <div className="relative"
+          onMouseEnter={() => {
+            setShowControls(true);
+          }}
+          onMouseLeave={() => {
+            setTimeout(() => {
+              setShowControls(false);
+            }, 3000);
+          }}
+        >
+          <VideoPlayer />
+          <VideoControls />
+        </div>
         {isVideoPauseByChat && (
           <div className="bg-yellow-500/10 border-t border-yellow-500/20 p-2 text-center text-yellow-500">
             Video is paused due to chat interaction.
