@@ -1,12 +1,16 @@
 'use client'
 
+import { Button } from "@/components/ui/button";
 import { Lesson } from "@/types/main-flow";
+import { ArrowUpIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type LessonListTabProps = {
   lessons: Lesson[];
   currentLessonId: string;
 }
 const LessonListTab = ({ lessons, currentLessonId }: LessonListTabProps) => {
+  const router = useRouter();
 
   return (
     <div className="space-y-4">
@@ -20,10 +24,26 @@ const LessonListTab = ({ lessons, currentLessonId }: LessonListTabProps) => {
               : 'hover:bg-accent'
               }`}
           >
-            <p>Lesson {lesson.order}: {lesson.title}</p>
-            <p className={lesson.id === currentLessonId ? 'text-primary-foreground/80' : 'text-muted-foreground'}>
-              {lesson.duration}
-            </p>
+            <div>
+              <p>Lesson {lesson.order}: {lesson.title}</p>
+              <p className={lesson.id === currentLessonId ? 'text-primary-foreground/80' : 'text-muted-foreground'}>
+                {lesson.duration}
+              </p>
+            </div>
+            {
+              currentLessonId === lesson.id &&
+              <Button
+                className="space-x-1"
+                variant={"secondary"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push('quiz');
+                }}
+              >
+                <span>Take a quiz test</span>
+                <ArrowUpIcon className="h-4 w-4" />
+              </Button>
+            }
           </div>
         ))}
       </div>
