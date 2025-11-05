@@ -1,0 +1,62 @@
+import { Course } from "@/types/main-flow";
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+
+export type SetCourseListArg = Course[] | ((prev: Course[]) => Course[]);
+
+type CourseState = {
+  courseList: Course[];
+  currentCourse: Course | null;
+  currentPage: number;
+  currentLimit: number;
+}
+
+type CourseStateAction = {
+  setCourseList: (next: SetCourseListArg) => void;
+  setCurrentCourse: (course: Course | null) => void;
+  setCurrentPage: (page: number) => void;
+  setCurrentLimit: (limit: number) => void;
+}
+
+type CourseStore = CourseState & CourseStateAction;
+
+export const useCourseStore = create<CourseStore>()(
+  immer(
+    devtools(
+      (set, get) => ({
+        courseList: [],
+        setCourseList: (next: SetCourseListArg) => {
+          set((state) => {
+            if (typeof next === 'function') {
+              state.courseList = next(state.courseList);
+            } else {
+              state.courseList = next;
+            }
+          });
+        },
+
+        currentCourse: null,
+        setCurrentCourse: (course: Course | null) => {
+          set((state) => {
+            state.currentCourse = course;
+          });
+        },
+
+        currentPage: 1,
+        setCurrentPage: (page: number) => {
+          set((state) => {
+            state.currentPage = page;
+          });
+        },
+
+        currentLimit: 10,
+        setCurrentLimit: (limit: number) => {
+          set((state) => {
+            state.currentLimit = limit;
+          });
+        },
+      })
+    )
+  )
+)

@@ -56,7 +56,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
         <div className="flex items-center gap-1">
           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
           <span>{course.rating}</span>
-          <span className="text-muted-foreground">• {course.instructor}</span>
+          {/* <span className="text-muted-foreground">• {course.instructor}</span> */}
         </div>
       </CardContent>
 

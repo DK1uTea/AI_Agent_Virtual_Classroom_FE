@@ -4,7 +4,7 @@ import { authApis } from "@/apis/gateways/auth-apis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
-import { ResetPasswordSchema, ResetPasswordType } from "@/shemaValidations/auth.schema";
+import { ResetPasswordSchema, ResetPasswordType } from "@/schemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";

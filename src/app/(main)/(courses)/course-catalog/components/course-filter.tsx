@@ -2,9 +2,76 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useCourseList } from "@/hooks/useCourseList";
+import { useAuthStore } from "@/stores/auth-store";
+import { CourseCategory, CourseLevel } from "@/types/main-flow";
 import { Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useDebounceCallback } from "usehooks-ts";
+import { set } from "zod";
+import { useShallow } from "zustand/shallow";
 
 const CourseFilter = () => {
+
+
+  const levels: CourseLevel[] = [CourseLevel.BASIC, CourseLevel.MEDIUM, CourseLevel.ADVANCED];
+
+  const categories: CourseCategory[] = [
+    CourseCategory.MATH,
+    CourseCategory.SCIENCE,
+    CourseCategory.ARTS,
+    CourseCategory.TECHNOLOGY,
+    CourseCategory.ENGLISH,
+    CourseCategory.HISTORY,
+    CourseCategory.MUSIC,
+    CourseCategory.GEOGRAPHY,
+
+    CourseCategory.LITERATURE,
+    CourseCategory.CIVIC_EDUCATION,
+    CourseCategory.PHYSICAL_EDUCATION,
+  ];
+
+  const {
+    accessToken,
+  } = useAuthStore(useShallow((state) => ({
+    accessToken: state.accessToken,
+  })));
+
+  const [queryFormData, setQueryFormData] = useState<{
+    accessToken: string;
+    title?: string;
+    category?: string;
+    level?: string;
+    sort?: string;
+    sortBy?: string;
+  }>({
+    accessToken,
+    title: '',
+    category: '',
+    level: '',
+    sort: 'desc',
+    sortBy: 'createdAt',
+  })
+
+  const {
+    refetch: refetchCourseList,
+    isLoading,
+  } = useCourseList(queryFormData);
+
+  const debouncedSearch = useDebounceCallback((value: string) => {
+    refetchCourseList();
+  }, 500)
+
+  useEffect(() => {
+    refetchCourseList();
+  }, [queryFormData.category, queryFormData.level, queryFormData.sort, queryFormData.sortBy])
+
+  const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const val = event.target.value;
+    setQueryFormData((prev) => ({ ...prev, title: val }));
+    debouncedSearch(val);
+  }
+
   return (
     <Card>
       <CardContent>
@@ -15,41 +82,63 @@ const CourseFilter = () => {
             <Input
               placeholder="Search courses..."
               className="pl-10 bg-input-background"
+              value={queryFormData.title}
+              onChange={handleSearchInputChange}
             />
           </div>
           {/* Category Filter */}
-          <Select>
+          <Select
+            onValueChange={(value) => {
+              setQueryFormData((prev) => ({ ...prev, category: value }));
+            }}
+          >
             <SelectTrigger className="w-full lg:w-[180px]">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
-              <SelectItem value="programming">Programming</SelectItem>
-              <SelectItem value="design">Design</SelectItem>
-              <SelectItem value="marketing">Marketing</SelectItem>
+              <SelectItem value="">All categories</SelectItem>
+              {
+                categories.map((category) => (
+                  <SelectItem key={category} value={category}>{category}</SelectItem>
+                ))
+              }
             </SelectContent>
           </Select>
           {/* Level Filter */}
-          <Select>
+          <Select
+            onValueChange={(value) => {
+              setQueryFormData((prev) => ({ ...prev, level: value }))
+            }}
+          >
             <SelectTrigger className="w-full lg:w-[180px]">
               <SelectValue placeholder="Level" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All levels</SelectItem>
-              <SelectItem value="beginner">Beginner</SelectItem>
-              <SelectItem value="intermediate">Intermediate</SelectItem>
-              <SelectItem value="advanced">Advanced</SelectItem>
+              <SelectItem value="">All levels</SelectItem>
+              {
+                levels.map((level) => (
+                  <SelectItem key={level} value={level}>{level}</SelectItem>
+                ))
+              }
             </SelectContent>
           </Select>
           {/* Sort */}
-          <Select>
+          <Select
+            onValueChange={(value) => {
+              if (value === 'newest') {
+                setQueryFormData((prev) => ({ ...prev, sortBy: 'desc' }))
+              }
+              if (value === 'oldest') {
+                setQueryFormData((prev) => ({ ...prev, sortBy: 'asc' }))
+              }
+            }}
+          >
             <SelectTrigger className="w-full lg:w-[180px]">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="newest">Newest</SelectItem>
               <SelectItem value="oldest">Oldest</SelectItem>
-              <SelectItem value="popular">Most Popular</SelectItem>
             </SelectContent>
           </Select>
         </div>

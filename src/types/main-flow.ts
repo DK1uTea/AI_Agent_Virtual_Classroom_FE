@@ -1,20 +1,45 @@
 export type Course = {
   id: string;
   title: string;
+  slug: string;
   description: string;
   coverImage: string;
-  instructor: string;
-  duration: string;
+  createdAt: string;
+  updatedAt: string;
+  duration: number;
   lessonCount: number;
-  level: 'beginner' | 'intermediate' | 'advanced';
-  category: string;
-  rating: number;
+  level: CourseLevel;
+  category: CourseCategory;
+  requirements?: string;
+  rating?: number;
   isNew?: boolean;
   isHot?: boolean;
   progress?: number;
   enrolled?: boolean;
+  totalLessons?: number;
   lessons?: Lesson[];
+  createdBy: string;
 };
+
+export enum CourseLevel {
+  BASIC = "Basic",
+  MEDIUM = "Medium",
+  ADVANCED = "Advanced",
+}
+
+export enum CourseCategory {
+  MATH = 'Math',
+  SCIENCE = 'Science',
+  ARTS = 'Arts',
+  TECHNOLOGY = 'Technology',
+  ENGLISH = 'English',
+  HISTORY = 'History',
+  MUSIC = 'Music',
+  GEOGRAPHY = 'Geography',
+  LITERATURE = 'Literature',
+  CIVIC_EDUCATION = 'Civic Education',
+  PHYSICAL_EDUCATION = 'Physical Education',
+}
 
 export type Lesson = {
   id: string;

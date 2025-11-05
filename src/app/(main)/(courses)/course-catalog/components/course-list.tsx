@@ -4,16 +4,54 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Course } from "@/types/main-flow";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CourseCard from "./course-card";
+import { useCourseStore } from "@/stores/course-store";
+import { useShallow } from "zustand/shallow";
+import { useCourseList } from "@/hooks/useCourseList";
+import { useAuthStore } from "@/stores/auth-store";
 
 const CourseList = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [courses, setCourses] = useState<Course[]>([]);
+  const {
+    accessToken
+  } = useAuthStore((useShallow((state) => ({
+    accessToken: state.accessToken,
+  }))));
+
+  const {
+    data: courseListData,
+    isLoading,
+  } = useCourseList({
+    accessToken,
+    page: 1,
+    limit: 6,
+  });
+
+  const {
+    courseList,
+    setCourseList,
+    setCurrentPage,
+    setCurrentLimit,
+
+  } = useCourseStore((useShallow((state) => ({
+    courseList: state.courseList,
+    setCourseList: state.setCourseList,
+    setCurrentPage: state.setCurrentPage,
+    setCurrentLimit: state.setCurrentLimit,
+  }))))
+
+  useEffect(() => {
+    if (!isLoading && courseListData) {
+      setCourseList(courseListData.items);
+      setCurrentPage(courseListData.page);
+      setCurrentLimit(courseListData.limit);
+    }
+  }, [courseListData])
+
   return (
     <div>
       <p>
-        Found 5 courses.
+        Found {courseList.length} courses.
       </p>
 
       {
@@ -33,7 +71,7 @@ const CourseList = () => {
       }
 
       {
-        !isLoading && courses.length === 0 && (
+        !isLoading && courseList.length === 0 && (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16">
               <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
@@ -49,9 +87,9 @@ const CourseList = () => {
       }
 
       {
-        !isLoading && courses.length > 0 && (
+        !isLoading && courseList.length > 0 && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course) => (
+            {courseList.map((course) => (
               <CourseCard key={course.id} course={course} />
             ))}
           </div>

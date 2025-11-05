@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSetAuthNextServerMutation } from "@/hooks/useSetAuthNextServer";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
-import { RegisterSchema, RegisterType } from "@/shemaValidations/auth.schema";
+import { RegisterSchema, RegisterType } from "@/schemaValidations/auth.schema";
 import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";

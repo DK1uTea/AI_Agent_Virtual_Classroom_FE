@@ -7,7 +7,7 @@ import { headers } from "next/headers";
 import { get } from "http";
 import { getAuthHeaders } from "@/lib/utils";
 import { Update } from "next/dist/build/swc/types";
-import { UpdateUserType } from "@/shemaValidations/user.schema";
+import { UpdateUserType } from "@/schemaValidations/user.schema";
 
 class UserApis {
   public async getUserProfile(req: {

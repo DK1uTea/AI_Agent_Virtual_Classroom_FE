@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSetAuthNextServerMutation } from "@/hooks/useSetAuthNextServer";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
-import { LoginSchema, LoginType } from "@/shemaValidations/auth.schema";
+import { LoginSchema, LoginType } from "@/schemaValidations/auth.schema";
 import { useAuthStore } from "@/stores/auth-store";
 import { User } from "@/types/user-types";
 import { zodResolver } from "@hookform/resolvers/zod";
