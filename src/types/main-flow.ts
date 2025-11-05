@@ -7,13 +7,13 @@ export type Course = {
   createdAt: string;
   updatedAt: string;
   duration: number;
-  lessonCount: number;
   level: CourseLevel;
   category: CourseCategory;
   requirements?: string;
   rating?: number;
   isNew?: boolean;
   isHot?: boolean;
+  instructor?: string;
   progress?: number;
   enrolled?: boolean;
   totalLessons?: number;

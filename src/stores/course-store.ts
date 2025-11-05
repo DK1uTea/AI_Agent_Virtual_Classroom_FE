@@ -10,6 +10,7 @@ type CourseState = {
   currentCourse: Course | null;
   currentPage: number;
   currentLimit: number;
+  currentTotalPages: number;
 }
 
 type CourseStateAction = {
@@ -17,6 +18,7 @@ type CourseStateAction = {
   setCurrentCourse: (course: Course | null) => void;
   setCurrentPage: (page: number) => void;
   setCurrentLimit: (limit: number) => void;
+  setCurrentTotalPages: (totalPages: number) => void;
 }
 
 type CourseStore = CourseState & CourseStateAction;
@@ -50,10 +52,17 @@ export const useCourseStore = create<CourseStore>()(
           });
         },
 
-        currentLimit: 10,
+        currentLimit: 6,
         setCurrentLimit: (limit: number) => {
           set((state) => {
             state.currentLimit = limit;
+          });
+        },
+
+        currentTotalPages: 1,
+        setCurrentTotalPages: (totalPages: number) => {
+          set((state) => {
+            state.currentTotalPages = totalPages;
           });
         },
       })

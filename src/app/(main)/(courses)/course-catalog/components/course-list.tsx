@@ -32,12 +32,13 @@ const CourseList = () => {
     setCourseList,
     setCurrentPage,
     setCurrentLimit,
-
+    setCurrentTotalPages
   } = useCourseStore((useShallow((state) => ({
     courseList: state.courseList,
     setCourseList: state.setCourseList,
     setCurrentPage: state.setCurrentPage,
     setCurrentLimit: state.setCurrentLimit,
+    setCurrentTotalPages: state.setCurrentTotalPages,
   }))))
 
   useEffect(() => {
@@ -45,6 +46,7 @@ const CourseList = () => {
       setCourseList(courseListData.items);
       setCurrentPage(courseListData.page);
       setCurrentLimit(courseListData.limit);
+      setCurrentTotalPages(courseListData.totalPages);
     }
   }, [courseListData])
 

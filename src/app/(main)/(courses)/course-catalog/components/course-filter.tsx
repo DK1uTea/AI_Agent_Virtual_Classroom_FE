@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCourseList } from "@/hooks/useCourseList";
 import { useAuthStore } from "@/stores/auth-store";
+import { useCourseStore } from "@/stores/course-store";
 import { CourseCategory, CourseLevel } from "@/types/main-flow";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -37,11 +38,18 @@ const CourseFilter = () => {
     accessToken: state.accessToken,
   })));
 
+  const {
+    currentLimit,
+  } = useCourseStore(useShallow((state) => ({
+    currentLimit: state.currentLimit,
+  })));
+
   const [queryFormData, setQueryFormData] = useState<{
     accessToken: string;
     title?: string;
     category?: string;
     level?: string;
+    limit?: number;
     sort?: string;
     sortBy?: string;
   }>({
@@ -49,6 +57,7 @@ const CourseFilter = () => {
     title: '',
     category: '',
     level: '',
+    limit: currentLimit,
     sort: 'desc',
     sortBy: 'createdAt',
   })
@@ -64,7 +73,7 @@ const CourseFilter = () => {
 
   useEffect(() => {
     refetchCourseList();
-  }, [queryFormData.category, queryFormData.level, queryFormData.sort, queryFormData.sortBy])
+  }, [queryFormData.category, queryFormData.level, queryFormData.sort, queryFormData.sortBy, queryFormData.limit])
 
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const val = event.target.value;
@@ -84,6 +93,7 @@ const CourseFilter = () => {
               className="pl-10 bg-input-background"
               value={queryFormData.title}
               onChange={handleSearchInputChange}
+              disabled={isLoading}
             />
           </div>
           {/* Category Filter */}
@@ -91,6 +101,7 @@ const CourseFilter = () => {
             onValueChange={(value) => {
               setQueryFormData((prev) => ({ ...prev, category: value }));
             }}
+            disabled={isLoading}
           >
             <SelectTrigger className="w-full lg:w-[180px]">
               <SelectValue placeholder="Category" />
@@ -109,6 +120,7 @@ const CourseFilter = () => {
             onValueChange={(value) => {
               setQueryFormData((prev) => ({ ...prev, level: value }))
             }}
+            disabled={isLoading}
           >
             <SelectTrigger className="w-full lg:w-[180px]">
               <SelectValue placeholder="Level" />
@@ -132,6 +144,7 @@ const CourseFilter = () => {
                 setQueryFormData((prev) => ({ ...prev, sortBy: 'asc' }))
               }
             }}
+            disabled={isLoading}
           >
             <SelectTrigger className="w-full lg:w-[180px]">
               <SelectValue placeholder="Sort by" />
@@ -139,6 +152,22 @@ const CourseFilter = () => {
             <SelectContent>
               <SelectItem value="newest">Newest</SelectItem>
               <SelectItem value="oldest">Oldest</SelectItem>
+            </SelectContent>
+          </Select>
+          {/* Limit */}
+          <Select
+            onValueChange={(value) => {
+              setQueryFormData((prev) => ({ ...prev, limit: Number(value) }))
+            }}
+            disabled={isLoading}
+          >
+            <SelectTrigger className="w-full lg:w-[180px]">
+              <SelectValue placeholder="Items per page" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="6">6</SelectItem>
+              <SelectItem value="12">12</SelectItem>
+              <SelectItem value="24">24</SelectItem>
             </SelectContent>
           </Select>
         </div>

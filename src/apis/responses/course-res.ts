@@ -5,4 +5,5 @@ export type CourseListRes = {
   total: number;
   page: number;
   limit: number;
+  totalPages: number;
 }

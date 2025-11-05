@@ -1,12 +1,12 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 type LessonBreadcrumbProps = {
-  courseIdOrSlug: string;
+  courseId: string;
   courseTitle: string;
   lessonTitle: string;
 }
 
-const LessonBreadcrumb = ({ courseIdOrSlug, courseTitle, lessonTitle }: LessonBreadcrumbProps) => {
+const LessonBreadcrumb = ({ courseId, courseTitle, lessonTitle }: LessonBreadcrumbProps) => {
   return (
     <div className="border-b p-4">
       <Breadcrumb>
@@ -18,7 +18,7 @@ const LessonBreadcrumb = ({ courseIdOrSlug, courseTitle, lessonTitle }: LessonBr
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/course-detail/${courseIdOrSlug}`} className="cursor-pointer">
+            <BreadcrumbLink href={`/course-detail/${courseId}`} className="cursor-pointer">
               {courseTitle}
             </BreadcrumbLink>
           </BreadcrumbItem>

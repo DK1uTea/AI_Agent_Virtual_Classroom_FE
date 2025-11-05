@@ -15,9 +15,12 @@ const CourseProgressItem = ({ course }: CourseProgressItemProps) => {
         </span>
       </div>
       <Progress value={course.progress} />
-      <p className="text-muted-foreground">
-        {Math.round((course.lessonCount * (course.progress || 0)) / 100)}/{course.lessonCount} lessons
-      </p>
+      {
+        course.totalLessons &&
+        <p className="text-muted-foreground">
+          {Math.round((course.totalLessons * (course.progress || 0)) / 100)}/{course.totalLessons} lessons
+        </p>
+      }
     </div>
   );
 
