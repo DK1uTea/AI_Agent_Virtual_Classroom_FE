@@ -100,13 +100,13 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                 <CardContent className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span>Completed</span>
-                    <span>{course.progress}%</span>
+                    <span>{course.progress.percent}%</span>
                   </div>
-                  <Progress value={course.progress} />
+                  <Progress value={course.progress.percent} />
                   {
                     course.totalLessons &&
                     <p className="text-muted-foreground">
-                      {Math.round((course.totalLessons * course.progress) / 100)}/{course.totalLessons} lessons
+                      {course.progress.completedLessons}/{course.progress.totalLessons} lessons
                     </p>
                   }
                 </CardContent>

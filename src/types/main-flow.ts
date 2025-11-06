@@ -14,7 +14,13 @@ export type Course = {
   isNew?: boolean;
   isHot?: boolean;
   instructor?: string;
-  progress?: number;
+  progress?: {
+    status: string;
+    enrolledAt: string;
+    percent: number;
+    completedLessons: number;
+    totalLessons: number;
+  }
   totalLessons?: number;
   lessons?: Lesson[];
   createdBy: string;
@@ -40,6 +46,17 @@ export enum CourseCategory {
   LITERATURE = 'Literature',
   CIVIC_EDUCATION = 'Civic Education',
   PHYSICAL_EDUCATION = 'Physical Education',
+}
+
+export enum EnrollmentStatus {
+  ACTIVE = 'Active',
+  COMPLETED = 'Completed',
+  CANCELLED = 'Cancelled',
+}
+
+export enum SortOrder {
+  ASC = 'ASC',
+  DESC = 'DESC',
 }
 
 export type Lesson = {

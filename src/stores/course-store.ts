@@ -1,15 +1,25 @@
-import { Course } from "@/types/main-flow";
+import { Course, SortOrder } from "@/types/main-flow";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 export type SetCourseListArg = Course[] | ((prev: Course[]) => Course[]);
 
+export type Config = {
+  page: number;
+  limit: number;
+  title: string;
+  category: string;
+  level: string;
+  sort: SortOrder;
+}
+
+export type SetCourseListConfigArg = Config | ((prev: Config) => Config);
+
 type CourseState = {
   courseList: Course[];
   currentCourse: Course | null;
-  currentPage: number;
-  currentLimit: number;
+  currentListConfig: Config;
   currentTotalPages: number;
   myCourses: Course[];
 }
@@ -17,8 +27,7 @@ type CourseState = {
 type CourseStateAction = {
   setCourseList: (next: SetCourseListArg) => void;
   setCurrentCourse: (course: Course | null) => void;
-  setCurrentPage: (page: number) => void;
-  setCurrentLimit: (limit: number) => void;
+  setCurrentListConfig: (next: SetCourseListConfigArg) => void;
   setCurrentTotalPages: (totalPages: number) => void;
   setMyCourses: (next: SetCourseListArg) => void;
 }
@@ -47,17 +56,21 @@ export const useCourseStore = create<CourseStore>()(
           });
         },
 
-        currentPage: 1,
-        setCurrentPage: (page: number) => {
-          set((state) => {
-            state.currentPage = page;
-          });
+        currentListConfig: {
+          page: 1,
+          limit: 6,
+          title: '',
+          category: '',
+          level: '',
+          sort: SortOrder.DESC,
         },
-
-        currentLimit: 6,
-        setCurrentLimit: (limit: number) => {
+        setCurrentListConfig: (next: SetCourseListConfigArg) => {
           set((state) => {
-            state.currentLimit = limit;
+            if (typeof next === 'function') {
+              state.currentListConfig = next(state.currentListConfig);
+            } else {
+              state.currentListConfig = next;
+            }
           });
         },
 

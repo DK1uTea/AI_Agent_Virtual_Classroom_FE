@@ -2,15 +2,17 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Course } from "@/types/main-flow";
+import { EnrollmentStatus } from "@/types/main-flow";
 import { Search } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import CourseCard from "./course-card";
 import { useCourseStore } from "@/stores/course-store";
 import { useShallow } from "zustand/shallow";
 import { useCourseList } from "@/hooks/useCourseList";
 import { useAuthStore } from "@/stores/auth-store";
 import { useMyCourse } from "@/hooks/useMyCourse";
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { set } from "zod";
 
 const CourseList = () => {
   const {
@@ -20,12 +22,31 @@ const CourseList = () => {
   }))));
 
   const {
+    courseList,
+    setCourseList,
+    currentListConfig,
+    setCurrentListConfig,
+    currentTotalPages,
+    setCurrentTotalPages,
+    myCourses,
+    setMyCourses,
+  } = useCourseStore((useShallow((state) => ({
+    courseList: state.courseList,
+    setCourseList: state.setCourseList,
+    currentListConfig: state.currentListConfig,
+    setCurrentListConfig: state.setCurrentListConfig,
+    currentTotalPages: state.currentTotalPages,
+    setCurrentTotalPages: state.setCurrentTotalPages,
+    myCourses: state.myCourses,
+    setMyCourses: state.setMyCourses,
+  }))));
+
+  const {
     data: courseListData,
     isLoading: isCourseListLoading,
   } = useCourseList({
     accessToken,
-    page: 1,
-    limit: 6,
+    ...currentListConfig,
   });
 
   const {
@@ -33,31 +54,17 @@ const CourseList = () => {
     isLoading: isMyCourseLoading,
   } = useMyCourse({
     accessToken,
-  })
+  });
 
-  const {
-    courseList,
-    setCourseList,
-    setCurrentPage,
-    setCurrentLimit,
-    setCurrentTotalPages,
-    myCourses,
-    setMyCourses,
-  } = useCourseStore((useShallow((state) => ({
-    courseList: state.courseList,
-    setCourseList: state.setCourseList,
-    setCurrentPage: state.setCurrentPage,
-    setCurrentLimit: state.setCurrentLimit,
-    setCurrentTotalPages: state.setCurrentTotalPages,
-    myCourses: state.myCourses,
-    setMyCourses: state.setMyCourses,
-  }))))
 
   useEffect(() => {
     if (!isCourseListLoading && courseListData) {
       setCourseList(courseListData.items);
-      setCurrentPage(courseListData.page);
-      setCurrentLimit(courseListData.limit);
+      setCurrentListConfig((prev) => ({
+        ...prev,
+        page: courseListData.page,
+        limit: courseListData.limit,
+      }));
       setCurrentTotalPages(courseListData.totalPages);
     }
   }, [courseListData])
@@ -74,7 +81,7 @@ const CourseList = () => {
         setCourseList((prev) => {
           return prev.map((c) => {
             if (c.id === course.id) {
-              return { ...c, status: 'Active', enrolledAt: course.enrolledAt };
+              return { ...c, status: EnrollmentStatus.ACTIVE, enrolledAt: course.enrolledAt };
             }
             return c;
           })
@@ -82,6 +89,46 @@ const CourseList = () => {
       }
     })
   }, [courseList, myCourses])
+
+  const maxVisiblePages = 5;
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > currentTotalPages) return;
+    setCurrentListConfig((prev) => ({
+      ...prev,
+      page,
+    }));
+  };
+
+  const getVisiblePages = () => {
+    const pages: (number | 'ellipsis')[] = [];
+
+    let start = Math.max(1, currentListConfig.page - Math.floor(maxVisiblePages / 2));
+    let end = Math.min(currentTotalPages, start + maxVisiblePages - 1);
+    if (end - start + 1 < maxVisiblePages) {
+      start = Math.max(1, end - maxVisiblePages + 1);
+    }
+
+    if (start > 1) {
+      pages.push(1);
+      if (start > 2) {
+        pages.push('ellipsis');
+      }
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (end < currentTotalPages) {
+      if (end < currentTotalPages - 1) {
+        pages.push('ellipsis');
+      }
+      pages.push(currentTotalPages);
+    }
+
+    return pages;
+  }
 
   return (
     <div>
@@ -130,7 +177,46 @@ const CourseList = () => {
           </div>
         )
       }
-    </div>
+      {
+        !isCourseListLoading && courseList.length > 0 && !isMyCourseLoading && (
+          <div className="w-full flex items-center justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => handlePageChange(currentListConfig.page - 1)}
+                    aria-disabled={currentListConfig.page === 1}
+                  />
+                </PaginationItem>
+                {getVisiblePages().map((page, index) =>
+                  page === 'ellipsis' ? (
+                    <PaginationItem key={`e-${index}`}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  )
+                    : (
+                      <PaginationItem key={page} >
+                        <PaginationLink
+                          isActive={page === currentListConfig.page}
+                          onClick={() => handlePageChange(page)}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                )}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => handlePageChange(currentListConfig.page + 1)}
+                    aria-disabled={currentListConfig.page === currentTotalPages}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )
+      }
+    </div >
 
   );
 };

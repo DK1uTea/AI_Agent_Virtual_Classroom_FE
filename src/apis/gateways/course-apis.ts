@@ -2,7 +2,7 @@ import { kyInstance } from "@/config/ky";
 import { CourseListRes } from "../responses/course-res";
 import { getAuthHeaders } from "@/lib/utils";
 import { ApiResult } from "../responses/api-res";
-import { Course } from "@/types/main-flow";
+import { Course, SortOrder } from "@/types/main-flow";
 import { headers } from "next/headers";
 
 class CourseApis {
@@ -13,8 +13,7 @@ class CourseApis {
     title?: string;
     category?: string;
     level?: string;
-    sort?: string;
-    sortBy?: string;
+    sort?: SortOrder;
   }): Promise<CourseListRes> {
     const reqPath = `api/courses`;
     const params: Record<string, any> = {
@@ -25,7 +24,6 @@ class CourseApis {
     if (req.category) params.category = req.category;
     if (req.level) params.level = req.level;
     if (req.sort) params.sort = req.sort;
-    if (req.sortBy) params.sortBy = req.sortBy;
 
     const res = await kyInstance.get(
       reqPath,

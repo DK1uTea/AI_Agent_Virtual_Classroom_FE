@@ -11,14 +11,14 @@ const CourseProgressItem = ({ course }: CourseProgressItemProps) => {
       <div className="flex items-center justify-between">
         <p>{course.title}</p>
         <span className="text-muted-foreground">
-          {course.progress}%
+          {course.progress?.percent}%
         </span>
       </div>
-      <Progress value={course.progress} />
+      <Progress value={course.progress?.percent} />
       {
         course.totalLessons &&
         <p className="text-muted-foreground">
-          {Math.round((course.totalLessons * (course.progress || 0)) / 100)}/{course.totalLessons} lessons
+          {course.progress?.completedLessons}/{course.progress?.totalLessons} lessons
         </p>
       }
     </div>

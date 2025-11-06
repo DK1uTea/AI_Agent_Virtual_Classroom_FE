@@ -5,11 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCourseList } from "@/hooks/useCourseList";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCourseStore } from "@/stores/course-store";
-import { CourseCategory, CourseLevel } from "@/types/main-flow";
+import { CourseCategory, CourseLevel, SortOrder } from "@/types/main-flow";
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDebounceCallback } from "usehooks-ts";
-import { set } from "zod";
 import { useShallow } from "zustand/shallow";
 
 const CourseFilter = () => {
@@ -39,45 +38,30 @@ const CourseFilter = () => {
   })));
 
   const {
-    currentLimit,
+    currentListConfig,
+    setCurrentListConfig,
   } = useCourseStore(useShallow((state) => ({
-    currentLimit: state.currentLimit,
+    currentListConfig: state.currentListConfig,
+    setCurrentListConfig: state.setCurrentListConfig,
   })));
 
-  const [queryFormData, setQueryFormData] = useState<{
-    accessToken: string;
-    title?: string;
-    category?: string;
-    level?: string;
-    limit?: number;
-    sort?: string;
-    sortBy?: string;
-  }>({
-    accessToken,
-    title: '',
-    category: '',
-    level: '',
-    limit: currentLimit,
-    sort: 'desc',
-    sortBy: 'createdAt',
-  })
 
   const {
-    refetch: refetchCourseList,
     isLoading,
-  } = useCourseList(queryFormData);
+  } = useCourseList({
+    accessToken,
+    ...currentListConfig,
+  });
+
+  const [searchInput, setSearchInput] = useState<string>('');
 
   const debouncedSearch = useDebounceCallback((value: string) => {
-    refetchCourseList();
+    setCurrentListConfig((prev) => ({ ...prev, title: value, page: 1 }));
   }, 500)
-
-  useEffect(() => {
-    refetchCourseList();
-  }, [queryFormData.category, queryFormData.level, queryFormData.sort, queryFormData.sortBy, queryFormData.limit])
 
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const val = event.target.value;
-    setQueryFormData((prev) => ({ ...prev, title: val }));
+    setSearchInput(val);
     debouncedSearch(val);
   }
 
@@ -91,7 +75,7 @@ const CourseFilter = () => {
             <Input
               placeholder="Search courses..."
               className="pl-10 bg-input-background"
-              value={queryFormData.title}
+              value={searchInput}
               onChange={handleSearchInputChange}
               disabled={isLoading}
             />
@@ -99,7 +83,7 @@ const CourseFilter = () => {
           {/* Category Filter */}
           <Select
             onValueChange={(value) => {
-              setQueryFormData((prev) => ({ ...prev, category: value }));
+              setCurrentListConfig((prev) => ({ ...prev, category: value }));
             }}
             disabled={isLoading}
           >
@@ -118,7 +102,7 @@ const CourseFilter = () => {
           {/* Level Filter */}
           <Select
             onValueChange={(value) => {
-              setQueryFormData((prev) => ({ ...prev, level: value }))
+              setCurrentListConfig((prev) => ({ ...prev, level: value }))
             }}
             disabled={isLoading}
           >
@@ -137,12 +121,7 @@ const CourseFilter = () => {
           {/* Sort */}
           <Select
             onValueChange={(value) => {
-              if (value === 'newest') {
-                setQueryFormData((prev) => ({ ...prev, sortBy: 'desc' }))
-              }
-              if (value === 'oldest') {
-                setQueryFormData((prev) => ({ ...prev, sortBy: 'asc' }))
-              }
+              setCurrentListConfig((prev) => ({ ...prev, sort: value as SortOrder }))
             }}
             disabled={isLoading}
           >
@@ -150,14 +129,14 @@ const CourseFilter = () => {
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">Newest</SelectItem>
-              <SelectItem value="oldest">Oldest</SelectItem>
+              <SelectItem value={SortOrder.DESC}>Newest</SelectItem>
+              <SelectItem value={SortOrder.ASC}>Oldest</SelectItem>
             </SelectContent>
           </Select>
           {/* Limit */}
           <Select
             onValueChange={(value) => {
-              setQueryFormData((prev) => ({ ...prev, limit: Number(value) }))
+              setCurrentListConfig((prev) => ({ ...prev, limit: Number(value) }))
             }}
             disabled={isLoading}
           >

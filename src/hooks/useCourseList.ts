@@ -1,5 +1,6 @@
 import { courseApis } from "@/apis/gateways/course-apis";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
+import { SortOrder } from "@/types/main-flow";
 import { useQuery } from "@tanstack/react-query"
 
 export const useCourseList = (req: {
@@ -9,12 +10,11 @@ export const useCourseList = (req: {
   title?: string;
   category?: string;
   level?: string;
-  sort?: string;
-  sortBy?: string;
+  sort?: SortOrder;
 }) => {
   return useQuery({
-    queryKey: ['course-list', req.page, req.limit, req.title, req.category, req.level, req.sort, req.sortBy],
-    enabled: Boolean(req.page || req.limit || req.title || req.category || req.level || req.sort || req.sortBy),
+    queryKey: ['course-list', req.page, req.limit, req.title, req.category, req.level, req.sort],
+    enabled: Boolean(req.page || req.limit || req.title || req.category || req.level || req.sort),
     queryFn: async () => {
       try {
         const res = await courseApis.listCourse(req);
