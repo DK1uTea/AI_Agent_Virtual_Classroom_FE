@@ -4,9 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { useCourseStore } from "@/stores/course-store";
 import { Course } from "@/types/main-flow"
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useShallow } from "zustand/shallow";
 
 type CourseCardProps = {
   course: Course;
@@ -15,6 +17,12 @@ type CourseCardProps = {
 const CourseCard = ({ course }: CourseCardProps) => {
 
   const router = useRouter();
+
+  const {
+    myCourses
+  } = useCourseStore(useShallow((state) => ({
+    myCourses: state.myCourses,
+  })))
 
   return (
     <Card className="group overflow-hidden transition-all hover:shadow-lg cursor-pointer">
@@ -61,7 +69,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
       </CardContent>
 
       <CardFooter>
-        {course.enrolled && (
+        {course.status === 'Active' && (
           <Button
             variant={"secondary"}
             className="w-full"
@@ -70,7 +78,7 @@ const CourseCard = ({ course }: CourseCardProps) => {
             Continue Learning
           </Button>
         )}
-        {!course.enrolled && (
+        {course.status !== 'Active' && (
           <Button
             className="w-full"
             onClick={() => router.push(`course-detail/${course.id}`)}

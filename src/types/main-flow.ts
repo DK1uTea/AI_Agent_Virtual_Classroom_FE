@@ -1,24 +1,25 @@
 export type Course = {
   id: string;
   title: string;
-  slug: string;
-  description: string;
-  coverImage: string;
-  createdAt: string;
-  updatedAt: string;
-  duration: number;
-  level: CourseLevel;
-  category: CourseCategory;
+  slug?: string;
+  description?: string;
+  coverImage?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  duration?: number;
+  level?: CourseLevel;
+  category?: CourseCategory;
   requirements?: string;
   rating?: number;
   isNew?: boolean;
   isHot?: boolean;
   instructor?: string;
   progress?: number;
-  enrolled?: boolean;
   totalLessons?: number;
   lessons?: Lesson[];
   createdBy: string;
+  status?: string;
+  enrolledAt?: string;
 };
 
 export enum CourseLevel {

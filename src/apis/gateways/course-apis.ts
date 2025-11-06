@@ -3,6 +3,7 @@ import { CourseListRes } from "../responses/course-res";
 import { getAuthHeaders } from "@/lib/utils";
 import { ApiResult } from "../responses/api-res";
 import { Course } from "@/types/main-flow";
+import { headers } from "next/headers";
 
 class CourseApis {
   public async listCourse(req: {
@@ -46,6 +47,43 @@ class CourseApis {
       { headers: getAuthHeaders(req.accessToken) }
     ).json<ApiResult<Course>>();
     return res.data;
+  }
+
+  public async myEnrolledCourses(req: {
+    accessToken: string;
+  }): Promise<Course[]> {
+    const reqPath = `api/courses/me/enrollments`;
+    const res = await kyInstance.get(reqPath, {
+      headers: getAuthHeaders(req.accessToken)
+    }).json<ApiResult<Course[]>>();
+    return res.data;
+  }
+
+  public async enrollCourse(req: {
+    accessToken: string;
+    courseId: string;
+  }): Promise<Course> {
+    const reqPath = `api/courses/${req.courseId}/enroll`;
+    const res = await kyInstance.post(
+      reqPath,
+      {
+        headers: getAuthHeaders(req.accessToken)
+      }
+    ).json<ApiResult<Course>>();
+    return res.data;
+  }
+
+  public async cancelEnrollCourse(req: {
+    accessToken: string;
+    courseId: string;
+  }): Promise<void> {
+    const reqPath = `api/courses/${req.courseId}/cancel-enrollment`;
+    await kyInstance.post(
+      reqPath,
+      {
+        headers: getAuthHeaders(req.accessToken)
+      }
+    ).json<ApiResult<void>>();
   }
 }
 

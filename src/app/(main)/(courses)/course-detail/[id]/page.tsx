@@ -1,4 +1,3 @@
-import { Course } from "@/types/main-flow";
 import CourseDetailBreadcrumb from "../components/course-detail-breadcrumb";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import ContinueLearnButton from "../components/continue-learn-btn";
@@ -12,9 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CurriculumTab from "../components/curriculum-tab";
 import DescriptionTab from "../components/description-tab";
 import RequirementsTab from "../components/requirement-tab";
-import { useParams } from "next/navigation";
 import { cookies } from "next/headers";
 import { courseApis } from "@/apis/gateways/course-apis";
+import { Course } from "@/types/main-flow";
 
 type CourseDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -40,7 +39,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
     }
   };
 
-  const course = await getCurrentCourse(courseId);
+  const course: Course | undefined = await getCurrentCourse(courseId);
 
   if (!course) {
     return <div>Error loading course details.</div>;
@@ -59,9 +58,9 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
               className="h-full w-full object-cover"
             />
             {
-              course.enrolled && (
+              course.status === 'Active' && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                  <ContinueLearnButton />
+                  <ContinueLearnButton courseId={course.id} />
                 </div>
               )
             }
@@ -93,7 +92,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
               </div>
             </div>
 
-            {course.enrolled && course.progress !== undefined && (
+            {course.status === 'Active' && course.progress !== undefined && (
               <Card>
                 <CardHeader>
                   <CardTitle>Your progress</CardTitle>
@@ -122,9 +121,9 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
               <CardTitle>Start Learning now!</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {course.enrolled ? (
+              {course.status === 'Active' ? (
                 <>
-                  <ContinueLearnButton />
+                  <ContinueLearnButton courseId={course.id} />
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-muted-foreground">
                       <span>Time spent</span>
@@ -137,7 +136,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                   </div>
                 </>
               ) : (
-                <EnrollLessonButton />
+                <EnrollLessonButton courseId={course.id} />
               )}
 
               <Separator />

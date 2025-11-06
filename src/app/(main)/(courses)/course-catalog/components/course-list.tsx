@@ -4,12 +4,13 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Course } from "@/types/main-flow";
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CourseCard from "./course-card";
 import { useCourseStore } from "@/stores/course-store";
 import { useShallow } from "zustand/shallow";
 import { useCourseList } from "@/hooks/useCourseList";
 import { useAuthStore } from "@/stores/auth-store";
+import { useMyCourse } from "@/hooks/useMyCourse";
 
 const CourseList = () => {
   const {
@@ -20,7 +21,7 @@ const CourseList = () => {
 
   const {
     data: courseListData,
-    isLoading,
+    isLoading: isCourseListLoading,
   } = useCourseList({
     accessToken,
     page: 1,
@@ -28,27 +29,59 @@ const CourseList = () => {
   });
 
   const {
+    data: myCoursesData,
+    isLoading: isMyCourseLoading,
+  } = useMyCourse({
+    accessToken,
+  })
+
+  const {
     courseList,
     setCourseList,
     setCurrentPage,
     setCurrentLimit,
-    setCurrentTotalPages
+    setCurrentTotalPages,
+    myCourses,
+    setMyCourses,
   } = useCourseStore((useShallow((state) => ({
     courseList: state.courseList,
     setCourseList: state.setCourseList,
     setCurrentPage: state.setCurrentPage,
     setCurrentLimit: state.setCurrentLimit,
     setCurrentTotalPages: state.setCurrentTotalPages,
+    myCourses: state.myCourses,
+    setMyCourses: state.setMyCourses,
   }))))
 
   useEffect(() => {
-    if (!isLoading && courseListData) {
+    if (!isCourseListLoading && courseListData) {
       setCourseList(courseListData.items);
       setCurrentPage(courseListData.page);
       setCurrentLimit(courseListData.limit);
       setCurrentTotalPages(courseListData.totalPages);
     }
   }, [courseListData])
+
+  useEffect(() => {
+    if (!isMyCourseLoading && myCoursesData) {
+      setMyCourses(myCoursesData);
+    }
+  }, [myCoursesData])
+
+  useEffect(() => {
+    myCourses.forEach((course) => {
+      if (courseList.find((c) => c.id === course.id)) {
+        setCourseList((prev) => {
+          return prev.map((c) => {
+            if (c.id === course.id) {
+              return { ...c, status: 'Active', enrolledAt: course.enrolledAt };
+            }
+            return c;
+          })
+        })
+      }
+    })
+  }, [courseList, myCourses])
 
   return (
     <div>
@@ -57,7 +90,7 @@ const CourseList = () => {
       </p>
 
       {
-        isLoading && (
+        (isCourseListLoading || isMyCourseLoading) && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
               <Card key={i}>
@@ -73,7 +106,7 @@ const CourseList = () => {
       }
 
       {
-        !isLoading && courseList.length === 0 && (
+        !isCourseListLoading && courseList.length === 0 && (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16">
               <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
@@ -89,7 +122,7 @@ const CourseList = () => {
       }
 
       {
-        !isLoading && courseList.length > 0 && (
+        !isCourseListLoading && courseList.length > 0 && !isMyCourseLoading && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {courseList.map((course) => (
               <CourseCard key={course.id} course={course} />

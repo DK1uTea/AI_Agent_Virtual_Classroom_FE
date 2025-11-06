@@ -11,6 +11,7 @@ type CourseState = {
   currentPage: number;
   currentLimit: number;
   currentTotalPages: number;
+  myCourses: Course[];
 }
 
 type CourseStateAction = {
@@ -19,6 +20,7 @@ type CourseStateAction = {
   setCurrentPage: (page: number) => void;
   setCurrentLimit: (limit: number) => void;
   setCurrentTotalPages: (totalPages: number) => void;
+  setMyCourses: (next: SetCourseListArg) => void;
 }
 
 type CourseStore = CourseState & CourseStateAction;
@@ -63,6 +65,17 @@ export const useCourseStore = create<CourseStore>()(
         setCurrentTotalPages: (totalPages: number) => {
           set((state) => {
             state.currentTotalPages = totalPages;
+          });
+        },
+
+        myCourses: [],
+        setMyCourses: (next: SetCourseListArg) => {
+          set((state) => {
+            if (typeof next === 'function') {
+              state.myCourses = next(state.myCourses);
+            } else {
+              state.myCourses = next;
+            }
           });
         },
       })

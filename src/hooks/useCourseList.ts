@@ -14,7 +14,7 @@ export const useCourseList = (req: {
 }) => {
   return useQuery({
     queryKey: ['course-list', req.page, req.limit, req.title, req.category, req.level, req.sort, req.sortBy],
-    enabled: false,
+    enabled: Boolean(req.page || req.limit || req.title || req.category || req.level || req.sort || req.sortBy),
     queryFn: async () => {
       try {
         const res = await courseApis.listCourse(req);
