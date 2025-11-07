@@ -18,6 +18,7 @@ export const useMyCourse = (req: {
             console.error('Error fetching my courses details: ', res.message);
           })
         }
+        throw error;
       }
     }
   })

@@ -121,7 +121,7 @@ const CourseFilter = () => {
           {/* Sort */}
           <Select
             onValueChange={(value) => {
-              setCurrentListConfig((prev) => ({ ...prev, sort: value as SortOrder }))
+              setCurrentListConfig((prev) => ({ ...prev, sortOrder: value as SortOrder }))
             }}
             disabled={isLoading}
           >

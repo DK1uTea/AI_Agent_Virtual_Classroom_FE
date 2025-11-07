@@ -13,7 +13,7 @@ class CourseApis {
     title?: string;
     category?: string;
     level?: string;
-    sort?: SortOrder;
+    sortOrder?: SortOrder;
   }): Promise<CourseListRes> {
     const reqPath = `api/courses`;
     const params: Record<string, any> = {
@@ -23,7 +23,7 @@ class CourseApis {
     if (req.title) params.title = req.title;
     if (req.category) params.category = req.category;
     if (req.level) params.level = req.level;
-    if (req.sort) params.sort = req.sort;
+    if (req.sortOrder) params.sortOrder = req.sortOrder;
 
     const res = await kyInstance.get(
       reqPath,

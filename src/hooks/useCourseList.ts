@@ -10,11 +10,11 @@ export const useCourseList = (req: {
   title?: string;
   category?: string;
   level?: string;
-  sort?: SortOrder;
+  sortOrder?: SortOrder;
 }) => {
   return useQuery({
-    queryKey: ['course-list', req.page, req.limit, req.title, req.category, req.level, req.sort],
-    enabled: Boolean(req.page || req.limit || req.title || req.category || req.level || req.sort),
+    queryKey: ['course-list', req.page, req.limit, req.title, req.category, req.level, req.sortOrder],
+    enabled: Boolean(req.page || req.limit || req.title || req.category || req.level || req.sortOrder),
     queryFn: async () => {
       try {
         const res = await courseApis.listCourse(req);
@@ -26,6 +26,7 @@ export const useCourseList = (req: {
             console.error('Error fetching course list details: ', res.message);
           })
         }
+        throw error;
       }
     }
   })
