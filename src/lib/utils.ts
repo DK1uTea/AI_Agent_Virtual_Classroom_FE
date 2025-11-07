@@ -1,4 +1,5 @@
 import { authApis } from "@/apis/gateways/auth-apis";
+import { Course } from "@/types/main-flow";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 

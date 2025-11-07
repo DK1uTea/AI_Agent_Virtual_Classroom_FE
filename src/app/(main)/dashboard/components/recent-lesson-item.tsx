@@ -20,8 +20,8 @@ const RecentLessonItem = ({ lesson, course }: RecentLessonItemProps) => {
         <p>{lesson.title}</p>
         <p className="text-muted-foreground">{course.title}</p>
         <div className="flex items-center gap-2">
-          <Progress value={course.progress} className="h-1" />
-          <span className="text-muted-foreground">{course.progress}%</span>
+          <Progress value={course.progress?.percent} className="h-1" />
+          <span className="text-muted-foreground">{course.progress?.percent}%</span>
         </div>
       </div>
       <span className="text-muted-foreground">{"1 day ago"}</span>

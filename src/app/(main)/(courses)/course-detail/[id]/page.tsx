@@ -1,4 +1,3 @@
-import { Course } from "@/types/main-flow";
 import CourseDetailBreadcrumb from "../components/course-detail-breadcrumb";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
 import ContinueLearnButton from "../components/continue-learn-btn";
@@ -12,36 +11,38 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CurriculumTab from "../components/curriculum-tab";
 import DescriptionTab from "../components/description-tab";
 import RequirementsTab from "../components/requirement-tab";
+import { cookies } from "next/headers";
+import { courseApis } from "@/apis/gateways/course-apis";
+import { Course } from "@/types/main-flow";
 
 type CourseDetailPageProps = {
-  params: Promise<{ idOrSlug: string }>;
+  params: Promise<{ id: string }>;
 }
 
 const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
 
-  const { idOrSlug: key } = await params;
+  const { id: courseId } = await params;
 
-  if (/^\d+$/.test(key)) {
-    // Fetch by ID
-  } else {
-    // Fetch by Slug
-  }
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('accessToken')?.value || '';
 
-  const course: Course = {
-    id: '1',
-    title: 'Introduction to Programming',
-    description: 'Learn the basics of programming using Python.',
-    coverImage: '/images/course-cover.jpg',
-    instructor: 'John Doe',
-    duration: '10 hours',
-    lessonCount: 20,
-    level: 'beginner',
-    category: 'Programming',
-    rating: 4.5,
-    isNew: true,
-    isHot: false,
-    progress: 50,
-    enrolled: true,
+  const getCurrentCourse = async (courseId: string) => {
+    try {
+      const res = await courseApis.courseDetail({
+        accessToken,
+        id: courseId,
+      })
+      console.log("res course detail: ", res);
+      return res;
+    } catch (error) {
+      console.error('Error fetching course detail: ', error);
+    }
+  };
+
+  const course: Course | undefined = await getCurrentCourse(courseId);
+
+  if (!course) {
+    return <div>Error loading course details.</div>;
   }
 
   return (
@@ -57,9 +58,9 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
               className="h-full w-full object-cover"
             />
             {
-              course.enrolled && (
+              course.status === 'Active' && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                  <ContinueLearnButton />
+                  <ContinueLearnButton courseId={course.id} />
                 </div>
               )
             }
@@ -79,7 +80,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
             <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
               <div className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5" />
-                <span>{course.lessonCount} bài học</span>
+                <span>{course.totalLessons} bài học</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
@@ -91,7 +92,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
               </div>
             </div>
 
-            {course.enrolled && course.progress !== undefined && (
+            {course.status === 'Active' && course.progress !== undefined && (
               <Card>
                 <CardHeader>
                   <CardTitle>Your progress</CardTitle>
@@ -99,12 +100,15 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                 <CardContent className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span>Completed</span>
-                    <span>{course.progress}%</span>
+                    <span>{course.progress.percent}%</span>
                   </div>
-                  <Progress value={course.progress} />
-                  <p className="text-muted-foreground">
-                    {Math.round((course.lessonCount * course.progress) / 100)}/{course.lessonCount} lessons
-                  </p>
+                  <Progress value={course.progress.percent} />
+                  {
+                    course.totalLessons &&
+                    <p className="text-muted-foreground">
+                      {course.progress.completedLessons}/{course.progress.totalLessons} lessons
+                    </p>
+                  }
                 </CardContent>
               </Card>
             )}
@@ -117,9 +121,9 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
               <CardTitle>Start Learning now!</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {course.enrolled ? (
+              {course.status === 'Active' ? (
                 <>
-                  <ContinueLearnButton />
+                  <ContinueLearnButton courseId={course.id} />
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-muted-foreground">
                       <span>Time spent</span>
@@ -132,7 +136,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                   </div>
                 </>
               ) : (
-                <EnrollLessonButton />
+                <EnrollLessonButton courseId={course.id} />
               )}
 
               <Separator />
@@ -142,7 +146,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                 <ul className="space-y-2 text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="mt-0.5 h-5 w-5 text-primary" />
-                    <span>{course.lessonCount} high-quality video lessons</span>
+                    <span>{course.totalLessons} high-quality video lessons</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="mt-0.5 h-5 w-5 text-primary" />
@@ -168,7 +172,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
             <CardContent>
               <div className="flex items-center gap-3">
                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span>{course.instructor[0]}</span>
+                  <span>{course.instructor ? course.instructor[0] : 'Unknown Instructor'}</span>
                 </div>
                 <div>
                   <p>{course.instructor}</p>

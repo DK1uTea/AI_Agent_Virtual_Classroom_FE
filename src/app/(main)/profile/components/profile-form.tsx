@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
-import { UpdateUserSchema, UpdateUserType } from "@/shemaValidations/user.schema";
+import { UpdateUserSchema, UpdateUserType } from "@/schemaValidations/user.schema";
 import { useAuthStore } from "@/stores/auth-store";
 import { User } from "@/types/user-types";
 import { zodResolver } from "@hookform/resolvers/zod";

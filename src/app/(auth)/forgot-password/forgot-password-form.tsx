@@ -3,7 +3,7 @@ import { authApis } from "@/apis/gateways/auth-apis";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
-import { ForgotPasswordSchema, ForgotPasswordType } from "@/shemaValidations/auth.schema";
+import { ForgotPasswordSchema, ForgotPasswordType } from "@/schemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
