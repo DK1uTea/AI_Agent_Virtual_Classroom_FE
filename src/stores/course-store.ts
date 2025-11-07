@@ -11,7 +11,7 @@ export type Config = {
   title: string;
   category: string;
   level: string;
-  sort: SortOrder;
+  sortOrder: SortOrder;
 }
 
 export type SetCourseListConfigArg = Config | ((prev: Config) => Config);
@@ -62,7 +62,7 @@ export const useCourseStore = create<CourseStore>()(
           title: '',
           category: '',
           level: '',
-          sort: SortOrder.DESC,
+          sortOrder: SortOrder.DESC,
         },
         setCurrentListConfig: (next: SetCourseListConfigArg) => {
           set((state) => {
