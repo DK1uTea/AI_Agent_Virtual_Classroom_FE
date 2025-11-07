@@ -72,12 +72,12 @@ const CourseCard = ({ course }: CourseCardProps) => {
             Continue Learning
           </Button>
         )}
-        {course.status !== 'Active' && (
+        {course.status === 'Completed' && (
           <Button
             className="w-full"
-            onClick={() => router.push(`/course-detail/${course.id}`)}
+            disabled
           >
-            View Details
+            You have completed this course
           </Button>
         )}
       </CardFooter>
