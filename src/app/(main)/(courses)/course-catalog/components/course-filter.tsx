@@ -83,7 +83,7 @@ const CourseFilter = () => {
           {/* Category Filter */}
           <Select
             onValueChange={(value) => {
-              setCurrentListConfig((prev) => ({ ...prev, category: value }));
+              setCurrentListConfig((prev) => ({ ...prev, category: value === '__all' ? "" : value }));
             }}
             disabled={isLoading}
           >
@@ -91,7 +91,7 @@ const CourseFilter = () => {
               <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All categories</SelectItem>
+              <SelectItem value="__all">All categories</SelectItem>
               {
                 categories.map((category) => (
                   <SelectItem key={category} value={category}>{category}</SelectItem>
@@ -102,7 +102,7 @@ const CourseFilter = () => {
           {/* Level Filter */}
           <Select
             onValueChange={(value) => {
-              setCurrentListConfig((prev) => ({ ...prev, level: value }))
+              setCurrentListConfig((prev) => ({ ...prev, level: value === '__all' ? "" : value }));
             }}
             disabled={isLoading}
           >
@@ -110,7 +110,7 @@ const CourseFilter = () => {
               <SelectValue placeholder="Level" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All levels</SelectItem>
+              <SelectItem value="__all">All levels</SelectItem>
               {
                 levels.map((level) => (
                   <SelectItem key={level} value={level}>{level}</SelectItem>
