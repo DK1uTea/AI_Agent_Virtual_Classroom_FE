@@ -1,36 +1,46 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const privatePaths = ['/dashboard', '/profile', '/course-catalog', '/course-detail', '/reports', '/my-course'];
-const authPaths = ['/', '/login', '/register'];
+const PRIVATE = ['/dashboard', '/profile', '/course-catalog', '/course-detail', '/reports', '/my-course'];
+const AUTH = ['/', '/login', '/register'];
+
+function isHTMLNavigate(req: NextRequest) {
+  const isPrefetch =
+    req.headers.get('x-middleware-prefetch') === '1' ||
+    req.headers.get('purpose') === 'prefetch';
+
+  const isNavigate = req.headers.get('sec-fetch-mode') === 'navigate';
+  const accept = req.headers.get('accept') || '';
+  const wantsHTML = accept.includes('text/html');
+
+  const path = req.nextUrl.pathname;
+  const isNextInternal = path.startsWith('/_next/');
+
+  return !isPrefetch && isNavigate && wantsHTML && !isNextInternal;
+}
 
 export function middleware(request: NextRequest) {
+  if (!isHTMLNavigate(request)) return NextResponse.next();
+
   const { pathname } = request.nextUrl;
 
-  const user = request.cookies.get('user')?.value || '';
+  const path = pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
+
   const accessToken = request.cookies.get('accessToken')?.value || '';
-  const refreshToken = request.cookies.get('refreshToken')?.value || '';
+  const isAuthed = Boolean(accessToken);
 
-  const isAuthed = Boolean(user && accessToken && refreshToken);
+  const isPrivate =
+    path !== '/' && PRIVATE.some(p => path === p || path.startsWith(`${p}/`));
 
-  const isPrivatePath =
-    pathname !== '/' &&
-    privatePaths.some(p => pathname === p || pathname.startsWith(`${p}/`));
+  const isAuthPage =
+    AUTH.some(p => path === p || path.startsWith(`${p}/`));
 
-  const isAuthPath =
-    pathname === '/' ||
-    ['/login', '/register'].some(p => pathname === p || pathname.startsWith(`${p}/`));
-
-  if (isPrivatePath && !isAuthed) {
-    if (pathname !== '/') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
+  if (isPrivate && !isAuthed) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
-  if (isAuthPath && isAuthed) {
-    if (pathname !== '/dashboard') {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
+  if (isAuthPage && isAuthed && path !== '/dashboard') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();
@@ -44,6 +54,7 @@ export const config = {
     '/dashboard',
     '/profile',
     '/course-catalog',
+    '/course-catalog/:path*',
     '/course-detail',
     '/course-detail/:path*',
     '/reports',
