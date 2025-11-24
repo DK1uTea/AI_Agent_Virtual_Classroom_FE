@@ -1,12 +1,21 @@
 'use client'
 
+import { useVideoPlayerStore } from '@/stores/video-player-store';
 import ReactPlayer from 'react-player';
+import { useShallow } from 'zustand/shallow';
 
 const VideoPlayer = () => {
+
+  const {
+    videoUrl,
+  } = useVideoPlayerStore(useShallow((state) => ({
+    videoUrl: state.videoUrl,
+  })));
+
   return (
     <ReactPlayer
-      src='https://www.youtube.com/watch?v=w-wdCNfPCus&list=RDw-wdCNfPCus&start_radio=1'
-      controls={true}
+      src={videoUrl}
+      controls={false}
       width={'100%'}
       height={'100%'}
       crossOrigin='anonymous'

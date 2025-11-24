@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
-import { cn } from "@/lib/utils";
+import { cn, formatTimer } from "@/lib/utils";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
 import { Maximize, Pause, Play, Settings, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 import { useState } from "react";
@@ -11,14 +11,29 @@ import { useShallow } from "zustand/shallow";
 
 const VideoControls = () => {
   const {
+    isPlaying,
+    currentSeekNumber,
+    setCurrentSeekNumber,
+    duration,
+    playbackRate,
+    setPlaybackRate,
+    setIsPlaying,
     showControls,
   } = useVideoPlayerStore(useShallow((state) => ({
+    isPlaying: state.isPlaying,
+    setIsPlaying: state.setIsPlaying,
+    currentSeekNumber: state.currentSeekNumber,
+    setCurrentSeekNumber: state.setCurrentSeekNumber,
+    duration: state.duration,
+    playbackRate: state.playbackRate,
+    setPlaybackRate: state.setPlaybackRate,
     showControls: state.showControls,
   })));
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+
+  const playbackRateOptions = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(50);
-  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
 
   return (
     <div className={cn('absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity', showControls ? 'opacity-100' : 'opacity-0')}>
@@ -32,7 +47,7 @@ const VideoControls = () => {
             size={"icon"}
             className="text-white hover:bg-white/20"
             onClick={() => {
-
+              setIsPlaying(!isPlaying);
             }}
           >
             {isPlaying ?
@@ -85,7 +100,7 @@ const VideoControls = () => {
           </div>
 
           <span className="text-white">
-            00:00 / 15:30
+            {formatTimer(currentSeekNumber)} / {formatTimer(duration)}
           </span>
         </div>
 
@@ -101,24 +116,13 @@ const VideoControls = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setPlaybackSpeed(0.5)}>
-                Speed: 0.5x {playbackSpeed === 0.5 && '✓'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPlaybackSpeed(0.75)}>
-                Speed: 0.75x {playbackSpeed === 0.75 && '✓'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPlaybackSpeed(1)}>
-                Speed: 1x {playbackSpeed === 1 && '✓'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPlaybackSpeed(1.25)}>
-                Speed: 1.25x {playbackSpeed === 1.25 && '✓'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPlaybackSpeed(1.5)}>
-                Speed: 1.5x {playbackSpeed === 1.5 && '✓'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPlaybackSpeed(2)}>
-                Speed: 2x {playbackSpeed === 2 && '✓'}
-              </DropdownMenuItem>
+              {playbackRateOptions.map((rate) => (
+                <DropdownMenuItem
+                  className={cn({ "bg-accent font-semibold": playbackRate === rate })}
+                  onClick={() => setPlaybackRate(rate)}>
+                  Speed: {rate}x {playbackRate === rate && '✓'}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
 

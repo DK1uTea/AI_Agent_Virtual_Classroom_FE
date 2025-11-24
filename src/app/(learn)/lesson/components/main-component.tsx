@@ -13,9 +13,12 @@ import { useVideoPlayerStore } from "@/stores/video-player-store";
 import { useShallow } from "zustand/shallow";
 import { useCourseStore } from "@/stores/course-store";
 import { useLessonStore } from "@/stores/lesson-store";
+import { useRouter } from "next/navigation";
 
 
 const MainComponent = () => {
+
+  const router = useRouter();
 
   const {
     currentCourseId,
@@ -26,10 +29,23 @@ const MainComponent = () => {
   })))
 
   const {
-    currentLesson
+    currentLesson,
+    currentSidebarLessons
   } = useLessonStore(useShallow((state) => ({
     currentLesson: state.currentLesson,
-  })))
+    currentSidebarLessons: state.currentSidebarLessons,
+  })));
+
+  const prevAndNextLessonId = useMemo(() => {
+    if (currentSidebarLessons.length > 0 && currentLesson && currentLesson.order) {
+      const prevLessonId = currentSidebarLessons.find((lesson) => lesson.order === (currentLesson?.order - 1))?.id || null;
+      const nextLessonId = currentSidebarLessons.find((lesson) => lesson.order === (currentLesson?.order + 1))?.id || null;
+      return {
+        prevLessonId,
+        nextLessonId,
+      };
+    };
+  }, [currentSidebarLessons, currentLesson]);
 
   const {
     setShowControls,
@@ -40,11 +56,11 @@ const MainComponent = () => {
   const [isVideoPauseByChat, setIsVideoPauseByChat] = useState<boolean>(false);
 
   const handlePrevious = () => {
-
+    router.push(`/lesson/${prevAndNextLessonId?.prevLessonId}`);
   };
 
   const handleNext = () => {
-
+    router.push(`/lesson/${prevAndNextLessonId?.nextLessonId}`);
   };
 
   return (

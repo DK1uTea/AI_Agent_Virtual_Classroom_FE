@@ -6,6 +6,10 @@ import MainComponent from "../components/main-component";
 import { useCourseStore } from "@/stores/course-store";
 import { useShallow } from "zustand/shallow";
 import { useLessonStore } from "@/stores/lesson-store";
+import { useCurrentLesson } from "@/hooks/useCurrentLesson";
+import { useAuthStore } from "@/stores/auth-store";
+import { useEffect } from "react";
+import { useVideoPlayerStore } from "@/stores/video-player-store";
 
 type LessonPageProps = {
   params: Promise<{ lessonId: string }>;
@@ -15,23 +19,53 @@ const LessonPage = async ({ params }: LessonPageProps) => {
   const { lessonId } = await params;
 
   const {
+    accessToken
+  } = useAuthStore(useShallow((state) => ({
+    accessToken: state.accessToken,
+  })));
+
+  const {
     currentCourseId
   } = useCourseStore(useShallow((state) => ({
     currentCourseId: state.currentCourseId,
   })));
 
   const {
+    currentLesson,
     setCurrentLesson,
     setCurrentSidebarLessons,
     setCurrentTranscripts,
   } = useLessonStore(useShallow((state) => ({
+    currentLesson: state.currentLesson,
     setCurrentLesson: state.setCurrentLesson,
     setCurrentSidebarLessons: state.setCurrentSidebarLessons,
     setCurrentTranscripts: state.setCurrentTranscripts,
   })));
 
-  // TODO: Fetch current lesson data
+  const {
+    isFetching: isFetchingCurrentLesson,
+  } = useCurrentLesson({
+    accessToken: accessToken || '',
+    lessonId,
+    setCurrentLesson,
+    setCurrentSidebarLessons,
+    setCurrentTranscripts,
+  });
 
+  const {
+    setVideoUrl,
+    setDuration,
+  } = useVideoPlayerStore(useShallow((state) => ({
+    setVideoUrl: state.setVideoUrl,
+    setDuration: state.setDuration,
+  })))
+
+  useEffect(() => {
+    if (currentLesson && currentLesson.url && currentLesson.duration) {
+      setVideoUrl(currentLesson.url);
+      setDuration(currentLesson.duration);
+    }
+  }, [currentLesson])
 
   if (!currentCourseId) {
     return <div>Not course found</div>;

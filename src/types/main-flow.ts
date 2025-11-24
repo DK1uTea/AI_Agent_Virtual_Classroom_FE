@@ -64,6 +64,7 @@ export type Lesson = {
   title: string;
   order: number;
   duration: number;
+  status?: 'not-started' | 'in-progress' | 'completed';
 }
 
 export type TranscriptItem = {
