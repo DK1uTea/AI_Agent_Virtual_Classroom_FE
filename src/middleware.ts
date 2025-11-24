@@ -58,7 +58,7 @@ export const config = {
     '/course-detail',
     '/course-detail/:path*',
     '/reports',
-    '/my-course',
+    '/my-courses',
     '/lesson/:path*',
     '/quiz/:path*',
   ],
