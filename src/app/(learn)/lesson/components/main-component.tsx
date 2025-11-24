@@ -14,6 +14,7 @@ import { useShallow } from "zustand/shallow";
 import { useCourseStore } from "@/stores/course-store";
 import { useLessonStore } from "@/stores/lesson-store";
 import { useRouter } from "next/navigation";
+import TranscriptTab from "./transcript-tab";
 
 
 const MainComponent = () => {
@@ -168,7 +169,7 @@ const MainComponent = () => {
               <LessonListTab />
             </TabsContent>
             <TabsContent value="transcript-text" className="h-full p-4 m-0">
-
+              <TranscriptTab />
             </TabsContent>
             <TabsContent value="chat" className="h-full p-4 m-0">
 
