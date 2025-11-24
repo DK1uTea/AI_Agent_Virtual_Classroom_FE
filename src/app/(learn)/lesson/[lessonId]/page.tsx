@@ -5,6 +5,7 @@ import LessonBreadcrumb from "../components/lesson-breadcrumb";
 import MainComponent from "../components/main-component";
 import { useCourseStore } from "@/stores/course-store";
 import { useShallow } from "zustand/shallow";
+import { useLessonStore } from "@/stores/lesson-store";
 
 type LessonPageProps = {
   params: Promise<{ lessonId: string }>;
@@ -17,21 +18,20 @@ const LessonPage = async ({ params }: LessonPageProps) => {
     currentCourseId
   } = useCourseStore(useShallow((state) => ({
     currentCourseId: state.currentCourseId,
-  })))
+  })));
 
-  // Fetch lesson data by ID
-  // TODO: Implement data fetching logic here
+  const {
+    setCurrentLesson,
+    setCurrentSidebarLessons,
+    setCurrentTranscripts,
+  } = useLessonStore(useShallow((state) => ({
+    setCurrentLesson: state.setCurrentLesson,
+    setCurrentSidebarLessons: state.setCurrentSidebarLessons,
+    setCurrentTranscripts: state.setCurrentTranscripts,
+  })));
 
-  const currentLesson: Lesson = {
-    id: lessonId,
-    courseId: currentCourse ? currentCourse.id : '',
-    title: "Introduction to NestJS",
-    duration: '930',
-    status: 'in-progress',
-    videoUrl: 'https://www.youtube.com/watch?v=ftO1fTbWpxs',
-    transcript: [],
-    order: 1,
-  };
+  // TODO: Fetch current lesson data
+
 
   if (!currentCourseId) {
     return <div>Not course found</div>;
@@ -40,16 +40,10 @@ const LessonPage = async ({ params }: LessonPageProps) => {
   return (
     <div className="flex flex-col min-h-[calc] p-6">
       {/* Breadcrumb */}
-      <LessonBreadcrumb
-        courseId={currentCourseId}
-        courseTitle={currentCourse.title}
-        lessonTitle={currentLesson.title}
-      />
+      <LessonBreadcrumb />
 
       {/* Main Content */}
-      <MainComponent
-        currentCourse={currentCourse}
-        currentLesson={currentLesson} />
+      <MainComponent />
     </div>
   );
 }

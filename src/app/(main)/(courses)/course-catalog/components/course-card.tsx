@@ -71,8 +71,8 @@ const CourseCard = ({ course }: CourseCardProps) => {
             variant={"secondary"}
             className="w-full"
             onClick={() => {
-              router.push(`/course-detail/${course.id}`);
               setCurrentCourseId(String(course.id));
+              router.push(`/course-detail/${course.id}`);
             }}
           >
             Continue Learning
@@ -82,8 +82,8 @@ const CourseCard = ({ course }: CourseCardProps) => {
           <Button
             className="w-full"
             onClick={() => {
-              router.push(`/course-detail/${course.id}`);
               setCurrentCourseId(String(course.id));
+              router.push(`/course-detail/${course.id}`);
             }}
           >
             View Details

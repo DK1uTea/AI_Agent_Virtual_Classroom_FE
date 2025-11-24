@@ -5,18 +5,31 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Course, Lesson } from "@/types/main-flow";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import LessonListTab from "./lesson-list-tab";
 import VideoPlayer from "./video-player";
 import VideoControls from "./video-controls";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
 import { useShallow } from "zustand/shallow";
+import { useCourseStore } from "@/stores/course-store";
+import { useLessonStore } from "@/stores/lesson-store";
 
-type MainComponentProps = {
-  currentCourse: Course;
-  currentLesson: Lesson;
-}
-const MainComponent = ({ currentCourse, currentLesson }: MainComponentProps) => {
+
+const MainComponent = () => {
+
+  const {
+    currentCourseId,
+    myCourses
+  } = useCourseStore(useShallow((state) => ({
+    currentCourseId: state.currentCourseId,
+    myCourses: state.myCourses
+  })))
+
+  const {
+    currentLesson
+  } = useLessonStore(useShallow((state) => ({
+    currentLesson: state.currentLesson,
+  })))
 
   const {
     setShowControls,
@@ -62,8 +75,8 @@ const MainComponent = ({ currentCourse, currentLesson }: MainComponentProps) => 
         <div className="bg-background p-4 space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <p>{currentLesson.title}</p>
-              <span className="text-muted-foreground">{currentLesson.duration}</span>
+              <p>{currentLesson?.title ?? "Unknown Lesson"}</p>
+              <span className="text-muted-foreground">{currentLesson?.duration ?? "Unknown Duration"}</span>
             </div>
             <Progress value={65} />
           </div>
@@ -101,7 +114,7 @@ const MainComponent = ({ currentCourse, currentLesson }: MainComponentProps) => 
 
           <div className="flex-1">
             <TabsContent value="lesson-list" className="h-full p-4 m-0">
-              <LessonListTab lessons={currentCourse.lessons || []} currentLessonId={currentLesson.id} />
+              <LessonListTab />
             </TabsContent>
             <TabsContent value="transcript-text" className="h-full p-4 m-0">
 
