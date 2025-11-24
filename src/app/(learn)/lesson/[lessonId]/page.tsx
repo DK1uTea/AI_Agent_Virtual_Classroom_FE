@@ -1,6 +1,6 @@
 'use client'
 
-import { Course, Lesson } from "@/types/main-flow";
+import { Lesson } from "@/types/main-flow";
 import LessonBreadcrumb from "../components/lesson-breadcrumb";
 import MainComponent from "../components/main-component";
 import { useCourseStore } from "@/stores/course-store";
@@ -14,9 +14,9 @@ const LessonPage = async ({ params }: LessonPageProps) => {
   const { lessonId } = await params;
 
   const {
-    currentCourse
+    currentCourseId
   } = useCourseStore(useShallow((state) => ({
-    currentCourse: state.currentCourse,
+    currentCourseId: state.currentCourseId,
   })))
 
   // Fetch lesson data by ID
@@ -33,7 +33,7 @@ const LessonPage = async ({ params }: LessonPageProps) => {
     order: 1,
   };
 
-  if (!currentCourse) {
+  if (!currentCourseId) {
     return <div>Not course found</div>;
   }
 
@@ -41,7 +41,7 @@ const LessonPage = async ({ params }: LessonPageProps) => {
     <div className="flex flex-col min-h-[calc] p-6">
       {/* Breadcrumb */}
       <LessonBreadcrumb
-        courseId={currentCourse.id}
+        courseId={currentCourseId}
         courseTitle={currentCourse.title}
         lessonTitle={currentLesson.title}
       />

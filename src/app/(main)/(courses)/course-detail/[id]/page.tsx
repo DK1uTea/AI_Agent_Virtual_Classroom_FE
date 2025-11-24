@@ -60,7 +60,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
             {
               course.status === 'Active' && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                  <ContinueLearnButton courseId={course.id} />
+                  <ContinueLearnButton courseId={String(course.id)} />
                 </div>
               )
             }
@@ -123,7 +123,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
             <CardContent className="space-y-4">
               {course.status === 'Active' ? (
                 <>
-                  <ContinueLearnButton courseId={course.id} />
+                  <ContinueLearnButton courseId={String(course.id)} />
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-muted-foreground">
                       <span>Time spent</span>
@@ -136,7 +136,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                   </div>
                 </>
               ) : (
-                <EnrollLessonButton courseId={course.id} />
+                <EnrollLessonButton courseId={String(course.id)} />
               )}
 
               <Separator />

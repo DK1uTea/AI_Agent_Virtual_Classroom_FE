@@ -1,5 +1,5 @@
 'use client'
-import { BarChart3, BookOpen, Home, Settings, User } from "lucide-react";
+import { BarChart3, BookOpen, BookOpenCheck, Home, Settings, User } from "lucide-react";
 import { ScrollArea } from "./scroll-area";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "./button";
@@ -14,6 +14,7 @@ const menuItems = [
   { id: 'course-catalog', label: 'Course Catalog', icon: BookOpen },
   { id: 'reports', label: 'Reports', icon: BarChart3 },
   { id: 'profile', label: 'Profile', icon: User },
+  { id: 'my-courses', label: 'My Courses', icon: BookOpenCheck },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 

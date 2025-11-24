@@ -1,5 +1,5 @@
 export type Course = {
-  id: string;
+  id: string | number;
   title: string;
   slug?: string;
   description?: string;
@@ -60,21 +60,30 @@ export enum SortOrder {
 }
 
 export type Lesson = {
-  id: string;
-  courseId?: string;
+  id: string | number;
   title: string;
-  duration: string;
-  status?: 'not-started' | 'in-progress' | 'completed';
-  videoUrl?: string;
-  transcript?: TranscriptItem[];
   order: number;
+  duration: number;
 }
 
 export type TranscriptItem = {
   id: string;
-  timestamp: string;
-  time: number;
+  start: number;
+  end: number;
   text: string;
+}
+
+export type SidebarLessonItem = {
+  id: string | number;
+  title: string;
+  order: string | number;
+  duration: number;
+}
+
+export type LessonWithPlayback = Lesson & {
+  url: string;
+  type: string;
+  courseId: string | number;
 }
 
 export interface ActivityLog {
