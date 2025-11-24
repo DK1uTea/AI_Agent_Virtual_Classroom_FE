@@ -11,21 +11,14 @@ import { set } from "zod";
 
 
 type BeforeStartQuizProps = {
-  params: Promise<{ idOrSlug: string; lessonId: string }>;
   setQuizStarted: (started: boolean) => void;
 }
-const BeforeStartQuiz = async ({ params, setQuizStarted }: BeforeStartQuizProps) => {
-
-  const { idOrSlug, lessonId } = await params;
+const BeforeStartQuiz = ({ setQuizStarted }: BeforeStartQuizProps) => {
 
   return (
     <div className="space-y-6 p-6">
       <QuizBreadcrumb
-        courseIdOrSlug={idOrSlug}
-        courseTitle=""
-        lessonId={lessonId}
-        lessonTitle=""
-        text="Quiz Test"
+        text="Before Starting Quiz"
       />
 
       <Card className="max-w-2xl mx-auto">

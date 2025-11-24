@@ -65,3 +65,17 @@ export const formatTimer = (seconds: number): string => {
       .padStart(2, '0')}`;
   }
 };
+
+function generateCustomEvent<
+  T extends keyof GlobalEventHandlersEventMap,
+  U extends GlobalEventHandlersEventMap[T] extends CustomEvent<infer TDetail> ? TDetail : never,
+>(name: T, detail: U) {
+  return new CustomEvent(name, { detail });
+}
+
+export function documentDispatchEvent<
+  T extends keyof GlobalEventHandlersEventMap,
+  U extends GlobalEventHandlersEventMap[T] extends CustomEvent<infer TDetail> ? TDetail : never,
+>(eventName: T, detail: U) {
+  document.dispatchEvent(generateCustomEvent(eventName, detail));
+}

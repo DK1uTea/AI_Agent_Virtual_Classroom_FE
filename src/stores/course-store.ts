@@ -18,7 +18,7 @@ export type SetCourseListConfigArg = Config | ((prev: Config) => Config);
 
 type CourseState = {
   courseList: Course[];
-  currentCourse: Course | null;
+  currentCourseId: string;
   currentListConfig: Config;
   currentTotalPages: number;
   myCourses: Course[];
@@ -26,7 +26,7 @@ type CourseState = {
 
 type CourseStateAction = {
   setCourseList: (next: SetCourseListArg) => void;
-  setCurrentCourse: (course: Course | null) => void;
+  setCurrentCourseId: (courseId: string) => void;
   setCurrentListConfig: (next: SetCourseListConfigArg) => void;
   setCurrentTotalPages: (totalPages: number) => void;
   setMyCourses: (next: SetCourseListArg) => void;
@@ -49,10 +49,10 @@ export const useCourseStore = create<CourseStore>()(
           });
         },
 
-        currentCourse: null,
-        setCurrentCourse: (course: Course | null) => {
+        currentCourseId: '',
+        setCurrentCourseId: (courseId: string) => {
           set((state) => {
-            state.currentCourse = course;
+            state.currentCourseId = courseId;
           });
         },
 

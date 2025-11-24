@@ -17,6 +17,9 @@ type CourseCardProps = {
 const CourseCard = ({ course }: CourseCardProps) => {
 
   const router = useRouter();
+  const { setCurrentCourseId } = useCourseStore((useShallow((state) => ({
+    setCurrentCourseId: state.setCurrentCourseId,
+  }))));
 
   return (
     <Card className="group overflow-hidden transition-all hover:shadow-lg cursor-pointer">
@@ -67,7 +70,10 @@ const CourseCard = ({ course }: CourseCardProps) => {
           <Button
             variant={"secondary"}
             className="w-full"
-            onClick={() => router.push(`/course-detail/${course.id}`)}
+            onClick={() => {
+              setCurrentCourseId(String(course.id));
+              router.push(`/course-detail/${course.id}`);
+            }}
           >
             Continue Learning
           </Button>
@@ -75,7 +81,10 @@ const CourseCard = ({ course }: CourseCardProps) => {
         {course.status !== 'Active' && (
           <Button
             className="w-full"
-            onClick={() => router.push(`/course-detail/${course.id}`)}
+            onClick={() => {
+              setCurrentCourseId(String(course.id));
+              router.push(`/course-detail/${course.id}`);
+            }}
           >
             View Details
           </Button>

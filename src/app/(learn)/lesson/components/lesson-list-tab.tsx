@@ -1,43 +1,49 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
+import { useLessonStore } from "@/stores/lesson-store";
 import { Lesson } from "@/types/main-flow";
 import { ArrowUpIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useShallow } from "zustand/shallow";
 
-type LessonListTabProps = {
-  lessons: Lesson[];
-  currentLessonId: string;
-}
-const LessonListTab = ({ lessons, currentLessonId }: LessonListTabProps) => {
+const LessonListTab = () => {
   const router = useRouter();
+
+  const {
+    currentLesson,
+    currentSidebarLessons,
+  } = useLessonStore(useShallow((state) => ({
+    currentLesson: state.currentLesson,
+    currentSidebarLessons: state.currentSidebarLessons,
+  })))
 
   return (
     <div className="space-y-4">
       <h3>Lesson List</h3>
       <div className="space-y-2">
-        {lessons.map((lesson) => (
+        {currentSidebarLessons.map((lesson) => (
           <div
             key={lesson.id}
-            className={`p-3 rounded-lg border cursor-pointer transition-colors ${lesson.id === currentLessonId
+            className={`p-3 rounded-lg border cursor-pointer transition-colors ${lesson.id === currentLesson?.id
               ? 'bg-primary text-primary-foreground border-primary'
               : 'hover:bg-accent'
               }`}
           >
             <div>
               <p>Lesson {lesson.order}: {lesson.title}</p>
-              <p className={lesson.id === currentLessonId ? 'text-primary-foreground/80' : 'text-muted-foreground'}>
+              <p className={lesson.id === currentLesson?.id ? 'text-primary-foreground/80' : 'text-muted-foreground'}>
                 {lesson.duration}
               </p>
             </div>
             {
-              currentLessonId === lesson.id &&
+              currentLesson?.id === lesson.id &&
               <Button
                 className="space-x-1"
                 variant={"secondary"}
                 onClick={(e) => {
                   e.stopPropagation();
-                  router.push('quiz');
+                  router.push(`/quiz/${currentLesson?.id}`);
                 }}
               >
                 <span>Take a quiz test</span>
