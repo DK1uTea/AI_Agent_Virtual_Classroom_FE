@@ -55,15 +55,21 @@ const LessonPage = async ({ params }: LessonPageProps) => {
   const {
     setVideoUrl,
     setDuration,
+    resetPlayer,
   } = useVideoPlayerStore(useShallow((state) => ({
     setVideoUrl: state.setVideoUrl,
     setDuration: state.setDuration,
+    resetPlayer: state.resetPlayer,
   })))
 
   useEffect(() => {
     if (currentLesson && currentLesson.url && currentLesson.duration) {
       setVideoUrl(currentLesson.url);
       setDuration(currentLesson.duration);
+    }
+
+    return () => {
+      resetPlayer();
     }
   }, [currentLesson])
 

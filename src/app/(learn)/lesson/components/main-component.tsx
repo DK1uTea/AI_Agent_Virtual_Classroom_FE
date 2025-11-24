@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Course, Lesson } from "@/types/main-flow";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import LessonListTab from "./lesson-list-tab";
 import VideoPlayer from "./video-player";
 import VideoControls from "./video-controls";
@@ -54,6 +54,41 @@ const MainComponent = () => {
   })))
 
   const [isVideoPauseByChat, setIsVideoPauseByChat] = useState<boolean>(false);
+  const [controlsTimeout, setControlsTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const handleMouseMove = () => {
+    setShowControls(true);
+
+    if (controlsTimeout) {
+      clearTimeout(controlsTimeout);
+    }
+
+    const timeout = setTimeout(() => {
+      setShowControls(false);
+    }, 3000);
+
+    setControlsTimeout(timeout);
+  };
+
+  const handleMouseLeave = () => {
+    if (controlsTimeout) {
+      clearTimeout(controlsTimeout);
+    }
+
+    const timeout = setTimeout(() => {
+      setShowControls(false);
+    }, 1000);
+
+    setControlsTimeout(timeout);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (controlsTimeout) {
+        clearTimeout(controlsTimeout);
+      }
+    };
+  }, [controlsTimeout]);
 
   const handlePrevious = () => {
     router.push(`/lesson/${prevAndNextLessonId?.prevLessonId}`);
@@ -68,15 +103,11 @@ const MainComponent = () => {
       {/* Video Section */}
       <div className="flex flex-1 flex-col">
         {/* Video Player */}
-        <div className="relative"
-          onMouseEnter={() => {
-            setShowControls(true);
-          }}
-          onMouseLeave={() => {
-            setTimeout(() => {
-              setShowControls(false);
-            }, 3000);
-          }}
+        <div
+          id="video-container"
+          className="relative aspect-video bg-black"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         >
           <VideoPlayer />
           <VideoControls />
@@ -98,11 +129,15 @@ const MainComponent = () => {
           </div>
 
           <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={handlePrevious}>
+            <Button variant="outline" onClick={handlePrevious} disabled={currentLesson?.order === 1}
+            >
               <ChevronLeft className="mr-2 h-4 w-4" />
               Previous Lesson
             </Button>
-            <Button onClick={handleNext}>
+            <Button
+              variant="outline"
+              onClick={handleNext} disabled={currentLesson?.order === currentSidebarLessons.length}
+            >
               Next Lesson
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>

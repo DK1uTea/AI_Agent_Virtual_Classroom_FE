@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const PRIVATE = ['/dashboard', '/profile', '/course-catalog', '/course-detail', '/reports', '/my-course'];
+const PRIVATE = ['/dashboard', '/profile', '/course-catalog', '/course-detail', '/reports', '/my-course', '/lesson', '/quiz'];
 const AUTH = ['/', '/login', '/register'];
 
 function isHTMLNavigate(req: NextRequest) {
@@ -59,5 +59,7 @@ export const config = {
     '/course-detail/:path*',
     '/reports',
     '/my-course',
+    '/lesson/:path*',
+    '/quiz/:path*',
   ],
 };

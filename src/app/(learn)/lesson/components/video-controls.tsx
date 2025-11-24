@@ -3,42 +3,143 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
-import { cn, formatTimer } from "@/lib/utils";
+import { cn, documentDispatchEvent, formatTimer } from "@/lib/utils";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
-import { Maximize, Pause, Play, Settings, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
-import { useState } from "react";
+import { Maximize, Minimize, Pause, Play, Settings, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/shallow";
+import { debounce } from 'es-toolkit';
 
 const VideoControls = () => {
   const {
+    videoRef,
     isPlaying,
-    currentSeekNumber,
-    setCurrentSeekNumber,
-    duration,
+    setIsPlaying,
     playbackRate,
     setPlaybackRate,
-    setIsPlaying,
+    currentTime,
+    setCurrentTime,
+    changeCurrentSeekNumber,
+    changeCurrentSeek,
+    duration,
     showControls,
+    volume,
+    setVolume,
+    isMuted,
+    setIsMuted,
+    isFullscreen,
+    setIsFullscreen,
   } = useVideoPlayerStore(useShallow((state) => ({
+    videoRef: state.videoRef,
     isPlaying: state.isPlaying,
     setIsPlaying: state.setIsPlaying,
-    currentSeekNumber: state.currentSeekNumber,
-    setCurrentSeekNumber: state.setCurrentSeekNumber,
-    duration: state.duration,
     playbackRate: state.playbackRate,
     setPlaybackRate: state.setPlaybackRate,
+    currentTime: state.currentTime,
+    setCurrentTime: state.setCurrentTime,
+    changeCurrentSeekNumber: state.changeCurrentSeekNumber,
+    changeCurrentSeek: state.changeCurrentSeek,
+    duration: state.duration,
     showControls: state.showControls,
+    volume: state.volume,
+    setVolume: state.setVolume,
+    isMuted: state.isMuted,
+    setIsMuted: state.setIsMuted,
+    isFullscreen: state.isFullscreen,
+    setIsFullscreen: state.setIsFullscreen,
   })));
 
-  const playbackRateOptions = [0.5, 0.75, 1, 1.25, 1.5, 2];
+  const playbackRateOptions = useMemo(() => [0.5, 0.75, 1, 1.25, 1.5, 2], []);
 
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [volume, setVolume] = useState<number>(50);
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleSkipBack = () => {
+
+  }
+
+  const handleSkipForward = () => {
+
+  };
+
+  const handleVolumeChange = (v: number[]) => {
+    setVolume(v[0]);
+    if (v[0] === 0) {
+      setIsMuted(true);
+    } else {
+      setIsMuted(false);
+    }
+  }
+
+  const handleMuteToggle = () => {
+    setIsMuted(!isMuted);
+  };
+
+  const handleFullscreen = () => {
+    const videoContainer = document.getElementById('video-container');
+    if (!videoContainer) return;
+
+    if (!isFullscreen) {
+      if (videoContainer.requestFullscreen) {
+        videoContainer.requestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+    setIsFullscreen(!isFullscreen);
+  };
+
+  const handleSeekChangeCallback = useCallback((newTime: number) => {
+    if (Number.isNaN(newTime)) return;
+    const shouldCallDebounce = !videoRef?.current || videoRef.current.duration < 0 || videoRef.current.readyState !== HTMLMediaElement.HAVE_ENOUGH_DATA;
+    if (shouldCallDebounce) {
+      requestAnimationFrame(() => {
+        documentDispatchEvent('seekChangeDebounce', {
+          time: newTime,
+        })
+      })
+      return;
+    }
+    setCurrentTime(newTime);
+  }, [videoRef, setCurrentTime]);
+
+  const handleSeekChange = useCallback(
+    (value: number[]) => handleSeekChangeCallback(value[0]),
+    [handleSeekChangeCallback]
+  );
+
+  useEffect(() => {
+    const seekChangeHandleDetail = (e: CustomEvent<{ time: number }>) => {
+      handleSeekChangeCallback(e.detail.time);
+    }
+
+    const seekChangeDebounce = debounce(seekChangeHandleDetail, 500);
+
+    document.addEventListener('seekChange', seekChangeHandleDetail);
+
+    document.addEventListener('seekChangeDebounce', seekChangeDebounce);
+
+    return () => {
+      document.removeEventListener('seekChange', seekChangeHandleDetail);
+      document.removeEventListener('seekChangeDebounce', seekChangeDebounce);
+      seekChangeDebounce.flush();
+    }
+  }, [handleSeekChangeCallback])
 
   return (
     <div className={cn('absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity', showControls ? 'opacity-100' : 'opacity-0')}>
 
-      <Slider />
+      <Slider
+        value={[currentTime]}
+        max={duration}
+        min={0}
+        step={1}
+        onValueChange={handleSeekChange}
+        className="cursor-pointer"
+      />
 
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
@@ -46,9 +147,7 @@ const VideoControls = () => {
             variant={"ghost"}
             size={"icon"}
             className="text-white hover:bg-white/20"
-            onClick={() => {
-              setIsPlaying(!isPlaying);
-            }}
+            onClick={handlePlayPause}
           >
             {isPlaying ?
               <Pause className="h-5 w-5" />
@@ -60,9 +159,7 @@ const VideoControls = () => {
             variant={"ghost"}
             size={"icon"}
             className="text-white hover:bg-white/20"
-            onClick={() => {
-
-            }}
+            onClick={handleSkipBack}
           >
             <SkipBack className="h-5 w-5" />
           </Button>
@@ -71,15 +168,15 @@ const VideoControls = () => {
             variant={"ghost"}
             size={"icon"}
             className="text-white hover:bg-white/20"
-            onClick={() => {
-
-            }}
+            onClick={handleSkipForward}
           >
             <SkipForward className="h-5 w-5" />
           </Button>
 
           <div className="flex items-center gap-2">
-            <Button>
+            <Button
+              onClick={handleMuteToggle}
+            >
               {
                 isMuted || volume === 0 ?
                   <VolumeX className="h-5 w-5" />
@@ -91,16 +188,13 @@ const VideoControls = () => {
               value={[isMuted ? 0 : volume]}
               max={100}
               step={1}
-              onValueChange={(v) => {
-                setVolume(v[0]);
-                setIsMuted(v[0] === 0);
-              }}
+              onValueChange={handleVolumeChange}
               className="w-20"
             />
           </div>
 
           <span className="text-white">
-            {formatTimer(currentSeekNumber)} / {formatTimer(duration)}
+            {formatTimer(currentTime)} / {formatTimer(duration)}
           </span>
         </div>
 
@@ -130,8 +224,9 @@ const VideoControls = () => {
             variant="ghost"
             size="icon"
             className="text-white hover:bg-white/20"
+            onClick={handleFullscreen}
           >
-            <Maximize className="h-5 w-5" />
+            {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
           </Button>
         </div>
       </div>
@@ -140,3 +235,10 @@ const VideoControls = () => {
 };
 
 export default VideoControls;
+
+declare global {
+  interface GlobalEventHandlersEventMap {
+    seekChange: CustomEvent<{ time: number }>;
+    seekChangeDebounce: CustomEvent<{ time: number }>;
+  }
+}

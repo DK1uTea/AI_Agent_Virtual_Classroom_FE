@@ -10,13 +10,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { useLessonStore } from "@/stores/lesson-store";
+import { useShallow } from "zustand/shallow";
 
-type QuizPageProps = {
-  params: Promise<{ idOrSlug: string; lessonId: string }>;
-}
 
-const QuizPage = async ({ params }: QuizPageProps) => {
-  const { idOrSlug, lessonId } = await params;
+
+const QuizPage = () => {
+  const {
+    currentLesson
+  } = useLessonStore(useShallow((state) => ({
+    currentLesson: state.currentLesson,
+  })))
+
   const [timeLeft, setTimeLeft] = useState<number>(90);
   const [quizStarted, setQuizStarted] = useState<boolean>(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
@@ -28,7 +33,6 @@ const QuizPage = async ({ params }: QuizPageProps) => {
   if (!quizStarted) {
     return (
       <BeforeStartQuiz
-        params={params}
         setQuizStarted={setQuizStarted} />
     );
   }
@@ -37,10 +41,6 @@ const QuizPage = async ({ params }: QuizPageProps) => {
     <div className="space-y-6 p-6">
       <div>
         <QuizBreadcrumb
-          courseIdOrSlug={idOrSlug}
-          courseTitle=""
-          lessonId={lessonId}
-          lessonTitle=""
           text="Quiz Test"
         />
 
