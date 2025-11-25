@@ -15,6 +15,7 @@ import { useCourseStore } from "@/stores/course-store";
 import { useLessonStore } from "@/stores/lesson-store";
 import { useRouter } from "next/navigation";
 import TranscriptTab from "./transcript-tab";
+import ChatTab from "./chat-tab";
 
 
 const MainComponent = () => {
@@ -172,7 +173,7 @@ const MainComponent = () => {
               <TranscriptTab />
             </TabsContent>
             <TabsContent value="chat" className="h-full p-4 m-0">
-
+              <ChatTab />
             </TabsContent>
             <TabsContent value="mind-map" className="h-full p-4 m-0">
 
