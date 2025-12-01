@@ -1,8 +1,6 @@
-import { ReactNode } from "react";
-
-export type Message = {
-  id: string | number;
+export type MessageType = {
   role: 'user' | 'assistant';
-  value: string | string[];
-  timestamp?: string;
+  value: string;
+  intent?: 'normal' | 'deep';
+  createdAt?: string;
 }
