@@ -60,11 +60,20 @@ class AuthApis {
     user: User;
     accessToken: string;
     refreshToken: string;
-  }): Promise<void> {
+  }): Promise<{
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+  }> {
     const reqPath = 'api/auth';
-    await kyLocalInstance.post(reqPath, {
+    const res = await kyLocalInstance.post(reqPath, {
       json: req,
-    });
+    }).json<ApiResult<{
+      user: User;
+      accessToken: string;
+      refreshToken: string;
+    }>>();
+    return res.data;
   }
 
   public async getAuthFromNextServer(): Promise<{

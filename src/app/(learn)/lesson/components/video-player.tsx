@@ -61,6 +61,14 @@ const VideoPlayer = () => {
     }
   }, [changeCurrentSeekNumber, changeCurrentSeek, setCurrentTime]);
 
+  if (!videoUrl || videoUrl.trim() === '') {
+    return (
+      <div className="flex items-center justify-center h-full bg-black">
+        <p className="text-white text-center">No video available</p>
+      </div>
+    );
+  }
+
   return (
     <ReactPlayer
       ref={(element) => {

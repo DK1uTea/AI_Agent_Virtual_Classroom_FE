@@ -25,6 +25,7 @@ export const useCurrentLesson = (req: {
           }),
         ]);
         const [lessonPlaybackInfo, lessonTranscripts] = res;
+        console.log('current lesson res: ', res);
 
         req.setCurrentSidebarLessons(lessonPlaybackInfo.sidebarLessons);
         const { sidebarLessons, ...currentLesson } = lessonPlaybackInfo;

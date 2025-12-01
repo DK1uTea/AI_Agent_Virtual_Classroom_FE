@@ -41,6 +41,8 @@ const CourseList = () => {
     setMyCourses: state.setMyCourses,
   }))));
 
+  console.log('Access token in course list:', accessToken);
+
   const {
     data: courseListData,
     isLoading: isCourseListLoading,
@@ -76,19 +78,23 @@ const CourseList = () => {
   }, [myCoursesData])
 
   useEffect(() => {
-    myCourses.forEach((course) => {
-      if (courseList.find((c) => c.id === course.id)) {
-        setCourseList((prev) => {
-          return prev.map((c) => {
-            if (c.id === course.id) {
-              return { ...c, status: EnrollmentStatus.ACTIVE, enrolledAt: course.enrolledAt };
-            }
-            return c;
-          })
-        })
+    if (myCourses.length === 0 || courseList.length === 0) return;
+
+    let hasChanges = false;
+    const updatedList = courseList.map((c) => {
+      const enrolledCourse = myCourses.find((course) => course.id === c.id);
+      if (enrolledCourse && c.status !== EnrollmentStatus.ACTIVE) {
+        hasChanges = true;
+        return { ...c, status: EnrollmentStatus.ACTIVE, enrolledAt: enrolledCourse.enrolledAt };
       }
-    })
-  }, [courseList, myCourses])
+      return c;
+    });
+
+    // Chỉ cập nhật nếu có thay đổi
+    if (hasChanges) {
+      setCourseList(updatedList);
+    }
+  }, [myCourses])
 
   const maxVisiblePages = 5;
 

@@ -10,19 +10,19 @@ import { useCurrentLesson } from "@/hooks/useCurrentLesson";
 import { useAuthStore } from "@/stores/auth-store";
 import { useEffect } from "react";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
+import { useParams } from "next/navigation";
 
-type LessonPageProps = {
-  params: Promise<{ lessonId: string }>;
-}
-
-const LessonPage = async ({ params }: LessonPageProps) => {
-  const { lessonId } = await params;
+const LessonPage = () => {
+  const params = useParams();
+  const lessonId = params.lessonId as string;
 
   const {
     accessToken
   } = useAuthStore(useShallow((state) => ({
     accessToken: state.accessToken,
   })));
+
+  console.log('accessToken from lesson page:', accessToken);
 
   const {
     currentCourseId
@@ -42,15 +42,7 @@ const LessonPage = async ({ params }: LessonPageProps) => {
     setCurrentTranscripts: state.setCurrentTranscripts,
   })));
 
-  const {
-    isFetching: isFetchingCurrentLesson,
-  } = useCurrentLesson({
-    accessToken: accessToken || '',
-    lessonId,
-    setCurrentLesson,
-    setCurrentSidebarLessons,
-    setCurrentTranscripts,
-  });
+  console.log('currentLesson:', currentLesson);
 
   const {
     setVideoUrl,
@@ -61,6 +53,16 @@ const LessonPage = async ({ params }: LessonPageProps) => {
     setDuration: state.setDuration,
     resetPlayer: state.resetPlayer,
   })))
+
+  const {
+    isFetching: isFetchingCurrentLesson,
+  } = useCurrentLesson({
+    accessToken: accessToken || '',
+    lessonId,
+    setCurrentLesson,
+    setCurrentSidebarLessons,
+    setCurrentTranscripts,
+  });
 
   useEffect(() => {
     if (currentLesson && currentLesson.url && currentLesson.duration) {
