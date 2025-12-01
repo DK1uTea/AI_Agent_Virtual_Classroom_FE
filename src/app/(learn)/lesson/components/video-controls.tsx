@@ -212,6 +212,7 @@ const VideoControls = () => {
             <DropdownMenuContent>
               {playbackRateOptions.map((rate) => (
                 <DropdownMenuItem
+                  key={rate}
                   className={cn({ "bg-accent font-semibold": playbackRate === rate })}
                   onClick={() => setPlaybackRate(rate)}>
                   Speed: {rate}x {playbackRate === rate && '✓'}

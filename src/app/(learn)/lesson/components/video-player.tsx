@@ -41,22 +41,25 @@ const VideoPlayer = () => {
     resetPlayer: state.resetPlayer,
   })));
 
-  const playerRef = useRef<HTMLVideoElement | null>(null);
+  const playerRef = useRef<any>(null);
+
 
   useEffect(() => {
     if (playerRef.current) {
-      setVideoRef(playerRef);
+      const internalPlayer = playerRef.current.getInternalPlayer() as HTMLVideoElement;
+      if (internalPlayer) {
+        setVideoRef({ current: internalPlayer });
+      }
     }
-  }, [])
+  }, [setVideoRef])
 
   useEffect(() => {
-    if (changeCurrentSeekNumber !== null) {
-      setCurrentTime(changeCurrentSeekNumber as number);
-
-      if (playerRef.current) {
-        playerRef.current.currentTime = changeCurrentSeekNumber as number;
+    if (changeCurrentSeekNumber !== null && playerRef.current) {
+      const internalPlayer = playerRef.current.getInternalPlayer() as HTMLVideoElement;
+      if (internalPlayer) {
+        internalPlayer.currentTime = changeCurrentSeekNumber;
+        setCurrentTime(changeCurrentSeekNumber);
       }
-
       changeCurrentSeek(null);
     }
   }, [changeCurrentSeekNumber, changeCurrentSeek, setCurrentTime]);
@@ -71,10 +74,7 @@ const VideoPlayer = () => {
 
   return (
     <ReactPlayer
-      ref={(element) => {
-        playerRef.current = element;
-        setVideoRef(playerRef);
-      }}
+      ref={playerRef}
       src={videoUrl}
       controls={false}
       playing={isPlaying}

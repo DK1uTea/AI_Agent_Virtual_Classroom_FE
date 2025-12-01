@@ -8,13 +8,16 @@ import { useShallow } from "zustand/shallow";
 import { useLessonStore } from "@/stores/lesson-store";
 import { useCurrentLesson } from "@/hooks/useCurrentLesson";
 import { useAuthStore } from "@/stores/auth-store";
-import { useEffect } from "react";
+import {use, useEffect } from "react";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
 import { useParams } from "next/navigation";
 
-const LessonPage = () => {
-  const params = useParams();
-  const lessonId = params.lessonId as string;
+type LessonPageProps = {
+  params: Promise<{ lessonId: string }>;
+}
+
+const LessonPage = ({ params }: LessonPageProps) => {
+  const { lessonId } = use(params);
 
   const {
     accessToken

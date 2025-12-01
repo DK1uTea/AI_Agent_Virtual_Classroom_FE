@@ -31,6 +31,7 @@ export const useCurrentLesson = (req: {
         const { sidebarLessons, ...currentLesson } = lessonPlaybackInfo;
         req.setCurrentLesson(currentLesson);
         req.setCurrentTranscripts(lessonTranscripts);
+        return { lessonPlaybackInfo, lessonTranscripts };
       } catch (error) {
         console.error('Error fetching current lesson data', error);
         if (isHTTPError(error)) {
