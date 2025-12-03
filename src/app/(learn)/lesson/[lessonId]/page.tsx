@@ -6,7 +6,7 @@ import MainComponent from "../components/main-component";
 import { useCourseStore } from "@/stores/course-store";
 import { useShallow } from "zustand/shallow";
 import { useLessonStore } from "@/stores/lesson-store";
-import { useCurrentLesson } from "@/hooks/useCurrentLesson";
+import { useGetCurrentLesson } from "@/hooks/useGetCurrentLesson";
 import { useAuthStore } from "@/stores/auth-store";
 import {use, useEffect } from "react";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
@@ -59,7 +59,7 @@ const LessonPage = ({ params }: LessonPageProps) => {
 
   const {
     isFetching: isFetchingCurrentLesson,
-  } = useCurrentLesson({
+  } = useGetCurrentLesson({
     accessToken: accessToken || '',
     lessonId,
     setCurrentLesson,

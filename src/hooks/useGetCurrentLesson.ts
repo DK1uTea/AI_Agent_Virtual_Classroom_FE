@@ -3,7 +3,7 @@ import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { LessonWithPlayback, SidebarLessonItem, TranscriptItem } from "@/types/main-flow";
 import { useQuery } from "@tanstack/react-query";
 
-export const useCurrentLesson = (req: {
+export const useGetCurrentLesson = (req: {
   accessToken: string;
   lessonId: string;
   setCurrentLesson: (lesson: LessonWithPlayback | null) => void;
@@ -12,6 +12,7 @@ export const useCurrentLesson = (req: {
 }) => {
   return useQuery({
     queryKey: ['current-lesson'],
+    enabled: Boolean(req.accessToken) && Boolean(req.lessonId),
     queryFn: async () => {
       try {
         const res = await Promise.all([
@@ -35,7 +36,7 @@ export const useCurrentLesson = (req: {
       } catch (error) {
         console.error('Error fetching current lesson data', error);
         if (isHTTPError(error)) {
-          getErrorJson(error).then((res) => {
+          await getErrorJson(error).then((res) => {
             console.error('Error fetching current lesson details: ', res.message);
           })
         }

@@ -3,7 +3,7 @@ import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { SortOrder } from "@/types/main-flow";
 import { useQuery } from "@tanstack/react-query"
 
-export const useCourseList = (req: {
+export const useGetCourseList = (req: {
   accessToken: string;
   page?: number;
   limit?: number;
@@ -14,7 +14,7 @@ export const useCourseList = (req: {
 }) => {
   return useQuery({
     queryKey: ['course-list', req.page, req.limit, req.title, req.category, req.level, req.sortOrder],
-    enabled: Boolean(req.page || req.limit || req.title || req.category || req.level || req.sortOrder),
+    enabled: Boolean(req.accessToken) && Boolean(req.page || req.limit || req.title || req.category || req.level || req.sortOrder),
     queryFn: async () => {
       try {
         const res = await courseApis.listCourse(req);
@@ -22,7 +22,7 @@ export const useCourseList = (req: {
       } catch (error) {
         console.error('Error fetching course list: ', error);
         if (isHTTPError(error)) {
-          getErrorJson(error).then((res) => {
+          await getErrorJson(error).then((res) => {
             console.error('Error fetching course list details: ', res.message);
           })
         }
