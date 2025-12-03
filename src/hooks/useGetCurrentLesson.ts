@@ -1,15 +1,24 @@
 import { lessonApis } from "@/apis/gateways/lesson-apis";
+import { LessonPlaybackRes } from "@/apis/responses/lesson-res";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { LessonWithPlayback, SidebarLessonItem, TranscriptItem } from "@/types/main-flow";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetCurrentLesson = (req: {
-  accessToken: string;
-  lessonId: string;
-  setCurrentLesson: (lesson: LessonWithPlayback | null) => void;
-  setCurrentSidebarLessons: (lessons: SidebarLessonItem[]) => void;
-  setCurrentTranscripts: (transcripts: TranscriptItem[]) => void;
-}) => {
+export const useGetCurrentLesson = (
+  req: {
+    accessToken: string;
+    lessonId: string;
+
+  },
+  onSuccessExtra?: ({
+    lessonPlaybackInfo,
+    lessonTranscripts
+  }: {
+    lessonPlaybackInfo: LessonPlaybackRes;
+    lessonTranscripts: TranscriptItem[];
+  }) => void,
+  onErrorExtra?: () => void,
+) => {
   return useQuery({
     queryKey: ['current-lesson'],
     enabled: Boolean(req.accessToken) && Boolean(req.lessonId),
@@ -28,12 +37,10 @@ export const useGetCurrentLesson = (req: {
         const [lessonPlaybackInfo, lessonTranscripts] = res;
         console.log('current lesson res: ', res);
 
-        req.setCurrentSidebarLessons(lessonPlaybackInfo.sidebarLessons);
-        const { sidebarLessons, ...currentLesson } = lessonPlaybackInfo;
-        req.setCurrentLesson(currentLesson);
-        req.setCurrentTranscripts(lessonTranscripts);
+        onSuccessExtra?.({ lessonPlaybackInfo, lessonTranscripts });
         return { lessonPlaybackInfo, lessonTranscripts };
       } catch (error) {
+        onErrorExtra?.();
         console.error('Error fetching current lesson data', error);
         if (isHTTPError(error)) {
           await getErrorJson(error).then((res) => {

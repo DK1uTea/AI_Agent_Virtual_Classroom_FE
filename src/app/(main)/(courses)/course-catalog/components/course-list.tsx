@@ -87,7 +87,6 @@ const CourseList = () => {
       return c;
     });
 
-    // Chỉ cập nhật nếu có thay đổi
     if (hasChanges) {
       setCourseList(updatedList);
     }

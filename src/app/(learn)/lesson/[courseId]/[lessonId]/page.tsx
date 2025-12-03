@@ -8,16 +8,19 @@ import { useShallow } from "zustand/shallow";
 import { useLessonStore } from "@/stores/lesson-store";
 import { useGetCurrentLesson } from "@/hooks/useGetCurrentLesson";
 import { useAuthStore } from "@/stores/auth-store";
-import {use, useEffect } from "react";
+import { use, useEffect } from "react";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
 import { useParams } from "next/navigation";
 
 type LessonPageProps = {
-  params: Promise<{ lessonId: string }>;
+  params: Promise<{
+    courseId: string;
+    lessonId: string
+  }>;
 }
 
 const LessonPage = ({ params }: LessonPageProps) => {
-  const { lessonId } = use(params);
+  const { courseId, lessonId } = use(params);
 
   const {
     accessToken
@@ -28,9 +31,9 @@ const LessonPage = ({ params }: LessonPageProps) => {
   console.log('accessToken from lesson page:', accessToken);
 
   const {
-    currentCourseId
+    setCurrentCourseId,
   } = useCourseStore(useShallow((state) => ({
-    currentCourseId: state.currentCourseId,
+    setCurrentCourseId: state.setCurrentCourseId,
   })));
 
   const {
@@ -59,26 +62,37 @@ const LessonPage = ({ params }: LessonPageProps) => {
 
   const {
     isFetching: isFetchingCurrentLesson,
-  } = useGetCurrentLesson({
-    accessToken: accessToken || '',
-    lessonId,
-    setCurrentLesson,
-    setCurrentSidebarLessons,
-    setCurrentTranscripts,
-  });
-
-  useEffect(() => {
-    if (currentLesson && currentLesson.url && currentLesson.duration) {
+  } = useGetCurrentLesson(
+    {
+      accessToken: accessToken || '',
+      lessonId,
+    },
+    ({ lessonPlaybackInfo, lessonTranscripts }) => {
+      setCurrentSidebarLessons(lessonPlaybackInfo.sidebarLessons);
+      const { sidebarLessons, ...currentLesson } = lessonPlaybackInfo;
+      setCurrentLesson(currentLesson);
+      setCurrentTranscripts(lessonTranscripts);
       setVideoUrl(currentLesson.url);
       setDuration(currentLesson.duration);
+    },
+    () => {
+      console.error('Error fetching current lesson data');
     }
+
+  );
+
+  useEffect(() => {
+    setCurrentCourseId(courseId);
+  }, [courseId])
+
+  useEffect(() => {
 
     return () => {
       resetPlayer();
     }
   }, [currentLesson])
 
-  if (!currentCourseId) {
+  if (!courseId) {
     return <div>Not course found</div>;
   }
 

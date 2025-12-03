@@ -2,17 +2,20 @@
 
 import { authApis } from "@/apis/gateways/auth-apis";
 import { useAuthStore } from "@/stores/auth-store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
 import dayjs from "dayjs";
 import { decodeJwt, forcedSignOut } from "@/lib/utils";
 import { decode } from "punycode";
 import { access } from "fs";
+import Loading from "./ui/loading";
 
 const REFRESH_INTERVAL_MINUTES = 5
 const REFRESH_THRESHOLD_MINUTES = 5
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [isInitializing, setIsInitializing] = useState(true);
+
   const {
     isAuth,
     user,
@@ -43,7 +46,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         );
       } catch (error) {
         console.error('Error fetching auth from NextServer: ', error);
+      } finally {
+        setIsInitializing(false);
       }
+    } else {
+      setIsInitializing(false);
     }
   };
 
@@ -87,6 +94,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => clearInterval(interval);
   }, [accessToken]);
+
+  if (isInitializing) {
+    return <Loading />;
+  }
 
   return <>
     {children}

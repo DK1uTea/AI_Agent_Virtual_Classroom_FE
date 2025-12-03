@@ -58,9 +58,9 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
               className="h-full w-full object-cover"
             />
             {
-              course.status === 'Active' && (
+              course?.progress?.status === 'Active' && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                  <ContinueLearnButton courseId={String(course.id)} />
+                  <ContinueLearnButton course={course} />
                 </div>
               )
             }
@@ -92,7 +92,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
               </div>
             </div>
 
-            {course.status === 'Active' && course.progress !== undefined && (
+            {course.progress && course?.progress?.status === 'Active' && (
               <Card>
                 <CardHeader>
                   <CardTitle>Your progress</CardTitle>
@@ -121,9 +121,9 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
               <CardTitle>Start Learning now!</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {course.status === 'Active' ? (
+              {course?.progress?.status === 'Active' ? (
                 <>
-                  <ContinueLearnButton courseId={String(course.id)} />
+                  <ContinueLearnButton course={course} />
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-muted-foreground">
                       <span>Time spent</span>
