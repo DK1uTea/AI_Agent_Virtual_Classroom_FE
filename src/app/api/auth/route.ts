@@ -32,6 +32,8 @@ export const POST = async (request: Request) => {
     message: "Auth data set successfully"
   };
 
+  console.log('Success response to be set in cookies: ', successResponse);
+
   cookieStore.set({
     name: 'user',
     value: JSON.stringify(userData),

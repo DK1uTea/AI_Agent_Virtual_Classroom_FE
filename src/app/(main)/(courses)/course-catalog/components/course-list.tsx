@@ -8,11 +8,10 @@ import { useEffect } from "react";
 import CourseCard from "./course-card";
 import { useCourseStore } from "@/stores/course-store";
 import { useShallow } from "zustand/shallow";
-import { useCourseList } from "@/hooks/useCourseList";
+import { useGetCourseList } from "@/hooks/useGetCourseList";
 import { useAuthStore } from "@/stores/auth-store";
-import { useMyCourse } from "@/hooks/useMyCourse";
+import { useGetMyCourse } from "@/hooks/useGetMyCourse";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { set } from "zod";
 
 const CourseList = () => {
   const {
@@ -44,7 +43,7 @@ const CourseList = () => {
   const {
     data: courseListData,
     isLoading: isCourseListLoading,
-  } = useCourseList({
+  } = useGetCourseList({
     accessToken,
     ...currentListConfig,
   });
@@ -52,43 +51,41 @@ const CourseList = () => {
   const {
     data: myCoursesData,
     isLoading: isMyCourseLoading,
-  } = useMyCourse({
+  } = useGetMyCourse({
     accessToken,
   });
 
 
   useEffect(() => {
-    if (!isCourseListLoading && courseListData) {
-      setCourseList(courseListData.items);
+    if (!isCourseListLoading && !isMyCourseLoading) {
+      const updatedCoursesList = courseListData?.items.map((course) => {
+        const enrolledCourse = myCoursesData?.find((myCourse) => myCourse.id === course.id);
+        if (enrolledCourse) {
+          return {
+            ...course,
+            status: enrolledCourse.status,
+            enrolledAt: enrolledCourse.enrolledAt,
+          }
+        }
+        return course;
+      });
+      setCourseList(updatedCoursesList || []);
+      setMyCourses(myCoursesData || []);
+      setCurrentTotalPages(courseListData?.totalPages || 1);
       setCurrentListConfig((prev) => ({
         ...prev,
-        page: courseListData.page,
-        limit: courseListData.limit,
+        page: courseListData?.page ?? prev.page,
+        limit: courseListData?.limit ?? prev.limit,
       }));
-      setCurrentTotalPages(courseListData.totalPages);
     }
-  }, [courseListData])
-
-  useEffect(() => {
-    if (!isMyCourseLoading && myCoursesData) {
-      setMyCourses(myCoursesData);
-    }
-  }, [myCoursesData])
-
-  useEffect(() => {
-    myCourses.forEach((course) => {
-      if (courseList.find((c) => c.id === course.id)) {
-        setCourseList((prev) => {
-          return prev.map((c) => {
-            if (c.id === course.id) {
-              return { ...c, status: EnrollmentStatus.ACTIVE, enrolledAt: course.enrolledAt };
-            }
-            return c;
-          })
-        })
-      }
-    })
-  }, [courseList, myCourses])
+  }, [courseListData,
+    myCoursesData,
+    isCourseListLoading,
+    isMyCourseLoading,
+    setCourseList,
+    setMyCourses,
+    setCurrentListConfig,
+    setCurrentTotalPages,])
 
   const maxVisiblePages = 5;
 
@@ -132,90 +129,84 @@ const CourseList = () => {
 
   return (
     <div>
-      <p>
-        Found {courseList.length} courses.
-      </p>
-
-      {
-        (isCourseListLoading || isMyCourseLoading) && (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i}>
-                <Skeleton className="h-48 w-full rounded-t-xl" />
-                <CardHeader>
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                </CardHeader>
-              </Card>
-            ))}
-          </div>
-        )
+      {!isCourseListLoading && !isMyCourseLoading &&
+        <p>
+          Found {courseList.length} courses.
+        </p>
       }
 
-      {
-        !isCourseListLoading && courseList.length === 0 && (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
-                <Search className="h-10 w-10 text-muted-foreground" />
-              </div>
-              <h3>Not found any courses</h3>
-              <p className="text-muted-foreground">
-                Try changing the filter or search keyword
-              </p>
-            </CardContent>
-          </Card>
-        )
-      }
+      {(isCourseListLoading || isMyCourseLoading) && (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i}>
+              <Skeleton className="h-48 w-full rounded-t-xl" />
+              <CardHeader>
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      )}
 
-      {
-        !isCourseListLoading && courseList.length > 0 && !isMyCourseLoading && (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {courseList.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        )
-      }
-      {
-        !isCourseListLoading && courseList.length > 0 && !isMyCourseLoading && (
-          <div className="w-full flex items-center justify-center">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => handlePageChange(currentListConfig.page - 1)}
-                    aria-disabled={currentListConfig.page === 1}
-                  />
-                </PaginationItem>
-                {getVisiblePages().map((page, index) =>
-                  page === 'ellipsis' ? (
-                    <PaginationItem key={`e-${index}`}>
-                      <PaginationEllipsis />
+      {!isCourseListLoading && courseList.length === 0 && (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+              <Search className="h-10 w-10 text-muted-foreground" />
+            </div>
+            <h3>Not found any courses</h3>
+            <p className="text-muted-foreground">
+              Try changing the filter or search keyword
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {!isCourseListLoading && courseList.length > 0 && !isMyCourseLoading && (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {courseList.map((course) => (
+            <CourseCard key={course.id} course={course} />
+          ))}
+        </div>
+      )}
+      {!isCourseListLoading && courseList.length > 0 && !isMyCourseLoading && (
+        <div className="w-full flex items-center justify-center mt-10">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => handlePageChange(currentListConfig.page - 1)}
+                  aria-disabled={currentListConfig.page === 1}
+                />
+              </PaginationItem>
+              {getVisiblePages().map((page, index) =>
+                page === 'ellipsis' ? (
+                  <PaginationItem key={`e-${index}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                )
+                  : (
+                    <PaginationItem key={page} >
+                      <PaginationLink
+                        isActive={page === currentListConfig.page}
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </PaginationLink>
                     </PaginationItem>
                   )
-                    : (
-                      <PaginationItem key={page} >
-                        <PaginationLink
-                          isActive={page === currentListConfig.page}
-                          onClick={() => handlePageChange(page)}
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    )
-                )}
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => handlePageChange(currentListConfig.page + 1)}
-                    aria-disabled={currentListConfig.page === currentTotalPages}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
-        )
-      }
+              )}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => handlePageChange(currentListConfig.page + 1)}
+                  aria-disabled={currentListConfig.page === currentTotalPages}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div >
 
   );

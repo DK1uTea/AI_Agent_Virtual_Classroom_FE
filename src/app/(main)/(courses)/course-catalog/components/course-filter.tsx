@@ -2,7 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useCourseList } from "@/hooks/useCourseList";
+import { useGetCourseList } from "@/hooks/useGetCourseList";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCourseStore } from "@/stores/course-store";
 import { CourseCategory, CourseLevel, SortOrder } from "@/types/main-flow";
@@ -48,7 +48,7 @@ const CourseFilter = () => {
 
   const {
     isLoading,
-  } = useCourseList({
+  } = useGetCourseList({
     accessToken,
     ...currentListConfig,
   });
@@ -57,7 +57,7 @@ const CourseFilter = () => {
 
   const debouncedSearch = useDebounceCallback((value: string) => {
     setCurrentListConfig((prev) => ({ ...prev, title: value, page: 1 }));
-  }, 500)
+  }, 1500)
 
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const val = event.target.value;

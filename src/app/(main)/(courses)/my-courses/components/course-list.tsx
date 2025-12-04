@@ -8,11 +8,8 @@ import { useEffect } from "react";
 import CourseCard from "./course-card";
 import { useCourseStore } from "@/stores/course-store";
 import { useShallow } from "zustand/shallow";
-import { useCourseList } from "@/hooks/useCourseList";
 import { useAuthStore } from "@/stores/auth-store";
-import { useMyCourse } from "@/hooks/useMyCourse";
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-
+import { useGetMyCourse } from "@/hooks/useGetMyCourse";
 
 const CourseList = () => {
   const {
@@ -29,11 +26,10 @@ const CourseList = () => {
     setMyCourses: state.setMyCourses,
   }))));
 
-
   const {
     data: myCoursesData,
     isLoading: isMyCourseLoading,
-  } = useMyCourse({
+  } = useGetMyCourse({
     accessToken,
   });
 

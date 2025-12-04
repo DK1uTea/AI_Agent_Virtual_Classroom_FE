@@ -62,10 +62,10 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
       setIsEditing(false);
       router.refresh();
     },
-    onError: (error) => {
+    onError: async (error) => {
       console.error("Error updating user profile: ", error);
       if (isHTTPError(error)) {
-        getErrorJson(error).then((res) => {
+        await getErrorJson(error).then((res) => {
           console.error('Update profile error: ', error);
           toast.error(res.message || "Failed to update profile");
         });

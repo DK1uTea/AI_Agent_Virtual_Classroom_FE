@@ -41,32 +41,50 @@ const VideoPlayer = () => {
     resetPlayer: state.resetPlayer,
   })));
 
-  const playerRef = useRef<HTMLVideoElement | null>(null);
+  const playerRef = useRef<any>(null);
 
+  // Reset video ref when URL changes
   useEffect(() => {
-    if (playerRef.current) {
-      setVideoRef(playerRef);
-    }
-  }, [])
+    setVideoRef(null);
+    setCurrentTime(0);
+  }, [videoUrl, setVideoRef]);
 
-  useEffect(() => {
-    if (changeCurrentSeekNumber !== null) {
-      setCurrentTime(changeCurrentSeekNumber as number);
-
-      if (playerRef.current) {
-        playerRef.current.currentTime = changeCurrentSeekNumber as number;
+  // Handle ready event to get internal player
+  const handleReady = () => {
+    if (playerRef.current && typeof playerRef.current.getInternalPlayer === 'function') {
+      const internalPlayer = playerRef.current.getInternalPlayer() as HTMLVideoElement;
+      if (internalPlayer) {
+        setVideoRef({ current: internalPlayer });
       }
+    }
+  };
 
+  useEffect(() => {
+    if (changeCurrentSeekNumber !== null && playerRef.current) {
+      // Check if getInternalPlayer is available
+      if (typeof playerRef.current.getInternalPlayer === 'function') {
+        const internalPlayer = playerRef.current.getInternalPlayer() as HTMLVideoElement;
+        if (internalPlayer) {
+          internalPlayer.currentTime = changeCurrentSeekNumber;
+          setCurrentTime(changeCurrentSeekNumber);
+        }
+      }
       changeCurrentSeek(null);
     }
   }, [changeCurrentSeekNumber, changeCurrentSeek, setCurrentTime]);
 
+  if (!videoUrl || videoUrl.trim() === '') {
+    return (
+      <div className="flex items-center justify-center h-full bg-black">
+        <p className="text-white text-center">No video available</p>
+      </div>
+    );
+  }
+
   return (
     <ReactPlayer
-      ref={(element) => {
-        playerRef.current = element;
-        setVideoRef(playerRef);
-      }}
+      className='rounded-2xl'
+      ref={playerRef}
       src={videoUrl}
       controls={false}
       playing={isPlaying}
@@ -77,13 +95,16 @@ const VideoPlayer = () => {
       height={'100%'}
       crossOrigin='anonymous'
       loop={false}
+      onReady={handleReady}
       onTimeUpdate={(e) => {
-        if (e.currentTarget.currentTime !== 0) {
-          setCurrentTime(e.currentTarget.currentTime);
+        const time = Math.floor(e.currentTarget.currentTime);
+        if (time !== 0) {
+          setCurrentTime(time);
         }
       }}
       onCanPlay={(e) => {
-        setDuration(e.currentTarget.duration);
+        const duration = Math.floor(e.currentTarget.duration);
+        setDuration(duration);
       }}
       onEnded={(e) => {
         setIsPlaying(false);

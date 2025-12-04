@@ -130,7 +130,7 @@ const VideoControls = () => {
   }, [handleSeekChangeCallback])
 
   return (
-    <div className={cn('absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity', showControls ? 'opacity-100' : 'opacity-0')}>
+    <div className={cn('absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity rounded-2xl', showControls ? 'opacity-100' : 'opacity-0')}>
 
       <Slider
         value={[currentTime]}
@@ -212,6 +212,7 @@ const VideoControls = () => {
             <DropdownMenuContent>
               {playbackRateOptions.map((rate) => (
                 <DropdownMenuItem
+                  key={rate}
                   className={cn({ "bg-accent font-semibold": playbackRate === rate })}
                   onClick={() => setPlaybackRate(rate)}>
                   Speed: {rate}x {playbackRate === rate && '✓'}

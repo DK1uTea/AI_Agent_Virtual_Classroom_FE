@@ -6,17 +6,21 @@ import MainComponent from "../components/main-component";
 import { useCourseStore } from "@/stores/course-store";
 import { useShallow } from "zustand/shallow";
 import { useLessonStore } from "@/stores/lesson-store";
-import { useCurrentLesson } from "@/hooks/useCurrentLesson";
+import { useGetCurrentLesson } from "@/hooks/useGetCurrentLesson";
 import { useAuthStore } from "@/stores/auth-store";
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
+import { useParams } from "next/navigation";
 
 type LessonPageProps = {
-  params: Promise<{ lessonId: string }>;
+  params: Promise<{
+    courseId: string;
+    lessonId: string
+  }>;
 }
 
-const LessonPage = async ({ params }: LessonPageProps) => {
-  const { lessonId } = await params;
+const LessonPage = ({ params }: LessonPageProps) => {
+  const { courseId, lessonId } = use(params);
 
   const {
     accessToken
@@ -25,32 +29,20 @@ const LessonPage = async ({ params }: LessonPageProps) => {
   })));
 
   const {
-    currentCourseId
+    setCurrentCourseId,
   } = useCourseStore(useShallow((state) => ({
-    currentCourseId: state.currentCourseId,
+    setCurrentCourseId: state.setCurrentCourseId,
   })));
 
   const {
-    currentLesson,
     setCurrentLesson,
     setCurrentSidebarLessons,
     setCurrentTranscripts,
   } = useLessonStore(useShallow((state) => ({
-    currentLesson: state.currentLesson,
     setCurrentLesson: state.setCurrentLesson,
     setCurrentSidebarLessons: state.setCurrentSidebarLessons,
     setCurrentTranscripts: state.setCurrentTranscripts,
   })));
-
-  const {
-    isFetching: isFetchingCurrentLesson,
-  } = useCurrentLesson({
-    accessToken: accessToken || '',
-    lessonId,
-    setCurrentLesson,
-    setCurrentSidebarLessons,
-    setCurrentTranscripts,
-  });
 
   const {
     setVideoUrl,
@@ -62,18 +54,40 @@ const LessonPage = async ({ params }: LessonPageProps) => {
     resetPlayer: state.resetPlayer,
   })))
 
+  const {
+    isFetching: isFetchingCurrentLesson,
+  } = useGetCurrentLesson(
+    {
+      accessToken: accessToken || '',
+      lessonId,
+    },
+    ({ lessonPlaybackInfo, lessonTranscripts }) => {
+      console.log('Fetched lesson playback info:', lessonPlaybackInfo);
+      console.log('Fetched lesson transcripts:', lessonTranscripts);
+      setCurrentSidebarLessons(lessonPlaybackInfo.sidebarLessons);
+      const { sidebarLessons, ...currentLessonData } = lessonPlaybackInfo;
+      setCurrentLesson(currentLessonData);
+      setCurrentTranscripts(lessonTranscripts);
+      setVideoUrl(currentLessonData.url);
+    },
+    () => {
+      console.error('Error fetching current lesson data');
+    }
+
+  );
+
   useEffect(() => {
-    if (currentLesson && currentLesson.url && currentLesson.duration) {
-      setVideoUrl(currentLesson.url);
-      setDuration(currentLesson.duration);
-    }
+    setCurrentCourseId(courseId);
+  }, [courseId])
 
-    return () => {
-      resetPlayer();
-    }
-  }, [currentLesson])
+  // useEffect(() => {
 
-  if (!currentCourseId) {
+  //   return () => {
+  //     resetPlayer();
+  //   }
+  // }, [])
+
+  if (!courseId) {
     return <div>Not course found</div>;
   }
 

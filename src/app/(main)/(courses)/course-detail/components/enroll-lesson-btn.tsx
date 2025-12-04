@@ -2,7 +2,7 @@
 
 import { courseApis } from "@/apis/gateways/course-apis";
 import { Button } from "@/components/ui/button";
-import { useMyCourse } from "@/hooks/useMyCourse";
+import { useGetMyCourse } from "@/hooks/useGetMyCourse";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCourseStore } from "@/stores/course-store";
@@ -34,7 +34,7 @@ const EnrollLessonButton = ({ courseId }: EnrollLessonButtonProps) => {
   const {
     data: myCoursesData,
     refetch: refetchMyCourses,
-  } = useMyCourse({
+  } = useGetMyCourse({
     accessToken,
   });
 
@@ -52,10 +52,10 @@ const EnrollLessonButton = ({ courseId }: EnrollLessonButtonProps) => {
       setMyCourses((prev) => [...prev, res]);
       setCourseList((prev) => {
         return prev.map((course) => {
-          return course.id === courseId ? { ...course, active: res.status, enrolledAt: res.enrolledAt } : course;
+          return course.id === courseId ? { ...course, status: res.status, enrolledAt: res.enrolledAt } : course;
         })
       })
-      router.push(`/lesson/${courseId}`);
+      // router.push(`/lesson/${courseId}`);
     },
     onError: (error) => {
       console.error('Error enrolling in course: ', error);
