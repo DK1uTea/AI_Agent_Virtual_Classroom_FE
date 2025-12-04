@@ -20,7 +20,7 @@ export const useGetCurrentLesson = (
   onErrorExtra?: () => void,
 ) => {
   return useQuery({
-    queryKey: ['current-lesson'],
+    queryKey: ['current-lesson', req.lessonId],
     enabled: Boolean(req.accessToken) && Boolean(req.lessonId),
     queryFn: async () => {
       try {

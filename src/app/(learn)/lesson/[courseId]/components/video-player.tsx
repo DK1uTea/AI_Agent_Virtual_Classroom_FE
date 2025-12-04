@@ -43,22 +43,31 @@ const VideoPlayer = () => {
 
   const playerRef = useRef<any>(null);
 
-
+  // Reset video ref when URL changes
   useEffect(() => {
-    if (playerRef.current) {
+    setVideoRef(null);
+    setCurrentTime(0);
+  }, [videoUrl, setVideoRef]);
+
+  // Handle ready event to get internal player
+  const handleReady = () => {
+    if (playerRef.current && typeof playerRef.current.getInternalPlayer === 'function') {
       const internalPlayer = playerRef.current.getInternalPlayer() as HTMLVideoElement;
       if (internalPlayer) {
         setVideoRef({ current: internalPlayer });
       }
     }
-  }, [setVideoRef])
+  };
 
   useEffect(() => {
     if (changeCurrentSeekNumber !== null && playerRef.current) {
-      const internalPlayer = playerRef.current.getInternalPlayer() as HTMLVideoElement;
-      if (internalPlayer) {
-        internalPlayer.currentTime = changeCurrentSeekNumber;
-        setCurrentTime(changeCurrentSeekNumber);
+      // Check if getInternalPlayer is available
+      if (typeof playerRef.current.getInternalPlayer === 'function') {
+        const internalPlayer = playerRef.current.getInternalPlayer() as HTMLVideoElement;
+        if (internalPlayer) {
+          internalPlayer.currentTime = changeCurrentSeekNumber;
+          setCurrentTime(changeCurrentSeekNumber);
+        }
       }
       changeCurrentSeek(null);
     }
@@ -74,6 +83,7 @@ const VideoPlayer = () => {
 
   return (
     <ReactPlayer
+      className='rounded-2xl'
       ref={playerRef}
       src={videoUrl}
       controls={false}
@@ -85,13 +95,16 @@ const VideoPlayer = () => {
       height={'100%'}
       crossOrigin='anonymous'
       loop={false}
+      onReady={handleReady}
       onTimeUpdate={(e) => {
-        if (e.currentTarget.currentTime !== 0) {
-          setCurrentTime(e.currentTarget.currentTime);
+        const time = Math.floor(e.currentTarget.currentTime);
+        if (time !== 0) {
+          setCurrentTime(time);
         }
       }}
       onCanPlay={(e) => {
-        setDuration(e.currentTarget.duration);
+        const duration = Math.floor(e.currentTarget.duration);
+        setDuration(duration);
       }}
       onEnded={(e) => {
         setIsPlaying(false);

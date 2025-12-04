@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
+import { formatTimer } from "@/lib/utils";
 import { useLessonStore } from "@/stores/lesson-store";
 import { Lesson } from "@/types/main-flow";
 import { ArrowUpIcon } from "lucide-react";
@@ -33,7 +34,7 @@ const LessonListTab = () => {
             <div>
               <p>Lesson {lesson.order}: {lesson.title}</p>
               <p className={lesson.id === currentLesson?.id ? 'text-primary-foreground/80' : 'text-muted-foreground'}>
-                {lesson.duration}
+                {formatTimer(lesson.duration || 0)}
               </p>
             </div>
             {

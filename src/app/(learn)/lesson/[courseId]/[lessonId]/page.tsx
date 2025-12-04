@@ -28,8 +28,6 @@ const LessonPage = ({ params }: LessonPageProps) => {
     accessToken: state.accessToken,
   })));
 
-  console.log('accessToken from lesson page:', accessToken);
-
   const {
     setCurrentCourseId,
   } = useCourseStore(useShallow((state) => ({
@@ -37,18 +35,14 @@ const LessonPage = ({ params }: LessonPageProps) => {
   })));
 
   const {
-    currentLesson,
     setCurrentLesson,
     setCurrentSidebarLessons,
     setCurrentTranscripts,
   } = useLessonStore(useShallow((state) => ({
-    currentLesson: state.currentLesson,
     setCurrentLesson: state.setCurrentLesson,
     setCurrentSidebarLessons: state.setCurrentSidebarLessons,
     setCurrentTranscripts: state.setCurrentTranscripts,
   })));
-
-  console.log('currentLesson:', currentLesson);
 
   const {
     setVideoUrl,
@@ -68,12 +62,13 @@ const LessonPage = ({ params }: LessonPageProps) => {
       lessonId,
     },
     ({ lessonPlaybackInfo, lessonTranscripts }) => {
+      console.log('Fetched lesson playback info:', lessonPlaybackInfo);
+      console.log('Fetched lesson transcripts:', lessonTranscripts);
       setCurrentSidebarLessons(lessonPlaybackInfo.sidebarLessons);
-      const { sidebarLessons, ...currentLesson } = lessonPlaybackInfo;
-      setCurrentLesson(currentLesson);
+      const { sidebarLessons, ...currentLessonData } = lessonPlaybackInfo;
+      setCurrentLesson(currentLessonData);
       setCurrentTranscripts(lessonTranscripts);
-      setVideoUrl(currentLesson.url);
-      setDuration(currentLesson.duration);
+      setVideoUrl(currentLessonData.url);
     },
     () => {
       console.error('Error fetching current lesson data');
@@ -85,12 +80,12 @@ const LessonPage = ({ params }: LessonPageProps) => {
     setCurrentCourseId(courseId);
   }, [courseId])
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    return () => {
-      resetPlayer();
-    }
-  }, [currentLesson])
+  //   return () => {
+  //     resetPlayer();
+  //   }
+  // }, [])
 
   if (!courseId) {
     return <div>Not course found</div>;

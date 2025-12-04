@@ -57,7 +57,7 @@ const CourseFilter = () => {
 
   const debouncedSearch = useDebounceCallback((value: string) => {
     setCurrentListConfig((prev) => ({ ...prev, title: value, page: 1 }));
-  }, 500)
+  }, 1500)
 
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const val = event.target.value;

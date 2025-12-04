@@ -81,7 +81,7 @@ export const useVideoPlayerStore = create<VideoPlayerStore>()(
           });
         },
 
-        volume: 50,
+        volume: 100,
         setVolume: (volume: number) => {
           set((state) => {
             state.volume = volume;
@@ -122,7 +122,7 @@ export const useVideoPlayerStore = create<VideoPlayerStore>()(
             state.videoUrl = '';
             state.isPlaying = false;
             state.playbackRate = 1;
-            state.volume = 50;
+            state.volume = 100;
             state.isMuted = false;
             state.duration = 0;
             state.showControls = true;

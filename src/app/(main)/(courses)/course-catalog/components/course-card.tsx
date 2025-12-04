@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { ImageWithFallback } from "@/components/ui/image-with-fallback";
+import { formatTimer } from "@/lib/utils";
 import { useCourseStore } from "@/stores/course-store";
 import { Course } from "@/types/main-flow"
 import { Star } from "lucide-react";
@@ -55,8 +56,8 @@ const CourseCard = ({ course }: CourseCardProps) => {
 
       <CardContent className="space-y-2">
         <div className="flex items-center justify-between text-muted-foreground">
-          <span>{course.rating}</span>
-          <span>{course.duration}</span>
+          {/* <span>{course.lessons?.length} lessons</span> */}
+          <span>Duration: {formatTimer(course.duration || 0)}</span>
         </div>
         <div className="flex items-center gap-1">
           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />

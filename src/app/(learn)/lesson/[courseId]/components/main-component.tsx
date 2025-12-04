@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Course, Lesson } from "@/types/main-flow";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import LessonListTab from "./lesson-list-tab";
 import VideoPlayer from "./video-player";
 import VideoControls from "./video-controls";
@@ -16,6 +16,7 @@ import { useLessonStore } from "@/stores/lesson-store";
 import { useRouter } from "next/navigation";
 import TranscriptTab from "./transcript-tab";
 import ChatTab from "./chat-tab";
+import { formatTimer } from "@/lib/utils";
 
 
 const MainComponent = () => {
@@ -23,12 +24,10 @@ const MainComponent = () => {
   const router = useRouter();
 
   const {
-    currentCourseId,
-    myCourses
+    currentCourseId
   } = useCourseStore(useShallow((state) => ({
     currentCourseId: state.currentCourseId,
-    myCourses: state.myCourses
-  })))
+  })));
 
   const {
     currentLesson,
@@ -38,20 +37,56 @@ const MainComponent = () => {
     currentSidebarLessons: state.currentSidebarLessons,
   })));
 
+  console.log("currentLesson in MainComponent:", currentLesson);
+  console.log("currentSidebarLessons in MainComponent:", currentSidebarLessons);
+
+  const currentLessonOrder = useMemo(() => {
+    if (!currentLesson?.id || !currentSidebarLessons?.length) return 0;
+
+    return currentSidebarLessons.find(
+      (lesson) => lesson.id === currentLesson.id
+    )?.order;
+  }, [currentLesson?.id, currentSidebarLessons]);
+
   const prevAndNextLessonId = useMemo(() => {
-    if (currentSidebarLessons.length > 0 && currentLesson && currentLesson.order) {
-      const prevLessonId = currentSidebarLessons.find((lesson) => lesson.order === (currentLesson?.order - 1))?.id || null;
-      const nextLessonId = currentSidebarLessons.find((lesson) => lesson.order === (currentLesson?.order + 1))?.id || null;
-      return {
-        prevLessonId,
-        nextLessonId,
-      };
+    if (!currentSidebarLessons?.length || currentLessonOrder == null) {
+      return { prevLessonId: null, nextLessonId: null };
+    }
+
+    const lessonOrder = Number(currentLessonOrder);
+
+    const currentIndex = currentSidebarLessons.findIndex(
+      (lesson) => lesson.order === lessonOrder
+    );
+
+    if (currentIndex === -1) {
+      return { prevLessonId: null, nextLessonId: null };
+    }
+
+    const prevLessonId =
+      currentSidebarLessons[currentIndex - 1]?.id ?? null;
+
+    const nextLessonId =
+      currentSidebarLessons[currentIndex + 1]?.id ?? null;
+
+    return {
+      prevLessonId,
+      nextLessonId,
     };
-  }, [currentSidebarLessons, currentLesson]);
+  }, [currentSidebarLessons, currentLessonOrder]);
+
+
+  console.log("Prev and Next Lesson IDs:", prevAndNextLessonId);
+
+  console.log("Last order: ", currentSidebarLessons[currentSidebarLessons.length - 1]?.order);
 
   const {
+    duration,
+    currentTime,
     setShowControls,
   } = useVideoPlayerStore(useShallow((state) => ({
+    duration: state.duration,
+    currentTime: state.currentTime,
     setShowControls: state.setShowControls,
   })))
 
@@ -67,7 +102,7 @@ const MainComponent = () => {
 
     const timeout = setTimeout(() => {
       setShowControls(false);
-    }, 3000);
+    }, 5000);
 
     setControlsTimeout(timeout);
   };
@@ -79,7 +114,7 @@ const MainComponent = () => {
 
     const timeout = setTimeout(() => {
       setShowControls(false);
-    }, 1000);
+    }, 5000);
 
     setControlsTimeout(timeout);
   };
@@ -93,11 +128,11 @@ const MainComponent = () => {
   }, [controlsTimeout]);
 
   const handlePrevious = () => {
-    router.push(`/lesson/${prevAndNextLessonId?.prevLessonId}`);
+    router.push(`/lesson/${currentCourseId}/${prevAndNextLessonId?.prevLessonId}`);
   };
 
   const handleNext = () => {
-    router.push(`/lesson/${prevAndNextLessonId?.nextLessonId}`);
+    router.push(`/lesson/${currentCourseId}/${prevAndNextLessonId?.nextLessonId}`);
   };
 
   return (
@@ -107,7 +142,7 @@ const MainComponent = () => {
         {/* Video Player */}
         <div
           id="video-container"
-          className="relative aspect-video bg-black"
+          className="relative aspect-video bg-black rounded-2xl"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
@@ -125,20 +160,26 @@ const MainComponent = () => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <p>{currentLesson?.title ?? "Unknown Lesson"}</p>
-              <span className="text-muted-foreground">{currentLesson?.duration ?? "Unknown Duration"}</span>
+              <span className="text-muted-foreground">{formatTimer(duration || 0)}</span>
             </div>
-            <Progress value={65} />
+            <Progress value={(currentTime / duration) * 100 || 0} />
           </div>
 
           <div className="flex items-center justify-between">
-            <Button variant="outline" onClick={handlePrevious} disabled={currentLesson?.order === 1}
+            <Button
+              className="disabled:cursor-not-allowed"
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentLessonOrder === currentSidebarLessons[0]?.order}
             >
               <ChevronLeft className="mr-2 h-4 w-4" />
               Previous Lesson
             </Button>
             <Button
+              className="disabled:cursor-not-allowed"
               variant="outline"
-              onClick={handleNext} disabled={currentLesson?.order === currentSidebarLessons.length}
+              onClick={handleNext}
+              disabled={currentLessonOrder === currentSidebarLessons[currentSidebarLessons.length - 1]?.order}
             >
               Next Lesson
               <ChevronRight className="ml-2 h-4 w-4" />

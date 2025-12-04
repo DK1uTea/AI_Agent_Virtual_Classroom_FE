@@ -113,9 +113,9 @@ const ChatTab = () => {
   };
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col rounded-lg outline-dashed outline-2 outline-muted-foreground/50">
       <div className="flex-1">
-        <div className="w-full p-8">
+        <div className="w-full p-4">
           <Conversation className="w-full h-full">
             <ConversationContent>
               {messagesList.map((message, index) => {
@@ -136,7 +136,7 @@ const ChatTab = () => {
         </div>
       </div>
       <div>
-        <div className="w-full p-8">
+        <div className="w-full p-4">
           <PromptInput onSubmit={handleSubmit}>
             <PromptInputTextarea
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value)}
