@@ -1,7 +1,7 @@
 'use client'
 
 import { useVideoPlayerStore } from '@/stores/video-player-store';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import ReactPlayer from 'react-player';
 import { toast } from 'sonner';
 import { set } from 'zod';
@@ -41,34 +41,25 @@ const VideoPlayer = () => {
     resetPlayer: state.resetPlayer,
   })));
 
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<HTMLVideoElement | null>(null);
 
   // Reset video ref when URL changes
   useEffect(() => {
     setVideoRef(null);
     setCurrentTime(0);
-  }, [videoUrl, setVideoRef]);
+  }, [videoUrl, setVideoRef, setCurrentTime]);
 
   // Handle ready event to get internal player
-  const handleReady = () => {
-    if (playerRef.current && typeof playerRef.current.getInternalPlayer === 'function') {
-      const internalPlayer = playerRef.current.getInternalPlayer() as HTMLVideoElement;
-      if (internalPlayer) {
-        setVideoRef({ current: internalPlayer });
-      }
-    }
-  };
+  const setPlayerRef = useCallback((player: HTMLVideoElement | null) => {
+    if (!player) return;
+    playerRef.current = player;
+    setVideoRef(player);
+  }, [setVideoRef]);
 
   useEffect(() => {
-    if (changeCurrentSeekNumber !== null && playerRef.current) {
-      // Check if getInternalPlayer is available
-      if (typeof playerRef.current.getInternalPlayer === 'function') {
-        const internalPlayer = playerRef.current.getInternalPlayer() as HTMLVideoElement;
-        if (internalPlayer) {
-          internalPlayer.currentTime = changeCurrentSeekNumber;
-          setCurrentTime(changeCurrentSeekNumber);
-        }
-      }
+    if (changeCurrentSeekNumber != null && playerRef.current) {
+      playerRef.current.currentTime = changeCurrentSeekNumber;
+      setCurrentTime(changeCurrentSeekNumber);
       changeCurrentSeek(null);
     }
   }, [changeCurrentSeekNumber, changeCurrentSeek, setCurrentTime]);
@@ -84,7 +75,7 @@ const VideoPlayer = () => {
   return (
     <ReactPlayer
       className='rounded-2xl'
-      ref={playerRef}
+      ref={setPlayerRef}
       src={videoUrl}
       controls={false}
       playing={isPlaying}
@@ -95,7 +86,6 @@ const VideoPlayer = () => {
       height={'100%'}
       crossOrigin='anonymous'
       loop={false}
-      onReady={handleReady}
       onTimeUpdate={(e) => {
         const time = Math.floor(e.currentTarget.currentTime);
         if (time !== 0) {

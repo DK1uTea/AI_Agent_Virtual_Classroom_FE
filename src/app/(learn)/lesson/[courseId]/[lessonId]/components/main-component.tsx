@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Course, Lesson } from "@/types/main-flow";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 import LessonListTab from "./lesson-list-tab";
 import VideoPlayer from "./video-player";
 import VideoControls from "./video-controls";
@@ -81,51 +81,37 @@ const MainComponent = () => {
   console.log("Last order: ", currentSidebarLessons[currentSidebarLessons.length - 1]?.order);
 
   const {
+    isPlaying,
     duration,
     currentTime,
     setShowControls,
   } = useVideoPlayerStore(useShallow((state) => ({
+    isPlaying: state.isPlaying,
     duration: state.duration,
     currentTime: state.currentTime,
     setShowControls: state.setShowControls,
   })))
 
   const [isVideoPauseByChat, setIsVideoPauseByChat] = useState<boolean>(false);
-  const [controlsTimeout, setControlsTimeout] = useState<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout>(null);
 
   const handleMouseMove = () => {
     setShowControls(true);
-
-    if (controlsTimeout) {
-      clearTimeout(controlsTimeout);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-
-    const timeout = setTimeout(() => {
-      setShowControls(false);
-    }, 5000);
-
-    setControlsTimeout(timeout);
+    timeoutRef.current = setTimeout(() => {
+      if (isPlaying) {
+        setShowControls(false);
+      }
+    }, 3000);
   };
 
   const handleMouseLeave = () => {
-    if (controlsTimeout) {
-      clearTimeout(controlsTimeout);
-    }
-
-    const timeout = setTimeout(() => {
+    if (isPlaying) {
       setShowControls(false);
-    }, 5000);
-
-    setControlsTimeout(timeout);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (controlsTimeout) {
-        clearTimeout(controlsTimeout);
-      }
-    };
-  }, [controlsTimeout]);
+    }
+  }
 
   const handlePrevious = () => {
     router.push(`/lesson/${currentCourseId}/${prevAndNextLessonId?.prevLessonId}`);

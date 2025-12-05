@@ -4,7 +4,7 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 type VideoPlayerState = {
-  videoRef: RefObject<HTMLVideoElement | null> | null;
+  videoRef: HTMLVideoElement | null;
   videoUrl: string;
   isPlaying: boolean;
   playbackRate: number;
@@ -18,7 +18,7 @@ type VideoPlayerState = {
 }
 
 type VideoPlayerAction = {
-  setVideoRef: (ref: RefObject<HTMLVideoElement | null> | null) => void;
+  setVideoRef: (el: HTMLVideoElement | null) => void;
   setVideoUrl: (url: string) => void;
   setIsPlaying: (playing: boolean) => void;
   setPlaybackRate: (rate: number) => void;
@@ -39,10 +39,9 @@ export const useVideoPlayerStore = create<VideoPlayerStore>()(
     devtools(
       (set, get) => ({
         videoRef: null,
-        setVideoRef: (ref: RefObject<HTMLVideoElement | null> | null) => {
+        setVideoRef: (el) => {
           set((state) => {
-            // cast state to any to avoid immer WritableDraft type incompatibility with DOM types
-            (state as any).videoRef = ref;
+            (state as any).videoRef = el;
           });
         },
 
@@ -74,7 +73,7 @@ export const useVideoPlayerStore = create<VideoPlayerStore>()(
           });
         },
 
-        changeCurrentSeekNumber: 0,
+        changeCurrentSeekNumber: null,
         changeCurrentSeek: (changeCurrentSeekNumber: number | null) => {
           set((state) => {
             state.changeCurrentSeekNumber = changeCurrentSeekNumber;

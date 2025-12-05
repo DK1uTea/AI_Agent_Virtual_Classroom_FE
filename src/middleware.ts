@@ -4,23 +4,23 @@ import type { NextRequest } from 'next/server'
 const PRIVATE = ['/dashboard', '/profile', '/course-catalog', '/course-detail', '/reports', '/my-courses', '/lesson', '/quiz'];
 const AUTH = ['/', '/login', '/register'];
 
-// function isHTMLNavigate(req: NextRequest) {
-//   const isPrefetch =
-//     req.headers.get('x-middleware-prefetch') === '1' ||
-//     req.headers.get('purpose') === 'prefetch';
+function isHTMLNavigate(req: NextRequest) {
+  const isPrefetch =
+    req.headers.get('x-middleware-prefetch') === '1' ||
+    req.headers.get('purpose') === 'prefetch';
 
-//   const isNavigate = req.headers.get('sec-fetch-mode') === 'navigate';
-//   const accept = req.headers.get('accept') || '';
-//   const wantsHTML = accept.includes('text/html');
+  const isNavigate = req.headers.get('sec-fetch-mode') === 'navigate';
+  const accept = req.headers.get('accept') || '';
+  const wantsHTML = accept.includes('text/html');
 
-//   const path = req.nextUrl.pathname;
-//   const isNextInternal = path.startsWith('/_next/');
+  const path = req.nextUrl.pathname;
+  const isNextInternal = path.startsWith('/_next/');
 
-//   return !isPrefetch && isNavigate && wantsHTML && !isNextInternal;
-// }
+  return !isPrefetch && isNavigate && wantsHTML && !isNextInternal;
+}
 
 export function middleware(request: NextRequest) {
-  // if (!isHTMLNavigate(request)) return NextResponse.next();F
+  if (!isHTMLNavigate(request)) return NextResponse.next();
 
   const { pathname } = request.nextUrl;
 
