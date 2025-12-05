@@ -1,8 +1,8 @@
 'use client'
 
 import { Lesson } from "@/types/main-flow";
-import LessonBreadcrumb from "../components/lesson-breadcrumb";
-import MainComponent from "../components/main-component";
+import LessonBreadcrumb from "./components/lesson-breadcrumb";
+import MainComponent from "./components/main-component";
 import { useCourseStore } from "@/stores/course-store";
 import { useShallow } from "zustand/shallow";
 import { useLessonStore } from "@/stores/lesson-store";
