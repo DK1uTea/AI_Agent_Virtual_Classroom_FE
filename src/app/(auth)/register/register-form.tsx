@@ -10,8 +10,9 @@ import { RegisterSchema, RegisterType } from "@/schemaValidations/auth.schema";
 import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Loader2Icon } from "lucide-react";
+import { Eye, EyeClosed, Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
@@ -86,6 +87,9 @@ const RegisterForm = () => {
     registerMutation.mutate(data);
   }
 
+  const [isShowPassword, setIsShowPassword] = useState<boolean>(false);
+  const [isShowConfirmPassword, setIsShowConfirmPassword] = useState<boolean>(false);
+
   return (
     <form className="flex flex-col justify-center items-center gap-5 w-full" onSubmit={handleSubmit(handleRegisterFormSubmit)}>
       <div className="flex flex-col gap-3 w-full">
@@ -101,12 +105,48 @@ const RegisterForm = () => {
         </div>
         <div className="w-full flex flex-col items-start gap-2">
           <label>Password</label>
-          <Input type="password" placeholder="Enter your password" {...register("password")} />
+          <div className="relative w-full">
+            <Input
+              type={isShowPassword ? "text" : "password"}
+              placeholder="Enter your password"
+              {...register("password")} />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute top-0 right-0 h-full hover:bg-transparent"
+              onClick={() => setIsShowPassword(!isShowPassword)}
+            >
+              {isShowPassword ? (
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <EyeClosed className="h-4 w-4 text-muted-foreground" />
+              )}
+            </Button>
+          </div>
           {errors.password && <span className="text-red-500 dark:text-red-300">{errors.password.message}</span>}
         </div>
         <div className="w-full flex flex-col items-start gap-2">
           <label>Confirm Password</label>
-          <Input type="password" placeholder="Confirm your password" {...register("confirmPassword")} />
+          <div className="relative w-full">
+            <Input
+              type={isShowConfirmPassword ? "text" : "password"}
+              placeholder="Confirm your password"
+              {...register("confirmPassword")} />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute top-0 right-0 h-full hover:bg-transparent"
+              onClick={() => setIsShowConfirmPassword(!isShowConfirmPassword)}
+            >
+              {isShowConfirmPassword ? (
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <EyeClosed className="h-4 w-4 text-muted-foreground" />
+              )}
+            </Button>
+          </div>
           {errors.confirmPassword && <span className="text-red-500 dark:text-red-300">{errors.confirmPassword.message}</span>}
         </div>
       </div>

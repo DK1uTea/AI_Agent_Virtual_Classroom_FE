@@ -22,6 +22,7 @@ export const useGetCurrentLesson = (
   return useQuery({
     queryKey: ['current-lesson', req.lessonId],
     enabled: Boolean(req.accessToken) && Boolean(req.lessonId),
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       try {
         const res = await Promise.all([

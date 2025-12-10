@@ -92,7 +92,6 @@ const MainComponent = () => {
     setShowControls: state.setShowControls,
   })))
 
-  const [isVideoPauseByChat, setIsVideoPauseByChat] = useState<boolean>(false);
   const timeoutRef = useRef<NodeJS.Timeout>(null);
 
   const handleMouseMove = () => {
@@ -122,27 +121,21 @@ const MainComponent = () => {
   };
 
   return (
-    <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
+    <div className="flex flex-col lg:flex-row flex-grow h-full overflow-hidden">
       {/* Video Section */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-col items-center flex-grow gap-6 h-full">
         {/* Video Player */}
         <div
           id="video-container"
-          className="relative aspect-video bg-black rounded-2xl"
+          className="relative aspect-video bg-black rounded-2xl w-full xl:max-w-[75%]"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
           <VideoPlayer />
           <VideoControls />
         </div>
-        {isVideoPauseByChat && (
-          <div className="bg-yellow-500/10 border-t border-yellow-500/20 p-2 text-center text-yellow-500">
-            Video is paused due to chat interaction.
-          </div>
-        )}
-
         {/* Progress And Navigation */}
-        <div className="bg-background p-4 space-y-4">
+        <div className="bg-background p-4 space-y-4 w-full">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <p>{currentLesson?.title ?? "Unknown Lesson"}</p>
@@ -159,15 +152,19 @@ const MainComponent = () => {
               disabled={currentLessonOrder === currentSidebarLessons[0]?.order}
             >
               <ChevronLeft className="mr-2 h-4 w-4" />
-              Previous Lesson
+              <span className="hidden md:inline">Previous Lesson</span>
             </Button>
+
             <Button
               className="disabled:cursor-not-allowed"
               variant="outline"
               onClick={handleNext}
-              disabled={currentLessonOrder === currentSidebarLessons[currentSidebarLessons.length - 1]?.order}
+              disabled={
+                currentLessonOrder ===
+                currentSidebarLessons[currentSidebarLessons.length - 1]?.order
+              }
             >
-              Next Lesson
+              <span className="hidden md:inline">Next Lesson</span>
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -175,7 +172,7 @@ const MainComponent = () => {
       </div>
 
       {/* Tab Section */}
-      <div className="w-full lg:w-96">
+      <div className="w-full lg:w-[25rem] xl:w-[30rem] border-l bg-background h-[40rem] lg:h-full">
         <Tabs defaultValue="lesson-list" className="flex h-full flex-col">
           <TabsList className="w-full rounded-none border-b">
             <TabsTrigger value="lesson-list" className="flex-1">
@@ -192,18 +189,17 @@ const MainComponent = () => {
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1">
+          <div className="flex-1 overflow-hidden ">
             <TabsContent value="lesson-list" className="h-full p-4 m-0">
               <LessonListTab />
             </TabsContent>
-            <TabsContent value="transcript-text" className="h-full p-4 m-0">
+            <TabsContent value="transcript-text" className="h-full m-0">
               <TranscriptTab />
             </TabsContent>
-            <TabsContent value="chat" className="h-full p-4 m-0">
+            <TabsContent value="chat" className="h-full m-0 p-2">
               <ChatTab />
             </TabsContent>
-            <TabsContent value="mind-map" className="h-full p-4 m-0">
-
+            <TabsContent value="mind-map" className="h-full m-0">
             </TabsContent>
           </div>
         </Tabs>
