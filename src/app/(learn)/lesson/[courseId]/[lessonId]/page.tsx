@@ -11,6 +11,10 @@ import { useAuthStore } from "@/stores/auth-store";
 import { use, useEffect } from "react";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
 import { useParams } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
+import { Search } from "lucide-react";
+import Loading from "@/components/ui/loading";
+import { useGetCourseDetail } from "@/hooks/useGetCourseDetail";
 
 type LessonPageProps = {
   params: Promise<{
@@ -46,16 +50,20 @@ const LessonPage = ({ params }: LessonPageProps) => {
 
   const {
     setVideoUrl,
-    setDuration,
-    resetPlayer,
   } = useVideoPlayerStore(useShallow((state) => ({
     setVideoUrl: state.setVideoUrl,
-    setDuration: state.setDuration,
-    resetPlayer: state.resetPlayer,
   })))
 
   const {
-    isFetching: isFetchingCurrentLesson,
+    data: currentCourseData,
+    isLoading: isLoadingCourseDetail,
+  } = useGetCourseDetail({
+    accessToken: accessToken,
+    courseId: courseId,
+  })
+
+  const {
+    isLoading: isLoadingCurrentLesson,
   } = useGetCurrentLesson(
     {
       accessToken: accessToken || '',
@@ -88,14 +96,47 @@ const LessonPage = ({ params }: LessonPageProps) => {
   // }, [])
 
   if (!courseId) {
-    return <div>Not course found</div>;
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-16">
+          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+            <Search className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h3>Not found any courses</h3>
+          <p className="text-muted-foreground">
+            Please try again later.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!lessonId) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-16">
+          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+            <Search className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h3>Not found any lessons</h3>
+          <p className="text-muted-foreground">
+            Please try again later.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isLoadingCourseDetail || isLoadingCurrentLesson) {
+    return (
+      <Loading />
+    )
   }
 
   return (
-    <div className="flex flex-col min-h-[calc] p-6">
+    <div className="flex flex-col lg:h-[calc(100vh-4rem)] p-6">
       {/* Breadcrumb */}
-      <LessonBreadcrumb />
-
+      <LessonBreadcrumb courseId={courseId} courseTitle={currentCourseData?.title || "Unknown Course"} />
       {/* Main Content */}
       <MainComponent />
     </div>

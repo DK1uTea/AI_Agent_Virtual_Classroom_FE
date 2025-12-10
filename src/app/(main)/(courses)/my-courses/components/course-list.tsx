@@ -41,9 +41,11 @@ const CourseList = () => {
 
   return (
     <div>
-      <p>
-        Found {myCourses.length} courses.
-      </p>
+      {!isMyCourseLoading && (
+        <p>
+          Found {myCourses.length} courses.
+        </p>
+      )}
 
       {
         (isMyCourseLoading) && (
@@ -62,7 +64,7 @@ const CourseList = () => {
       }
 
       {
-        myCourses.length === 0 && (
+        !isMyCourseLoading && myCourses.length === 0 && (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16">
               <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">

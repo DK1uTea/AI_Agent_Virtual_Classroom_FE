@@ -44,24 +44,24 @@ const TranscriptTab = () => {
 
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  useEffect(() => {
-    const active = filteredTranscripts.find(
-      (t) => currentTime >= t.start && currentTime <= t.end
-    );
+  // useEffect(() => {
+  //   const active = filteredTranscripts.find(
+  //     (t) => currentTime >= t.start && currentTime <= t.end
+  //   );
 
-    if (active) {
-      const el = itemRefs.current[active.id];
-      if (el) {
-        el.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }
-    }
-  }, [currentTime, filteredTranscripts]);
+  //   if (active) {
+  //     const el = itemRefs.current[active.id];
+  //     if (el) {
+  //       el.scrollIntoView({
+  //         behavior: "smooth",
+  //         block: "center",
+  //       });
+  //     }
+  //   }
+  // }, [currentTime, filteredTranscripts]);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col p-1">
       <div className="p-4 border-b">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -77,7 +77,7 @@ const TranscriptTab = () => {
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 h-0 rounded-lg border-2 border-dashed border-muted-foreground/50 my-2">
         <div className="p-4 space-y-3">
           {filteredTranscripts.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">

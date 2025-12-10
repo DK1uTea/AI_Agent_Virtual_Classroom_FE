@@ -12,7 +12,7 @@ const Header = async () => {
       <div className="flex h-16 items-center gap-4 px-4 lg:px-6">
         <MenuButton />
         <Link
-          href={'/'}
+          href={'/dashboard'}
           className="flex items-center gap-2 cursor-pointer"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">

@@ -5,7 +5,7 @@ import { AIChatReq } from "@/apis/requests/ai-req";
 import { AIChatRes } from "@/apis/responses/ai-res";
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ui/shadcn-io/ai/conversation";
 import { Message, MessageAvatar, MessageContent } from "@/components/ui/shadcn-io/ai/message";
-import { PromptInput, PromptInputSubmit, PromptInputTextarea, PromptInputToolbar } from "@/components/ui/shadcn-io/ai/prompt-input";
+import { PromptInput, PromptInputButton, PromptInputModelSelect, PromptInputModelSelectContent, PromptInputModelSelectItem, PromptInputModelSelectTrigger, PromptInputModelSelectValue, PromptInputSubmit, PromptInputTextarea, PromptInputToolbar, PromptInputTools } from "@/components/ui/shadcn-io/ai/prompt-input";
 import { Response } from "@/components/ui/shadcn-io/ai/response";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { useAIStore } from "@/stores/ai-store";
@@ -20,6 +20,8 @@ import UserMessageComponent from "./user-message-component";
 import AIMessageComponent from "./ai-message-component";
 import { MessageType } from "@/types/chat-types";
 import dayjs from "dayjs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { MicIcon } from "lucide-react";
 
 const useAIChat = (
   onSuccessExtra?: (res: AIChatRes) => void,
@@ -45,6 +47,11 @@ const useAIChat = (
     },
   });
 }
+
+// const models = [
+//   { id: 'normal', name: 'AI-Agent lỏng tay' },
+//   { id: 'deep', name: 'AI-Agent hết ngọn' },
+// ];
 
 const ChatTab = () => {
 
@@ -72,6 +79,8 @@ const ChatTab = () => {
   const [status, setStatus] = useState<
     'submitted' | 'streaming' | 'ready' | 'error'
   >('ready');
+  console.log('Check Status: ', status);
+  // const [model, setModel] = useState<string>(models[0].id)
 
   const chatMutation = useAIChat(
     (res) => {
@@ -81,6 +90,7 @@ const ChatTab = () => {
         value: res.reply,
         intent: res.intent,
       }
+      console.log('New AI Message: ', newAIMessage);
       setMessagesList((prev) => [...prev, newAIMessage]);
     },
     (error) => {
@@ -114,8 +124,8 @@ const ChatTab = () => {
 
   return (
     <div className="flex h-full flex-col rounded-lg outline-dashed outline-2 outline-muted-foreground/50">
-      <div className="flex-1">
-        <div className="w-full p-4">
+      <ScrollArea className="flex-1 h-0 w-full">
+        <div className="p-4">
           <Conversation className="w-full h-full">
             <ConversationContent>
               {messagesList.map((message, index) => {
@@ -130,24 +140,56 @@ const ChatTab = () => {
                   )
                 }
               })}
+              {status === 'streaming' && (
+                <AIMessageComponent status={status} message={{
+                  role: 'assistant',
+                  value: 'Let me think about this step by step...Please wait until I finish.',
+                }} />
+              )}
+              {status === 'error' && (
+                <AIMessageComponent status={status} message={{
+                  role: 'assistant',
+                  value: 'An error occurred while generating the response. Please try again :((',
+                }} />
+              )}
             </ConversationContent>
             <ConversationScrollButton />
           </Conversation>
         </div>
-      </div>
-      <div>
-        <div className="w-full p-4">
-          <PromptInput onSubmit={handleSubmit}>
-            <PromptInputTextarea
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value)}
-              value={text}
-              placeholder="Type your message..."
-            />
-            <PromptInputToolbar>
-              <PromptInputSubmit disabled={!text} status={status} />
-            </PromptInputToolbar>
-          </PromptInput>
-        </div>
+      </ScrollArea>
+      <div className="w-full p-4">
+        <PromptInput onSubmit={handleSubmit}>
+          <PromptInputTextarea
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
+              setText(e.target.value);
+              setStatus('ready');
+            }}
+            value={text}
+            placeholder="Type your message..."
+            disabled={status === 'streaming'}
+          />
+          <PromptInputToolbar>
+            <PromptInputTools>
+              <PromptInputButton>
+                <MicIcon size={16} />
+                <span>Voice</span>
+              </PromptInputButton>
+              {/* <PromptInputModelSelect onValueChange={setModel} value={model}>
+                <PromptInputModelSelectTrigger>
+                  <PromptInputModelSelectValue />
+                </PromptInputModelSelectTrigger>
+                <PromptInputModelSelectContent>
+                  {models.map((model) => (
+                    <PromptInputModelSelectItem key={model.id} value={model.id}>
+                      {model.name}
+                    </PromptInputModelSelectItem>
+                  ))}
+                </PromptInputModelSelectContent>
+              </PromptInputModelSelect> */}
+            </PromptInputTools>
+            <PromptInputSubmit disabled={!text} status={status} />
+          </PromptInputToolbar>
+        </PromptInput>
       </div>
     </div>
   );

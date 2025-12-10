@@ -4,26 +4,18 @@ import { useLessonStore } from "@/stores/lesson-store";
 import { useMemo } from "react";
 import { useShallow } from "zustand/shallow";
 
-const LessonBreadcrumb = () => {
+type LessonBreadcrumbProps = {
+  courseId: string;
+  courseTitle: string;
+}
 
-  const {
-    currentCourseId,
-    myCourses
-  } = useCourseStore(useShallow((state) => ({
-    currentCourseId: state.currentCourseId,
-    myCourses: state.myCourses
-  })))
+const LessonBreadcrumb = ({ courseId, courseTitle }: LessonBreadcrumbProps) => {
 
   const {
     currentLesson
   } = useLessonStore(useShallow((state) => ({
     currentLesson: state.currentLesson,
   })))
-
-  const courseTitle = useMemo(() => {
-    const course = myCourses.find((course) => String(course.id) === String(currentCourseId));
-    return course ? course.title : "Unknown Course";
-  }, [currentCourseId, myCourses])
 
   return (
     <div className="border-b p-4">
@@ -36,7 +28,7 @@ const LessonBreadcrumb = () => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/course-detail/${currentCourseId}`} className="cursor-pointer">
+            <BreadcrumbLink href={`/course-detail/${courseId}`} className="cursor-pointer">
               {courseTitle}
             </BreadcrumbLink>
           </BreadcrumbItem>

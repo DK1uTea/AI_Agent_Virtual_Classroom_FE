@@ -136,7 +136,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
                   </div>
                 </>
               ) : (
-                <EnrollLessonButton courseId={String(course.id)} />
+                <EnrollLessonButton course={course} />
               )}
 
               <Separator />
