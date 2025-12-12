@@ -7,12 +7,18 @@ type LessonState = {
   currentLesson: LessonWithPlayback | null;
   currentSidebarLessons: SidebarLessonItem[];
   currentTranscripts: TranscriptItem[];
+
+  ui: {
+    isMindMapDialogOpen: boolean;
+  }
 }
 
 type LessonStateAction = {
   setCurrentLesson: (lesson: LessonWithPlayback | null) => void;
   setCurrentSidebarLessons: (lessons: SidebarLessonItem[]) => void;
   setCurrentTranscripts: (transcripts: TranscriptItem[]) => void;
+
+  toggleMindMapDialog: (isOpen: boolean) => void;
 }
 
 type LessonStore = LessonState & LessonStateAction;
@@ -39,6 +45,15 @@ export const useLessonStore = create<LessonStore>()(
         setCurrentTranscripts: (transcripts: TranscriptItem[]) => {
           set((state) => {
             state.currentTranscripts = transcripts;
+          });
+        },
+
+        ui: {
+          isMindMapDialogOpen: false,
+        },
+        toggleMindMapDialog: (isOpen: boolean) => {
+          set((state) => {
+            state.ui.isMindMapDialogOpen = isOpen;
           });
         },
       })

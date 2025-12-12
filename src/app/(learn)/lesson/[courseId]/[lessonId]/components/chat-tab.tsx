@@ -22,31 +22,9 @@ import { MessageType } from "@/types/chat-types";
 import dayjs from "dayjs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MicIcon } from "lucide-react";
+import { useAIChat } from "@/hooks/useAIAgent";
 
-const useAIChat = (
-  onSuccessExtra?: (res: AIChatRes) => void,
-  onErrorExtra?: (error: Error) => void
-) => {
-  return useMutation({
-    mutationFn: async (data: AIChatReq) => {
-      const res = await aiApis.AIChat(data);
-      return res;
-    },
-    onSuccess: (res) => {
-      console.log('AI Chat Response: ', res);
-      onSuccessExtra?.(res);
-    },
-    onError: (error) => {
-      onErrorExtra?.(error);
-      console.error('AI Chat Error: ', error);
-      if (isHTTPError(error)) {
-        getErrorJson(error).then((res) => {
-          toast.error(res.message || 'An error occurred while processing your request.');
-        })
-      }
-    },
-  });
-}
+
 
 // const models = [
 //   { id: 'normal', name: 'AI-Agent lỏng tay' },

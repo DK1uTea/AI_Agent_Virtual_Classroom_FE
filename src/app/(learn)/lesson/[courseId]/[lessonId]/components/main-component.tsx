@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import TranscriptTab from "./transcript-tab";
 import ChatTab from "./chat-tab";
 import { formatTimer } from "@/lib/utils";
+import MindMapTab from "./mind-map-tab";
 
 
 const MainComponent = () => {
@@ -123,7 +124,7 @@ const MainComponent = () => {
   return (
     <div className="flex flex-col lg:flex-row flex-grow h-full overflow-hidden">
       {/* Video Section */}
-      <div className="flex flex-col items-center flex-grow gap-6 h-full">
+      <div className="flex flex-col items-center flex-grow gap-6 h-full lg:px-2 py-4">
         {/* Video Player */}
         <div
           id="video-container"
@@ -199,7 +200,8 @@ const MainComponent = () => {
             <TabsContent value="chat" className="h-full m-0 p-2">
               <ChatTab />
             </TabsContent>
-            <TabsContent value="mind-map" className="h-full m-0">
+            <TabsContent value="mind-map" className="h-full m-0 p-2">
+              <MindMapTab />
             </TabsContent>
           </div>
         </Tabs>
