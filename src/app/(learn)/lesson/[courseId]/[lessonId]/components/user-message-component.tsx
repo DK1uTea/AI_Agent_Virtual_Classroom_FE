@@ -15,10 +15,13 @@ const UserMessageComponent = ({ message }: UserMessageComponentProps) => {
   })))
 
   return (
-    <Message from={message.role}>
-      <MessageAvatar src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} name="User" />
-      <MessageContent>{message.value}</MessageContent>
-    </Message>
+    <>
+      <Message from={message.role}>
+        <MessageAvatar src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} name="User" />
+        <MessageContent>{message.value}</MessageContent>
+      </Message>
+      <span className="text-muted-foreground">{message.createdAt}</span>
+    </>
   );
 }
 

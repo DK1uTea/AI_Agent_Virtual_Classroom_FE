@@ -3,6 +3,7 @@ import { getAuthHeaders } from "@/lib/utils";
 import { ApiResult } from "../responses/api-res";
 import { TranscriptItem } from "@/types/main-flow";
 import { LessonPlaybackRes } from "../responses/lesson-res";
+import { MessageType } from "@/types/chat-types";
 
 class LessonApis {
   public async getLessonPlayBack(req: {
@@ -26,6 +27,18 @@ class LessonApis {
       reqPath,
       { headers: getAuthHeaders(req.accessToken) }
     ).json<ApiResult<TranscriptItem[]>>();
+    return res.data;
+  }
+
+  public async getHistoryLessonChat(req: {
+    accessToken: string;
+    lessonId: string;
+  }): Promise<MessageType[]> {
+    const reqPath = `api/lessons/${req.lessonId}/chat`;
+    const res = await kyInstance.get(
+      reqPath,
+      { headers: getAuthHeaders(req.accessToken) }
+    ).json<ApiResult<MessageType[]>>();
     return res.data;
   }
 
