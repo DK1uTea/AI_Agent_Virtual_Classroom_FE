@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useGetCourseList } from "@/hooks/useGetCourseList";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCourseStore } from "@/stores/course-store";
-import { CourseCategory, CourseLevel, SortOrder } from "@/types/main-flow";
+import { CourseLevel, SortOrder } from "@/types/main-flow";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { useDebounceCallback } from "usehooks-ts";
@@ -16,20 +16,7 @@ const CourseFilter = () => {
 
   const levels: CourseLevel[] = [CourseLevel.BASIC, CourseLevel.MEDIUM, CourseLevel.ADVANCED];
 
-  const categories: CourseCategory[] = [
-    CourseCategory.MATH,
-    CourseCategory.SCIENCE,
-    CourseCategory.ARTS,
-    CourseCategory.TECHNOLOGY,
-    CourseCategory.ENGLISH,
-    CourseCategory.HISTORY,
-    CourseCategory.MUSIC,
-    CourseCategory.GEOGRAPHY,
-
-    CourseCategory.LITERATURE,
-    CourseCategory.CIVIC_EDUCATION,
-    CourseCategory.PHYSICAL_EDUCATION,
-  ];
+  const [categories, setCategories] = useState<string[]>([]);
 
   const {
     accessToken,
