@@ -1,6 +1,7 @@
 import { Message, MessageAvatar, MessageContent } from "@/components/ui/shadcn-io/ai/message";
 import { useAuthStore } from "@/stores/auth-store";
 import { MessageType } from "@/types/chat-types";
+import dayjs from "dayjs";
 import { useShallow } from "zustand/shallow";
 
 type UserMessageComponentProps = {
@@ -15,10 +16,15 @@ const UserMessageComponent = ({ message }: UserMessageComponentProps) => {
   })))
 
   return (
-    <Message from={message.role}>
-      <MessageAvatar src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} name="User" />
-      <MessageContent>{message.value}</MessageContent>
-    </Message>
+    <>
+      <Message from={message.role}>
+        <MessageAvatar src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} name="User" />
+        <MessageContent>{message.value}</MessageContent>
+      </Message>
+      {message.createdAt && (
+        <span className="text-muted-foreground block w-full text-right text-xs italic">{dayjs(message.createdAt).format('YYYY-MM-DD HH:mm')}</span>
+      )}
+    </>
   );
 }
 
