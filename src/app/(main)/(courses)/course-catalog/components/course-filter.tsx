@@ -63,7 +63,7 @@ const CourseFilter = () => {
   useEffect(() => {
     setCurrentListConfig((prev) => ({
       ...prev,
-      title: debouncedSearch,
+      title: debouncedSearch.trim(),
       page: 1,
     }));
   }, [debouncedSearch, setCurrentListConfig]);

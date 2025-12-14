@@ -32,7 +32,7 @@ const TranscriptTab = () => {
       return currentTranscripts;
     }
     return currentTranscripts.filter((transcript) =>
-      transcript.text.toLowerCase().includes(searchQueryDebounced.toLowerCase())
+      transcript.text.toLowerCase().includes(searchQueryDebounced.toLowerCase().trim())
     );
   }, [currentTranscripts, searchQueryDebounced]);
 

@@ -1,18 +1,11 @@
 'use client'
 
-import { aiApis } from "@/apis/gateways/ai-apis";
 import { AIChatReq } from "@/apis/requests/ai-req";
-import { AIChatRes } from "@/apis/responses/ai-res";
 import { Conversation, ConversationContent, ConversationScrollButton } from "@/components/ui/shadcn-io/ai/conversation";
-import { Message, MessageAvatar, MessageContent } from "@/components/ui/shadcn-io/ai/message";
-import { PromptInput, PromptInputButton, PromptInputModelSelect, PromptInputModelSelectContent, PromptInputModelSelectItem, PromptInputModelSelectTrigger, PromptInputModelSelectValue, PromptInputSubmit, PromptInputTextarea, PromptInputToolbar, PromptInputTools } from "@/components/ui/shadcn-io/ai/prompt-input";
-import { Response } from "@/components/ui/shadcn-io/ai/response";
-import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
+import { PromptInput, PromptInputButton, PromptInputSubmit, PromptInputTextarea, PromptInputToolbar, PromptInputTools } from "@/components/ui/shadcn-io/ai/prompt-input";
 import { useAIStore } from "@/stores/ai-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { useLessonStore } from "@/stores/lesson-store";
-import { useMutation } from "@tanstack/react-query";
-import { on } from "events";
 import { FormEventHandler, useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
@@ -126,12 +119,12 @@ const ChatTab = () => {
         lessonId: String(currentLesson?.id) || '',
         userMessage: text
       };
-      chatMutation.mutate(data);
       const newUserMessage: MessageType = {
         role: 'user',
         value: text,
         createdAt: dayjs().toISOString(),
       };
+      chatMutation.mutate(data);
       setMessagesList((prev) => [...prev, newUserMessage]);
       setText('');
     }, 200);

@@ -2,6 +2,7 @@ import { Message, MessageAvatar, MessageContent } from "@/components/ui/shadcn-i
 import { Reasoning, ReasoningContent, ReasoningTrigger } from "@/components/ui/shadcn-io/ai/reasoning";
 import { Response } from "@/components/ui/shadcn-io/ai/response";
 import { MessageType } from "@/types/chat-types";
+import dayjs from "dayjs";
 
 type AIMessageComponentProps = {
   message: MessageType;
@@ -36,7 +37,9 @@ const AIMessageComponent = ({ status, message }: AIMessageComponentProps) => {
           </MessageContent>
         )}
       </Message>
-      <span className="text-muted-foreground">{message.createdAt}</span>
+      {message.createdAt && (
+        <span className="text-muted-foreground block w-full text-left text-xs italic">{dayjs(message.createdAt).format('YYYY-MM-DD HH:mm')}</span>
+      )}
     </>
   );
 }
