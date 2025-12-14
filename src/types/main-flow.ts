@@ -81,3 +81,19 @@ export interface ActivityLog {
   duration?: string;
   score?: number;
 }
+
+export type Question = {
+  id: string;
+  type: 'multiple-choice' | 'true-false';
+  question: string;
+  options?: string[];
+}
+
+export type Quiz = {
+  id: string;
+  lessonId: string;
+  title: string;
+  questions: Question[];
+  timeLimit?: number;
+  status?: 'not-started' | 'in-progress' | 'completed';
+}

@@ -2,7 +2,7 @@
 
 import { Clock } from "lucide-react";
 import QuizBreadcrumb from "./components/quiz-breadcrumb";
-import { useMemo, useState } from "react";
+import { use, useMemo, useState } from "react";
 import { formatTimer } from "@/lib/utils";
 import BeforeStartQuiz from "./components/before-start_quiz";
 import { Progress } from "@/components/ui/progress";
@@ -12,15 +12,71 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useLessonStore } from "@/stores/lesson-store";
 import { useShallow } from "zustand/shallow";
+import { useAuthStore } from "@/stores/auth-store";
+import { useCourseStore } from "@/stores/course-store";
+import { useGetCourseDetail } from "@/hooks/useGetCourseDetail";
+import { useGetCurrentLesson } from "@/hooks/useGetCurrentLesson";
+import Loading from "@/components/ui/loading";
+import { Quiz } from "@/types/main-flow";
 
+type QuizPageProps = {
+  params: Promise<{
+    courseId: string;
+    lessonId: string
+  }>;
+}
 
+export const mockQuiz: Quiz = {
+  id: '1',
+  lessonId: '1',
+  title: 'Kiểm tra kiến thức về React',
+  status: 'not-started',
+  timeLimit: 300,
+  questions: [
+    {
+      id: '1',
+      type: 'multiple-choice',
+      question: 'React là gì?',
+      options: [
+        'Một ngôn ngữ lập trình',
+        'Một thư viện JavaScript',
+        'Một framework backend',
+        'Một database',
+      ],
+    },
+    {
+      id: '2',
+      type: 'true-false',
+      question: 'React được phát triển bởi Google',
+      options: ['Đúng', 'Sai'],
+    },
+  ],
+};
 
-const QuizPage = () => {
+const QuizPage = ({ params }: QuizPageProps) => {
+  const { courseId, lessonId } = use(params);
+
   const {
-    currentLesson
-  } = useLessonStore(useShallow((state) => ({
-    currentLesson: state.currentLesson,
-  })))
+    accessToken
+  } = useAuthStore(useShallow((state) => ({
+    accessToken: state.accessToken,
+  })));
+
+  const {
+    data: currentCourseData,
+    isLoading: isLoadingCourseDetail,
+  } = useGetCourseDetail({
+    accessToken: accessToken,
+    courseId: courseId,
+  })
+
+  const {
+    data: currentLessonData,
+    isLoading: isLoadingCurrentLesson,
+  } = useGetCurrentLesson({
+    accessToken: accessToken,
+    lessonId: lessonId,
+  })
 
   const [timeLeft, setTimeLeft] = useState<number>(90);
   const [quizStarted, setQuizStarted] = useState<boolean>(false);
@@ -30,10 +86,21 @@ const QuizPage = () => {
     return true;
   }, []);
 
+  if (isLoadingCourseDetail || isLoadingCurrentLesson) {
+    return (
+      <Loading />
+    )
+  }
+
   if (!quizStarted) {
     return (
       <BeforeStartQuiz
-        setQuizStarted={setQuizStarted} />
+        setQuizStarted={setQuizStarted}
+        courseId={courseId}
+        lessonId={lessonId}
+        courseTitle={currentCourseData?.title || "Unknown Course"}
+        lessonTitle={currentLessonData?.lessonPlaybackInfo.title || "Unknown Lesson"}
+      />
     );
   }
 
@@ -41,7 +108,11 @@ const QuizPage = () => {
     <div className="space-y-6 p-6">
       <div>
         <QuizBreadcrumb
-          text="Quiz Test"
+          text={`Quiz test for ${currentLessonData?.lessonPlaybackInfo.title || 'the lesson'}`}
+          courseId={courseId}
+          lessonId={lessonId}
+          courseTitle={currentCourseData?.title || "Unknown Course"}
+          lessonTitle={currentLessonData?.lessonPlaybackInfo.title || "Unknown Lesson"}
         />
 
         <div className="flex items-center gap-2 text-muted-foreground">

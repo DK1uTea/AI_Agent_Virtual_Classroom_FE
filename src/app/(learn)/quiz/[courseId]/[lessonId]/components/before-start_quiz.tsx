@@ -12,13 +12,21 @@ import { set } from "zod";
 
 type BeforeStartQuizProps = {
   setQuizStarted: (started: boolean) => void;
+  courseId: string;
+  lessonId: string;
+  courseTitle: string;
+  lessonTitle: string;
 }
-const BeforeStartQuiz = ({ setQuizStarted }: BeforeStartQuizProps) => {
+const BeforeStartQuiz = ({ setQuizStarted, courseId, lessonId, courseTitle, lessonTitle }: BeforeStartQuizProps) => {
 
   return (
     <div className="space-y-6 p-6">
       <QuizBreadcrumb
         text="Before Starting Quiz"
+        courseId={courseId}
+        lessonId={lessonId}
+        courseTitle={courseTitle}
+        lessonTitle={lessonTitle}
       />
 
       <Card className="max-w-2xl mx-auto">
