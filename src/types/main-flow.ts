@@ -51,6 +51,8 @@ export type Lesson = {
   order: number;
   duration: number;
   status?: 'not-started' | 'in-progress' | 'completed';
+  videoCompleted?: boolean;
+  quizCompleted?: boolean;
 }
 
 export type TranscriptItem = {
@@ -80,4 +82,20 @@ export interface ActivityLog {
   details: string;
   duration?: string;
   score?: number;
+}
+
+export type Question = {
+  id: string;
+  type: 'multiple-choice' | 'true-false';
+  question: string;
+  options?: string[];
+}
+
+export type Quiz = {
+  id: string;
+  lessonId: string;
+  title: string;
+  questions: Question[];
+  timeLimit?: number;
+  status?: 'not-started' | 'in-progress' | 'completed';
 }

@@ -1,8 +1,10 @@
 'use client'
 
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatTimer } from "@/lib/utils";
+import { useCourseStore } from "@/stores/course-store";
 import { useLessonStore } from "@/stores/lesson-store";
 import { Lesson } from "@/types/main-flow";
 import { ArrowUpIcon } from "lucide-react";
@@ -41,17 +43,52 @@ const LessonListTab = () => {
               </div>
               {
                 currentLesson?.id === lesson.id &&
-                <Button
-                  className="space-x-1"
-                  variant={"secondary"}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    router.push(`/quiz/${currentLesson?.id}`);
-                  }}
-                >
-                  <span>Take a quiz test</span>
-                  <ArrowUpIcon className="h-4 w-4" />
-                </Button>
+                // <Button
+                //   className="space-x-1"
+                //   variant={"secondary"}
+                //   onClick={(e) => {
+                //     e.stopPropagation();
+                //     if(currentLesson.status === 'completed') {
+                //       router.push(`/quiz/${currentLesson?.courseId}/${currentLesson?.id}`);
+                //     } else {
+
+                //       return;
+                //     }
+                //   }}
+                // >
+                //   <span>Take a quiz test</span>
+                //   <ArrowUpIcon className="h-4 w-4" />
+                // </Button>
+                (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" className="flex justify-center items-center gap-2">
+                        <span>Take a quiz test</span>
+                        <ArrowUpIcon className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          {currentLesson?.videoCompleted ? 'Proceed to Quiz Test' : 'Quiz Unavailable'}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {currentLesson?.videoCompleted
+                            ? 'You have completed this lesson. Click Continue to proceed to the quiz test.'
+                            : 'You need to complete the lesson before taking the quiz test.'}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        {currentLesson?.videoCompleted && (
+                          <AlertDialogAction
+                            onClick={() => router.push(`/quiz/${currentLesson?.courseId}/${currentLesson?.id}`)}
+                          >Continue</AlertDialogAction>
+                        )}
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )
               }
             </div>
           ))}

@@ -9,28 +9,13 @@ import { useShallow } from "zustand/shallow";
 
 type QuizBreadcrumbProps = {
   text: string;
+  courseId: string;
+  courseTitle: string;
+  lessonId: string;
+  lessonTitle: string;
 }
 
-const QuizBreadcrumb = ({ text }: QuizBreadcrumbProps) => {
-
-  const {
-    currentCourseId,
-    myCourses
-  } = useCourseStore(useShallow((state) => ({
-    currentCourseId: state.currentCourseId,
-    myCourses: state.myCourses
-  })))
-
-  const {
-    currentLesson
-  } = useLessonStore(useShallow((state) => ({
-    currentLesson: state.currentLesson,
-  })))
-
-  const courseTitle = useMemo(() => {
-    const course = myCourses.find((course) => String(course.id) === String(currentCourseId));
-    return course ? course.title : "Unknown Course";
-  }, [currentCourseId, myCourses])
+const QuizBreadcrumb = ({ text, courseId, courseTitle, lessonId, lessonTitle }: QuizBreadcrumbProps) => {
 
   return (
     <Breadcrumb>
@@ -42,14 +27,14 @@ const QuizBreadcrumb = ({ text }: QuizBreadcrumbProps) => {
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href={`/course-detail/${currentCourseId}`} className="cursor-pointer">
+          <BreadcrumbLink href={`/course-detail/${courseId}`} className="cursor-pointer">
             {courseTitle}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href={`/course-detail/${currentCourseId}/lesson/${currentLesson?.id}`} className="cursor-pointer">
-            {currentLesson?.title}
+          <BreadcrumbLink href={`/lesson/${courseId}/${lessonId}`} className="cursor-pointer">
+            {lessonTitle}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
