@@ -83,6 +83,19 @@ class CourseApis {
       }
     ).json<ApiResult<void>>();
   }
+
+  public async getAvailableCategories(req: {
+    accessToken: string;
+  }): Promise<string[]> {
+    const reqPath = `api/courses/categories`;
+    const res = await kyInstance.get(
+      reqPath,
+      {
+        headers: getAuthHeaders(req.accessToken)
+      }
+    ).json<ApiResult<string[]>>();
+    return res.data;
+  }
 }
 
 export const courseApis = new CourseApis();

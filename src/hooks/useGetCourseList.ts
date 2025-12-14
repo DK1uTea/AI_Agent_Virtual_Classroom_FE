@@ -28,6 +28,7 @@ export const useGetCourseList = (req: {
         }
         throw error;
       }
-    }
+    },
+    refetchOnWindowFocus: false,
   })
 }

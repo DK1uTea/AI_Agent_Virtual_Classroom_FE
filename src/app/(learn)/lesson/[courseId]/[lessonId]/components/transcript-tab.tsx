@@ -8,10 +8,12 @@ import { useVideoPlayerStore } from "@/stores/video-player-store";
 import { debounce } from "es-toolkit";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useDebounceValue } from "usehooks-ts";
 import { useShallow } from "zustand/shallow";
 
 const TranscriptTab = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQueryDebounced] = useDebounceValue(searchQuery, 1000);
 
   const { currentTranscripts } = useLessonStore(
     useShallow((state) => ({
@@ -26,21 +28,13 @@ const TranscriptTab = () => {
   );
 
   const filteredTranscripts = useMemo(() => {
-    if (searchQuery.trim() === "") {
+    if (searchQueryDebounced.trim() === "") {
       return currentTranscripts;
     }
     return currentTranscripts.filter((transcript) =>
-      transcript.text.toLowerCase().includes(searchQuery.toLowerCase())
+      transcript.text.toLowerCase().includes(searchQueryDebounced.toLowerCase())
     );
-  }, [currentTranscripts, searchQuery]);
-
-  const debouncedSetSearchQuery = useMemo(
-    () =>
-      debounce((value: string) => {
-        setSearchQuery(value);
-      }, 300),
-    []
-  );
+  }, [currentTranscripts, searchQueryDebounced]);
 
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -70,7 +64,7 @@ const TranscriptTab = () => {
             value={searchQuery}
             onChange={(e) => {
               const value = e.target.value;
-              debouncedSetSearchQuery(value);
+              setSearchQuery(value);
             }}
             className="pl-10 bg-input-background"
           />

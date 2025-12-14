@@ -8,7 +8,7 @@ export type Course = {
   updatedAt?: string;
   duration?: number;
   level?: CourseLevel;
-  category?: CourseCategory;
+  category?: string;
   requirements?: string;
   rating?: number;
   isNew?: boolean;
@@ -32,20 +32,6 @@ export enum CourseLevel {
   BASIC = "Basic",
   MEDIUM = "Medium",
   ADVANCED = "Advanced",
-}
-
-export enum CourseCategory {
-  MATH = 'Math',
-  SCIENCE = 'Science',
-  ARTS = 'Arts',
-  TECHNOLOGY = 'Technology',
-  ENGLISH = 'English',
-  HISTORY = 'History',
-  MUSIC = 'Music',
-  GEOGRAPHY = 'Geography',
-  LITERATURE = 'Literature',
-  CIVIC_EDUCATION = 'Civic Education',
-  PHYSICAL_EDUCATION = 'Physical Education',
 }
 
 export enum EnrollmentStatus {
