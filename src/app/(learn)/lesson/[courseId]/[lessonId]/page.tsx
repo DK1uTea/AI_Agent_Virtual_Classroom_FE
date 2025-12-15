@@ -88,13 +88,6 @@ const LessonPage = ({ params }: LessonPageProps) => {
     setCurrentCourseId(courseId);
   }, [courseId])
 
-  // useEffect(() => {
-
-  //   return () => {
-  //     resetPlayer();
-  //   }
-  // }, [])
-
   if (!courseId) {
     return (
       <Card>

@@ -10,6 +10,8 @@ type LessonState = {
 
   ui: {
     isMindMapDialogOpen: boolean;
+    isConfirmLearnVideoCompletedDialogOpen: boolean;
+    isConfirmLearnLessonCompletedDialogOpen: boolean;
   }
 }
 
@@ -17,8 +19,12 @@ type LessonStateAction = {
   setCurrentLesson: (lesson: LessonWithPlayback | null) => void;
   setCurrentSidebarLessons: (lessons: SidebarLessonItem[]) => void;
   setCurrentTranscripts: (transcripts: TranscriptItem[]) => void;
+  setCurrentLessonVideoCompleted: (videoCompleted: boolean) => void;
+  setCurrentLessonLessonCompleted: (lessonCompleted: boolean) => void;
 
   toggleMindMapDialog: (isOpen: boolean) => void;
+  toggleConfirmLearnVideoCompletedDialog: (isOpen: boolean) => void;
+  toggleConfirmLearnLessonCompletedDialog: (isOpen: boolean) => void;
 }
 
 type LessonStore = LessonState & LessonStateAction;
@@ -48,12 +54,41 @@ export const useLessonStore = create<LessonStore>()(
           });
         },
 
+        setCurrentLessonVideoCompleted(videoCompleted) {
+          set((state) => {
+            if (state.currentLesson) {
+              state.currentLesson.videoCompleted = videoCompleted;
+            }
+          })
+        },
+
+        setCurrentLessonLessonCompleted(lessonCompleted) {
+          set((state) => {
+            if (state.currentLesson) {
+              state.currentLesson.quizCompleted = lessonCompleted;
+              state.currentLesson.status = lessonCompleted ? 'completed' : 'in-progress';
+            }
+          })
+        },
+
         ui: {
           isMindMapDialogOpen: false,
+          isConfirmLearnVideoCompletedDialogOpen: false,
+          isConfirmLearnLessonCompletedDialogOpen: false,
         },
         toggleMindMapDialog: (isOpen: boolean) => {
           set((state) => {
             state.ui.isMindMapDialogOpen = isOpen;
+          });
+        },
+        toggleConfirmLearnVideoCompletedDialog: (isOpen: boolean) => {
+          set((state) => {
+            state.ui.isConfirmLearnVideoCompletedDialogOpen = isOpen;
+          });
+        },
+        toggleConfirmLearnLessonCompletedDialog: (isOpen: boolean) => {
+          set((state) => {
+            state.ui.isConfirmLearnLessonCompletedDialogOpen = isOpen;
           });
         },
       })

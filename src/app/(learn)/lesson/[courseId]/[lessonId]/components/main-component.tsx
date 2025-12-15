@@ -18,11 +18,22 @@ import TranscriptTab from "./transcript-tab";
 import ChatTab from "./chat-tab";
 import { formatTimer } from "@/lib/utils";
 import MindMapTab from "./mind-map-tab";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
+import { useMarkLearnVideoCompleted } from "@/hooks/useProgress";
+import { useAuthStore } from "@/stores/auth-store";
 
 
 const MainComponent = () => {
 
   const router = useRouter();
+
+  const {
+    accessToken
+  } = useAuthStore(useShallow((state) => ({
+    accessToken: state.accessToken,
+  })));
 
   const {
     currentCourseId
@@ -32,14 +43,17 @@ const MainComponent = () => {
 
   const {
     currentLesson,
-    currentSidebarLessons
+    currentSidebarLessons,
+    setCurrentLessonVideoCompleted,
+    isConfirmLearnVideoCompletedDialogOpen,
+    toggleConfirmLearnVideoCompletedDialog,
   } = useLessonStore(useShallow((state) => ({
     currentLesson: state.currentLesson,
     currentSidebarLessons: state.currentSidebarLessons,
+    setCurrentLessonVideoCompleted: state.setCurrentLessonVideoCompleted,
+    isConfirmLearnVideoCompletedDialogOpen: state.ui.isConfirmLearnVideoCompletedDialogOpen,
+    toggleConfirmLearnVideoCompletedDialog: state.toggleConfirmLearnVideoCompletedDialog,
   })));
-
-  console.log("currentLesson in MainComponent:", currentLesson);
-  console.log("currentSidebarLessons in MainComponent:", currentSidebarLessons);
 
   const currentLessonOrder = useMemo(() => {
     if (!currentLesson?.id || !currentSidebarLessons?.length) return 0;
@@ -83,11 +97,13 @@ const MainComponent = () => {
 
   const {
     isPlaying,
+    setIsPlaying,
     duration,
     currentTime,
     setShowControls,
   } = useVideoPlayerStore(useShallow((state) => ({
     isPlaying: state.isPlaying,
+    setIsPlaying: state.setIsPlaying,
     duration: state.duration,
     currentTime: state.currentTime,
     setShowControls: state.setShowControls,
@@ -120,6 +136,32 @@ const MainComponent = () => {
   const handleNext = () => {
     router.push(`/lesson/${currentCourseId}/${prevAndNextLessonId?.nextLessonId}`);
   };
+
+  const markLearnVideoCompletedMutation = useMarkLearnVideoCompleted(
+    () => {
+      setCurrentLessonVideoCompleted(true);
+      toggleConfirmLearnVideoCompletedDialog(true);
+    },
+    async (error) => {
+      if (isHTTPError(error)) {
+        await getErrorJson(error).then((res) => {
+          toast.error(`Failed to mark video as completed: ${res.message}`);
+        });
+      }
+    }
+  );
+
+  useEffect(() => {
+    if (!currentTime || !duration || !currentLesson) return;
+    const currentProgress = currentTime / duration;
+    if (currentProgress >= 0.9 && !currentLesson.videoCompleted) {
+      markLearnVideoCompletedMutation.mutate({
+        accessToken: accessToken,
+        lessonId: String(currentLesson.id),
+      })
+      setIsPlaying(false);
+    }
+  }, [currentTime, duration])
 
   return (
     <div className="flex flex-col lg:flex-row flex-grow h-full overflow-hidden">
@@ -206,6 +248,23 @@ const MainComponent = () => {
           </div>
         </Tabs>
       </div>
+
+      {/* Dialog confirm learn video completed */}
+      <Dialog open={isConfirmLearnVideoCompletedDialogOpen} onOpenChange={toggleConfirmLearnVideoCompletedDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Learn Video Completed</DialogTitle>
+            <DialogDescription>
+              You have completed watching 90% of this lesson video. Now the quiz of this lesson is unlocked.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => {
+              toggleConfirmLearnVideoCompletedDialog(false);
+            }}>OK</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

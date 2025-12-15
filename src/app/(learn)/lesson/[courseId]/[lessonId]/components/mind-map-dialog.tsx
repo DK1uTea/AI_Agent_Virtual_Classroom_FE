@@ -16,12 +16,10 @@ const MindMapDialog = () => {
   return (
     <Dialog
       open={isMindMapDialogOpen}
-      onOpenChange={() => {
-        toggleMindMapDialog(false);
-      }}>
+      onOpenChange={toggleMindMapDialog}>
       <DialogContent className="max-w-[95vw] sm:max-w-[95vw] h-[95vh] p-4">
         <DialogTitle className="sr-only">Mind Map</DialogTitle>
-        <MindMap isLayout={true}/>
+        <MindMap isLayout={true} />
       </DialogContent>
     </Dialog>
   );

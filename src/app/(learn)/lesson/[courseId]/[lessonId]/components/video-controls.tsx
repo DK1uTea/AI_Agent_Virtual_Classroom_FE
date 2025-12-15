@@ -36,6 +36,7 @@ const VideoControls = () => {
     setPlaybackRate,
     currentTime,
     setCurrentTime,
+    changeCurrentSeekNumber,
     changeCurrentSeek,
     duration,
     showControls,
@@ -54,6 +55,7 @@ const VideoControls = () => {
       setPlaybackRate: state.setPlaybackRate,
       currentTime: state.currentTime,
       setCurrentTime: state.setCurrentTime,
+      changeCurrentSeekNumber: state.changeCurrentSeekNumber,
       changeCurrentSeek: state.changeCurrentSeek,
       duration: state.duration,
       showControls: state.showControls,
@@ -109,12 +111,11 @@ const VideoControls = () => {
     const videoContainer = document.getElementById("video-container");
     if (!videoContainer) return;
 
-    if (!isFullscreen) {
-      videoContainer.requestFullscreen?.();
+    if (!document.fullscreenElement) {
+      videoContainer.requestFullscreen();
     } else {
-      document.exitFullscreen?.();
+      document.exitFullscreen();
     }
-    setIsFullscreen(!isFullscreen);
   };
 
   // Slider: instead of seeking directly, we dispatch an event
@@ -125,7 +126,7 @@ const VideoControls = () => {
 
   // Listen for seekChange + seekChangeDebounce
   useEffect(() => {
-    // cập nhật UI ngay khi có request seek
+    // update UI immediately when has request to seek
     const handleSeek = (event: Event) => {
       const e = event as CustomEvent<{ time: number }>;
       const newTime = e.detail?.time;
@@ -176,6 +177,25 @@ const VideoControls = () => {
       debouncedPerformSeek.flush?.();
     };
   }, [videoRef, setCurrentTime, changeCurrentSeek]);
+
+  useEffect(() => {
+    if (!videoRef || !changeCurrentSeekNumber || !Number.isFinite(videoRef.duration || videoRef.readyState < HTMLMediaElement.HAVE_METADATA)) return;
+    videoRef.currentTime = changeCurrentSeekNumber;
+    changeCurrentSeek(null);
+  }, [videoRef, changeCurrentSeekNumber]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
 
   return (
     <div
