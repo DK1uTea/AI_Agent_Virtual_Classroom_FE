@@ -10,6 +10,13 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { cn, formatTimer, documentDispatchEvent } from "@/lib/utils";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
+import { useLessonStore } from "@/stores/lesson-store";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 import {
   Maximize,
   Minimize,
@@ -68,6 +75,17 @@ const VideoControls = () => {
     }))
   );
 
+  const { currentLesson } = useLessonStore(
+    useShallow((state) => ({
+      currentLesson: state.currentLesson,
+    }))
+  );
+
+  // Check if video is completed - if not, disable seeking/skipping
+  const isVideoCompleted = useMemo(() => {
+    return currentLesson?.completed?.videoCompleted ?? false;
+  }, [currentLesson?.completed?.videoCompleted]);
+
   const playbackRateOptions = useMemo(
     () => [0.5, 0.75, 1, 1.25, 1.5, 2],
     []
@@ -78,21 +96,28 @@ const VideoControls = () => {
     setIsPlaying(!isPlaying);
   };
 
-  // Skip backward uses common event seek
+  // Skip backward uses common event seek - always allowed
   const handleSkipBack = () => {
     const baseTime = videoRef?.currentTime ?? currentTime;
     const newTime = Math.max(0, baseTime - SEEK_STEP);
-    documentDispatchEvent("seekChange", { time: newTime });
+    requestAnimationFrame(() => {
+      documentDispatchEvent("seekChange", { time: newTime });
+    })
   };
 
   // Skip forward uses common event seek
   const handleSkipForward = () => {
+    // Prevent skipping forward if video is not completed
+    if (!isVideoCompleted) return;
+
     const durationSafe = videoRef?.duration ?? duration;
     const baseTime = videoRef?.currentTime ?? currentTime;
     if (!Number.isFinite(durationSafe)) return;
 
     const newTime = Math.min(durationSafe, baseTime + SEEK_STEP);
-    documentDispatchEvent("seekChange", { time: newTime });
+    requestAnimationFrame(() => {
+      documentDispatchEvent("seekChange", { time: newTime });
+    })
   };
 
   // Volume
@@ -119,10 +144,18 @@ const VideoControls = () => {
   };
 
   // Slider: instead of seeking directly, we dispatch an event
+  // Only prevent seeking forward when video is not completed
   const handleSeekChange = useCallback((value: number[]) => {
     const newTime = value[0];
-    documentDispatchEvent("seekChange", { time: newTime });
-  }, []);
+
+    // If video not completed, only allow seeking backward (to already watched content)
+    if (!isVideoCompleted && newTime > currentTime) {
+      return; // Block seeking forward
+    }
+    requestAnimationFrame(() => {
+      documentDispatchEvent("seekChange", { time: newTime });
+    })
+  }, [isVideoCompleted, currentTime]);
 
   // Listen for seekChange + seekChangeDebounce
   useEffect(() => {
@@ -204,15 +237,31 @@ const VideoControls = () => {
         showControls ? "opacity-100" : "opacity-0"
       )}
     >
-      {/* Seek bar */}
-      <Slider
-        value={[currentTime]}
-        max={duration || 0}
-        min={0}
-        step={1}
-        onValueChange={handleSeekChange}
-        className="cursor-pointer mb-4"
-      />
+      {/* Seek bar - allows backward seek, restricts forward seek when not completed */}
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="w-full">
+              <Slider
+                value={[currentTime]}
+                max={duration || 0}
+                min={0}
+                step={1}
+                onValueChange={handleSeekChange}
+                className={cn(
+                  "mb-4 cursor-pointer",
+                  !isVideoCompleted && "[&_[data-disabled]]:cursor-not-allowed"
+                )}
+              />
+            </div>
+          </TooltipTrigger>
+          {!isVideoCompleted && (
+            <TooltipContent>
+              <p>You can seek backward. Forward seeking unlocks at 90%</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
 
       <div className="flex items-center justify-between gap-4">
         {/* Left controls */}
@@ -231,7 +280,7 @@ const VideoControls = () => {
             )}
           </Button>
 
-          {/* Skip back */}
+          {/* Skip back - always enabled */}
           <Button
             variant={"ghost"}
             size={"icon"}
@@ -241,15 +290,32 @@ const VideoControls = () => {
             <SkipBack className="h-5 w-5" />
           </Button>
 
-          {/* Skip forward */}
-          <Button
-            variant={"ghost"}
-            size={"icon"}
-            className="text-white hover:bg-white/20"
-            onClick={handleSkipForward}
-          >
-            <SkipForward className="h-5 w-5" />
-          </Button>
+          {/* Skip forward - disabled when video not completed */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    variant={"ghost"}
+                    size={"icon"}
+                    className={cn(
+                      "text-white hover:bg-white/20",
+                      !isVideoCompleted && "opacity-50 cursor-not-allowed"
+                    )}
+                    onClick={handleSkipForward}
+                    disabled={!isVideoCompleted}
+                  >
+                    <SkipForward className="h-5 w-5" />
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!isVideoCompleted && (
+                <TooltipContent>
+                  <p>Watch 90% of the video to unlock skipping forward</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
 
           {/* Volume + slider */}
           <div className="flex items-center gap-2">

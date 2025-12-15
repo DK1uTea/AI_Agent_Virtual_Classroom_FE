@@ -51,8 +51,11 @@ export type Lesson = {
   order: number;
   duration: number;
   status?: 'not-started' | 'in-progress' | 'completed';
-  videoCompleted?: boolean;
-  quizCompleted?: boolean;
+  completed?: {
+    videoCompleted: boolean;
+    quizCompleted: boolean;
+  }
+  currentTime?: number;
 }
 
 export type TranscriptItem = {

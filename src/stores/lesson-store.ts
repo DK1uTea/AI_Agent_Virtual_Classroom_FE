@@ -12,6 +12,7 @@ type LessonState = {
     isMindMapDialogOpen: boolean;
     isConfirmLearnVideoCompletedDialogOpen: boolean;
     isConfirmLearnLessonCompletedDialogOpen: boolean;
+    isConfirmContinueLearnDialogOpen: boolean;
   }
 }
 
@@ -25,6 +26,7 @@ type LessonStateAction = {
   toggleMindMapDialog: (isOpen: boolean) => void;
   toggleConfirmLearnVideoCompletedDialog: (isOpen: boolean) => void;
   toggleConfirmLearnLessonCompletedDialog: (isOpen: boolean) => void;
+  toggleConfirmContinueLearnDialog: (isOpen: boolean) => void;
 }
 
 type LessonStore = LessonState & LessonStateAction;
@@ -56,16 +58,16 @@ export const useLessonStore = create<LessonStore>()(
 
         setCurrentLessonVideoCompleted(videoCompleted) {
           set((state) => {
-            if (state.currentLesson) {
-              state.currentLesson.videoCompleted = videoCompleted;
+            if (state.currentLesson?.completed) {
+              state.currentLesson.completed.videoCompleted = videoCompleted;
             }
           })
         },
 
         setCurrentLessonLessonCompleted(lessonCompleted) {
           set((state) => {
-            if (state.currentLesson) {
-              state.currentLesson.quizCompleted = lessonCompleted;
+            if (state.currentLesson?.completed) {
+              state.currentLesson.completed.quizCompleted = lessonCompleted;
               state.currentLesson.status = lessonCompleted ? 'completed' : 'in-progress';
             }
           })

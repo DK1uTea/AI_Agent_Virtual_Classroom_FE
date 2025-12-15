@@ -45,3 +45,26 @@ export const useMarkLearnLessonCompleted = (
     }
   })
 }
+
+export const useSaveVideoProgress = (
+  onSuccessExtra?: () => void,
+  onErrorExtra?: (error: Error) => void
+) => {
+  return useMutation({
+    mutationKey: ['save-video-progress'],
+    mutationFn: async (req: {
+      accessToken: string;
+      lessonId: string;
+      currentTime: number;
+    }) => {
+      await lessonApis.saveVideoProgress(req);
+    },
+    onSuccess: () => {
+      onSuccessExtra?.();
+    },
+    onError: (error: Error) => {
+      onErrorExtra?.(error);
+      console.error('Error saving video progress:', error);
+    }
+  })
+}

@@ -70,17 +70,17 @@ const LessonListTab = () => {
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>
-                          {currentLesson?.videoCompleted ? 'Proceed to Quiz Test' : 'Quiz Unavailable'}
+                          {currentLesson?.completed?.videoCompleted ? 'Proceed to Quiz Test' : 'Quiz Unavailable'}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                          {currentLesson?.videoCompleted
+                          {currentLesson?.completed?.videoCompleted
                             ? 'You have completed this lesson. Click Continue to proceed to the quiz test.'
                             : 'You need to complete the lesson before taking the quiz test.'}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        {currentLesson?.videoCompleted && (
+                        {currentLesson?.completed?.videoCompleted && (
                           <AlertDialogAction
                             onClick={() => router.push(`/quiz/${currentLesson?.courseId}/${currentLesson?.id}`)}
                           >Continue</AlertDialogAction>
