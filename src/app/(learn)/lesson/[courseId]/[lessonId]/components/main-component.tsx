@@ -16,13 +16,25 @@ import { useLessonStore } from "@/stores/lesson-store";
 import { useRouter } from "next/navigation";
 import TranscriptTab from "./transcript-tab";
 import ChatTab from "./chat-tab";
-import { formatTimer } from "@/lib/utils";
+import { documentDispatchEvent, formatTimer } from "@/lib/utils";
 import MindMapTab from "./mind-map-tab";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
+import { useMarkLearnVideoCompleted, useSaveVideoProgress } from "@/hooks/useProgress";
+import { useAuthStore } from "@/stores/auth-store";
+import { useCallback } from "react";
 
 
 const MainComponent = () => {
 
   const router = useRouter();
+
+  const {
+    accessToken
+  } = useAuthStore(useShallow((state) => ({
+    accessToken: state.accessToken,
+  })));
 
   const {
     currentCourseId
@@ -32,14 +44,21 @@ const MainComponent = () => {
 
   const {
     currentLesson,
-    currentSidebarLessons
+    currentSidebarLessons,
+    setCurrentLessonVideoCompleted,
+    isConfirmLearnVideoCompletedDialogOpen,
+    toggleConfirmLearnVideoCompletedDialog,
+    isConfirmContinueLearnDialogOpen,
+    toggleConfirmContinueLearnDialog,
   } = useLessonStore(useShallow((state) => ({
     currentLesson: state.currentLesson,
     currentSidebarLessons: state.currentSidebarLessons,
+    setCurrentLessonVideoCompleted: state.setCurrentLessonVideoCompleted,
+    isConfirmLearnVideoCompletedDialogOpen: state.ui.isConfirmLearnVideoCompletedDialogOpen,
+    toggleConfirmLearnVideoCompletedDialog: state.toggleConfirmLearnVideoCompletedDialog,
+    isConfirmContinueLearnDialogOpen: state.ui.isConfirmContinueLearnDialogOpen,
+    toggleConfirmContinueLearnDialog: state.toggleConfirmContinueLearnDialog,
   })));
-
-  console.log("currentLesson in MainComponent:", currentLesson);
-  console.log("currentSidebarLessons in MainComponent:", currentSidebarLessons);
 
   const currentLessonOrder = useMemo(() => {
     if (!currentLesson?.id || !currentSidebarLessons?.length) return 0;
@@ -83,17 +102,37 @@ const MainComponent = () => {
 
   const {
     isPlaying,
+    setIsPlaying,
     duration,
     currentTime,
     setShowControls,
   } = useVideoPlayerStore(useShallow((state) => ({
     isPlaying: state.isPlaying,
+    setIsPlaying: state.setIsPlaying,
     duration: state.duration,
     currentTime: state.currentTime,
     setShowControls: state.setShowControls,
   })))
 
   const timeoutRef = useRef<NodeJS.Timeout>(null);
+
+  // Refs to access current values in cleanup/beforeunload
+  const currentTimeRef = useRef<number>(currentTime);
+  const currentLessonRef = useRef(currentLesson);
+  const accessTokenRef = useRef(accessToken);
+
+  // Keep refs up to date
+  useEffect(() => {
+    currentTimeRef.current = currentTime;
+  }, [currentTime]);
+
+  useEffect(() => {
+    currentLessonRef.current = currentLesson;
+  }, [currentLesson]);
+
+  useEffect(() => {
+    accessTokenRef.current = accessToken;
+  }, [accessToken]);
 
   const handleMouseMove = () => {
     setShowControls(true);
@@ -114,12 +153,95 @@ const MainComponent = () => {
   }
 
   const handlePrevious = () => {
+    saveProgress();
     router.push(`/lesson/${currentCourseId}/${prevAndNextLessonId?.prevLessonId}`);
   };
 
   const handleNext = () => {
+    saveProgress();
     router.push(`/lesson/${currentCourseId}/${prevAndNextLessonId?.nextLessonId}`);
   };
+
+  const markLearnVideoCompletedMutation = useMarkLearnVideoCompleted(
+    () => {
+      setCurrentLessonVideoCompleted(true);
+      toggleConfirmLearnVideoCompletedDialog(true);
+    },
+    async (error) => {
+      if (isHTTPError(error)) {
+        await getErrorJson(error).then((res) => {
+          toast.error(`Failed to mark video as completed: ${res.message}`);
+        });
+      }
+    }
+  );
+
+  const saveVideoProgressMutation = useSaveVideoProgress();
+
+  // Function to save video progress
+  const saveProgress = useCallback(() => {
+    const lesson = currentLessonRef.current;
+    const time = currentTimeRef.current;
+    const token = accessTokenRef.current;
+
+    // Only save if we have valid data and video is not completed
+    if (!lesson?.id || !time || time < 1 || !token) return;
+
+    // Don't save if video is already completed (they can seek freely)
+    if (lesson.completed?.videoCompleted) return;
+
+    saveVideoProgressMutation.mutate({
+      accessToken: token,
+      lessonId: String(lesson.id),
+      currentTime: time,
+    });
+  }, [saveVideoProgressMutation]);
+
+  // Save progress on component unmount
+  useEffect(() => {
+    return () => {
+      saveProgress();
+    };
+  }, [saveProgress]);
+
+  // Save progress on page refresh/close
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const lesson = currentLessonRef.current;
+      const time = currentTimeRef.current;
+      const token = accessTokenRef.current;
+
+      if (!lesson?.id || !time || time < 1 || !token || lesson.completed?.videoCompleted) return;
+
+      // Use sendBeacon for reliable save on page unload
+      const url = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/lessons/${lesson.id}/progress/video_time`;
+      const data = JSON.stringify({ currentTime: time });
+      const blob = new Blob([data], { type: 'application/json' });
+
+      // Try sendBeacon first, fall back to sync XHR
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(url, blob);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!currentTime || !duration || !currentLesson) return;
+    const currentProgress = currentTime / duration;
+    if (currentProgress >= 0.9 && !currentLesson.completed?.videoCompleted) {
+      markLearnVideoCompletedMutation.mutate({
+        accessToken: accessToken,
+        lessonId: String(currentLesson.id),
+      })
+      setIsPlaying(false);
+    }
+  }, [currentTime, duration])
 
   return (
     <div className="flex flex-col lg:flex-row flex-grow h-full overflow-hidden">
@@ -206,6 +328,49 @@ const MainComponent = () => {
           </div>
         </Tabs>
       </div>
+
+      {/* Dialog confirm learn video completed */}
+      <Dialog open={isConfirmLearnVideoCompletedDialogOpen} onOpenChange={toggleConfirmLearnVideoCompletedDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Learn Video Completed</DialogTitle>
+            <DialogDescription>
+              You have completed watching 90% of this lesson video. Now the quiz of this lesson is unlocked.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => {
+              toggleConfirmLearnVideoCompletedDialog(false);
+            }}>OK</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog confirm continue learn */}
+      {currentLesson && !currentLesson.completed?.videoCompleted && currentLesson.currentTime && currentLesson.currentTime > 0 && (
+        <Dialog open={isConfirmContinueLearnDialogOpen} onOpenChange={toggleConfirmContinueLearnDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Continue Learning ?</DialogTitle>
+              <DialogDescription>
+                Last time you stopped at {formatTimer(currentLesson?.currentTime)}. Do you want to continue from there?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button onClick={() => {
+                toggleConfirmContinueLearnDialog(false);
+              }}>Learn from start</Button>
+              <Button onClick={() => {
+                requestAnimationFrame(() => {
+                  documentDispatchEvent("seekChange", {
+                    time: currentLesson.currentTime || 0,
+                  });
+                });
+              }}>Continue learning</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

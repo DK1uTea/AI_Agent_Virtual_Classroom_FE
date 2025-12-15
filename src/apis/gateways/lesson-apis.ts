@@ -42,6 +42,42 @@ class LessonApis {
     return res.data;
   }
 
+  public async markLearnVideoCompleted(req: {
+    accessToken: string;
+    lessonId: string;
+  }): Promise<void> {
+    const reqPath = `api/lessons/${req.lessonId}/progress/video_completed`;
+    await kyInstance.patch(
+      reqPath,
+      { headers: getAuthHeaders(req.accessToken) }
+    ).json<ApiResult<void>>();
+  }
+
+  public async markLearnLessonCompleted(req: {
+    accessToken: string;
+    lessonId: string;
+  }): Promise<void> {
+    const reqPath = `api/lessons/${req.lessonId}/progress/complete`;
+    await kyInstance.patch(
+      reqPath,
+      { headers: getAuthHeaders(req.accessToken) }
+    ).json<ApiResult<void>>();
+  }
+
+  public async saveVideoProgress(req: {
+    accessToken: string;
+    lessonId: string;
+    currentTime: number;
+  }): Promise<void> {
+    const reqPath = `api/lessons/${req.lessonId}/progress/video_time`;
+    await kyInstance.patch(
+      reqPath,
+      { 
+        headers: getAuthHeaders(req.accessToken),
+        json: { currentTime: req.currentTime }
+      }
+    ).json<ApiResult<void>>();
+  }
 }
 
 export const lessonApis = new LessonApis();
