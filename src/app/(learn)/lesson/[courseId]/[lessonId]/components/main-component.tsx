@@ -117,22 +117,22 @@ const MainComponent = () => {
   const timeoutRef = useRef<NodeJS.Timeout>(null);
 
   // Refs to access current values in cleanup/beforeunload
-  const currentTimeRef = useRef<number>(currentTime);
-  const currentLessonRef = useRef(currentLesson);
-  const accessTokenRef = useRef(accessToken);
+  // const currentTimeRef = useRef<number>(currentTime);
+  // const currentLessonRef = useRef(currentLesson);
+  // const accessTokenRef = useRef(accessToken);
 
   // Keep refs up to date
-  useEffect(() => {
-    currentTimeRef.current = currentTime;
-  }, [currentTime]);
+  // useEffect(() => {
+  //   currentTimeRef.current = currentTime;
+  // }, [currentTime]);
 
-  useEffect(() => {
-    currentLessonRef.current = currentLesson;
-  }, [currentLesson]);
+  // useEffect(() => {
+  //   currentLessonRef.current = currentLesson;
+  // }, [currentLesson]);
 
-  useEffect(() => {
-    accessTokenRef.current = accessToken;
-  }, [accessToken]);
+  // useEffect(() => {
+  //   accessTokenRef.current = accessToken;
+  // }, [accessToken]);
 
   const handleMouseMove = () => {
     setShowControls(true);
@@ -153,18 +153,19 @@ const MainComponent = () => {
   }
 
   const handlePrevious = () => {
-    saveProgress();
+    // saveProgress();
     router.push(`/lesson/${currentCourseId}/${prevAndNextLessonId?.prevLessonId}`);
   };
 
   const handleNext = () => {
-    saveProgress();
+    // saveProgress();
     router.push(`/lesson/${currentCourseId}/${prevAndNextLessonId?.nextLessonId}`);
   };
 
   const markLearnVideoCompletedMutation = useMarkLearnVideoCompleted(
     () => {
       setCurrentLessonVideoCompleted(true);
+      setIsPlaying(false);
       toggleConfirmLearnVideoCompletedDialog(true);
     },
     async (error) => {
@@ -179,57 +180,57 @@ const MainComponent = () => {
   const saveVideoProgressMutation = useSaveVideoProgress();
 
   // Function to save video progress
-  const saveProgress = useCallback(() => {
-    const lesson = currentLessonRef.current;
-    const time = currentTimeRef.current;
-    const token = accessTokenRef.current;
+  // const saveProgress = useCallback(() => {
+  //   const lesson = currentLessonRef.current;
+  //   const time = currentTimeRef.current;
+  //   const token = accessTokenRef.current;
 
-    // Only save if we have valid data and video is not completed
-    if (!lesson?.id || !time || time < 1 || !token) return;
+  //   // Only save if we have valid data and video is not completed
+  //   if (!lesson?.id || !time || time < 1 || !token) return;
 
-    // Don't save if video is already completed (they can seek freely)
-    if (lesson.completed?.videoCompleted) return;
+  //   // Don't save if video is already completed (they can seek freely)
+  //   if (lesson.completed?.videoCompleted) return;
 
-    saveVideoProgressMutation.mutate({
-      accessToken: token,
-      lessonId: String(lesson.id),
-      currentTime: time,
-    });
-  }, [saveVideoProgressMutation]);
+  //   saveVideoProgressMutation.mutate({
+  //     accessToken: token,
+  //     lessonId: String(lesson.id),
+  //     currentTime: time,
+  //   });
+  // }, [saveVideoProgressMutation]);
 
   // Save progress on component unmount
-  useEffect(() => {
-    return () => {
-      saveProgress();
-    };
-  }, [saveProgress]);
+  // useEffect(() => {
+  //   return () => {
+  //     saveProgress();
+  //   };
+  // }, [saveProgress]);
 
   // Save progress on page refresh/close
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      const lesson = currentLessonRef.current;
-      const time = currentTimeRef.current;
-      const token = accessTokenRef.current;
+  // useEffect(() => {
+  //   const handleBeforeUnload = () => {
+  //     const lesson = currentLessonRef.current;
+  //     const time = currentTimeRef.current;
+  //     const token = accessTokenRef.current;
 
-      if (!lesson?.id || !time || time < 1 || !token || lesson.completed?.videoCompleted) return;
+  //     if (!lesson?.id || !time || time < 1 || !token || lesson.completed?.videoCompleted) return;
 
-      // Use sendBeacon for reliable save on page unload
-      const url = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/lessons/${lesson.id}/progress/video_time`;
-      const data = JSON.stringify({ currentTime: time });
-      const blob = new Blob([data], { type: 'application/json' });
+  //     // Use sendBeacon for reliable save on page unload
+  //     const url = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/lessons/${lesson.id}/progress/video_time`;
+  //     const data = JSON.stringify({ currentTime: time });
+  //     const blob = new Blob([data], { type: 'application/json' });
 
-      // Try sendBeacon first, fall back to sync XHR
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(url, blob);
-      }
-    };
+  //     // Try sendBeacon first, fall back to sync XHR
+  //     if (navigator.sendBeacon) {
+  //       navigator.sendBeacon(url, blob);
+  //     }
+  //   };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+  //   window.addEventListener('beforeunload', handleBeforeUnload);
 
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener('beforeunload', handleBeforeUnload);
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (!currentTime || !duration || !currentLesson) return;
@@ -239,9 +240,14 @@ const MainComponent = () => {
         accessToken: accessToken,
         lessonId: String(currentLesson.id),
       })
-      setIsPlaying(false);
     }
   }, [currentTime, duration])
+
+  useEffect(() => {
+    if (currentLesson && !currentLesson.completed?.videoCompleted && currentLesson.currentTime && currentLesson.currentTime > 0) {
+      toggleConfirmContinueLearnDialog(true);
+    }
+  }, [currentLesson?.id, currentLesson?.courseId])
 
   return (
     <div className="flex flex-col lg:flex-row flex-grow h-full overflow-hidden">
@@ -331,7 +337,7 @@ const MainComponent = () => {
 
       {/* Dialog confirm learn video completed */}
       <Dialog open={isConfirmLearnVideoCompletedDialogOpen} onOpenChange={toggleConfirmLearnVideoCompletedDialog}>
-        <DialogContent>
+        <DialogContent onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle>Learn Video Completed</DialogTitle>
             <DialogDescription>
@@ -349,7 +355,7 @@ const MainComponent = () => {
       {/* Dialog confirm continue learn */}
       {currentLesson && !currentLesson.completed?.videoCompleted && currentLesson.currentTime && currentLesson.currentTime > 0 && (
         <Dialog open={isConfirmContinueLearnDialogOpen} onOpenChange={toggleConfirmContinueLearnDialog}>
-          <DialogContent>
+          <DialogContent onInteractOutside={(e) => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle>Continue Learning ?</DialogTitle>
               <DialogDescription>
@@ -366,6 +372,7 @@ const MainComponent = () => {
                     time: currentLesson.currentTime || 0,
                   });
                 });
+                toggleConfirmContinueLearnDialog(false);
               }}>Continue learning</Button>
             </DialogFooter>
           </DialogContent>
