@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { cn, formatTimer, documentDispatchEvent } from "@/lib/utils";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
@@ -28,13 +29,20 @@ import {
   Volume2,
   VolumeX
 } from "lucide-react";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/shallow";
 import { debounce } from "es-toolkit";
 
 const SEEK_STEP = 5; // skip 5s
 
+
 const VideoControls = () => {
+  const [videoContainer, setVideoContainer] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setVideoContainer(document.getElementById("video-container"));
+  }, []);
+
   const {
     videoRef,
     isPlaying,
@@ -165,9 +173,6 @@ const VideoControls = () => {
       const newTime = e.detail?.time;
       if (typeof newTime !== "number" || Number.isNaN(newTime)) return;
 
-      // update UI (slider, timer)
-      setCurrentTime(newTime);
-
       // dispatch debounced event to perform actual seek
       documentDispatchEvent("seekChangeDebounce", { time: newTime });
     };
@@ -284,7 +289,7 @@ const VideoControls = () => {
           <Button
             variant={"ghost"}
             size={"icon"}
-            className="text-white hover:bg-white/20"
+            className="text-white hover:bg-white/20 hidden md:inline-flex"
             onClick={handleSkipBack}
           >
             <SkipBack className="h-5 w-5" />
@@ -299,7 +304,7 @@ const VideoControls = () => {
                     variant={"ghost"}
                     size={"icon"}
                     className={cn(
-                      "text-white hover:bg-white/20",
+                      "text-white hover:bg-white/20 hidden md:inline-flex",
                       !isVideoCompleted && "opacity-50 cursor-not-allowed"
                     )}
                     onClick={handleSkipForward}
@@ -318,7 +323,7 @@ const VideoControls = () => {
           </TooltipProvider>
 
           {/* Volume + slider */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center group">
             <Button
               variant="ghost"
               size="icon"
@@ -331,13 +336,15 @@ const VideoControls = () => {
                 <Volume2 className="h-5 w-5" />
               )}
             </Button>
-            <Slider
-              value={[isMuted ? 0 : volume]}
-              max={100}
-              step={1}
-              onValueChange={handleVolumeChange}
-              className="w-20"
-            />
+            <div className="w-0 group-hover:w-24 overflow-hidden transition-all duration-300 ease-in-out h-6 flex items-center">
+              <Slider
+                value={[isMuted ? 0 : volume]}
+                max={100}
+                step={1}
+                onValueChange={handleVolumeChange}
+                className="w-20 ml-2"
+              />
+            </div>
           </div>
 
           {/* Time */}
@@ -359,7 +366,7 @@ const VideoControls = () => {
                 <Settings className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <VideoDropdownMenuContent container={videoContainer} side="top">
               {playbackRateOptions.map((rate) => (
                 <DropdownMenuItem
                   key={rate}
@@ -371,7 +378,7 @@ const VideoControls = () => {
                   Speed: {rate}x {playbackRate === rate && "✓"}
                 </DropdownMenuItem>
               ))}
-            </DropdownMenuContent>
+            </VideoDropdownMenuContent>
           </DropdownMenu>
 
           {/* Fullscreen */}
@@ -400,4 +407,27 @@ declare global {
     seekChange: CustomEvent<{ time: number }>;
     seekChangeDebounce: CustomEvent<{ time: number }>;
   }
+}
+
+const VideoDropdownMenuContent = ({
+  className,
+  container,
+  sideOffset = 4,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Content> & {
+  container?: HTMLElement | null;
+}) => {
+  return (
+    <DropdownMenuPrimitive.Portal container={container}>
+      <DropdownMenuPrimitive.Content
+        data-slot="dropdown-menu-content"
+        sideOffset={sideOffset}
+        className={cn(
+          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md",
+          className
+        )}
+        {...props}
+      />
+    </DropdownMenuPrimitive.Portal>
+  );
 }

@@ -77,6 +77,7 @@ export const useLessonStore = create<LessonStore>()(
           isMindMapDialogOpen: false,
           isConfirmLearnVideoCompletedDialogOpen: false,
           isConfirmLearnLessonCompletedDialogOpen: false,
+          isConfirmContinueLearnDialogOpen: false,
         },
         toggleMindMapDialog: (isOpen: boolean) => {
           set((state) => {
@@ -91,6 +92,11 @@ export const useLessonStore = create<LessonStore>()(
         toggleConfirmLearnLessonCompletedDialog: (isOpen: boolean) => {
           set((state) => {
             state.ui.isConfirmLearnLessonCompletedDialogOpen = isOpen;
+          });
+        },
+        toggleConfirmContinueLearnDialog: (isOpen: boolean) => {
+          set((state) => {
+            state.ui.isConfirmContinueLearnDialogOpen = isOpen;
           });
         },
       })

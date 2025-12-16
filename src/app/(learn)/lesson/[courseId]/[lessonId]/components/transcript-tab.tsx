@@ -5,19 +5,20 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, documentDispatchEvent, formatTimer } from "@/lib/utils";
 import { useLessonStore } from "@/stores/lesson-store";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
-import { debounce } from "es-toolkit";
 import { Search } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
+import { toast } from "sonner";
 import { useShallow } from "zustand/shallow";
 
 const TranscriptTab = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchQueryDebounced] = useDebounceValue(searchQuery, 1000);
 
-  const { currentTranscripts } = useLessonStore(
+  const { currentTranscripts, currentLesson } = useLessonStore(
     useShallow((state) => ({
       currentTranscripts: state.currentTranscripts,
+      currentLesson: state.currentLesson,
     }))
   );
 
@@ -101,6 +102,13 @@ const TranscriptTab = () => {
                     }
                   )}
                   onClick={() => {
+                    const isVideoCompleted = currentLesson?.completed?.videoCompleted;
+
+                    if (!isVideoCompleted && transcript.start > currentTime) {
+                      toast.warning("You must watch the video to unlock this section.");
+                      return;
+                    }
+
                     requestAnimationFrame(() => {
                       documentDispatchEvent("seekChange", {
                         time: transcript.start,
