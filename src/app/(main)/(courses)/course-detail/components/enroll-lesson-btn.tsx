@@ -75,6 +75,16 @@ const EnrollLessonButton = ({ course }: EnrollLessonButtonProps) => {
     enrollCourseMutation.mutate(req);
   };
 
+  if (!startLessonId) {
+    return (
+      <Button className="w-full" size="lg"
+        disabled={true}
+      >
+        This course not ready yet
+      </Button>
+    )
+  }
+
   return (
     <Button className="w-full" size="lg" onClick={handleEnroll}
       disabled={enrollCourseMutation.isPending}

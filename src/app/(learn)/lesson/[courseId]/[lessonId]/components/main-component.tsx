@@ -116,24 +116,6 @@ const MainComponent = () => {
 
   const timeoutRef = useRef<NodeJS.Timeout>(null);
 
-  // Refs to access current values in cleanup/beforeunload
-  // const currentTimeRef = useRef<number>(currentTime);
-  // const currentLessonRef = useRef(currentLesson);
-  // const accessTokenRef = useRef(accessToken);
-
-  // Keep refs up to date
-  // useEffect(() => {
-  //   currentTimeRef.current = currentTime;
-  // }, [currentTime]);
-
-  // useEffect(() => {
-  //   currentLessonRef.current = currentLesson;
-  // }, [currentLesson]);
-
-  // useEffect(() => {
-  //   accessTokenRef.current = accessToken;
-  // }, [accessToken]);
-
   const handleMouseMove = () => {
     setShowControls(true);
     if (timeoutRef.current) {
@@ -152,13 +134,37 @@ const MainComponent = () => {
     }
   }
 
+  const saveVideoProgressMutation = useSaveVideoProgress();
+
+  // Function to save video progress
+  const saveProgress = useCallback(() => {
+    // Get current time from store to avoid dependencies
+    const time = useVideoPlayerStore.getState().currentTime;
+
+    console.log('🔍 saveProgress called - time:', time, 'lessonId:', currentLesson?.id, 'hasToken:', !!accessToken);
+
+    // Only save if we have valid data
+    if (!currentLesson?.id || !time || time < 1 || !accessToken) {
+      console.log('⚠️ saveProgress skipped - missing data');
+      return;
+    }
+
+    console.log('✅ Saving video progress:', { lessonId: currentLesson.id, currentTime: time });
+
+    saveVideoProgressMutation.mutate({
+      accessToken: accessToken,
+      lessonId: String(currentLesson.id),
+      currentTime: time,
+    });
+  }, [currentLesson?.id, accessToken, saveVideoProgressMutation]);
+
   const handlePrevious = () => {
-    // saveProgress();
+    saveProgress();
     router.push(`/lesson/${currentCourseId}/${prevAndNextLessonId?.prevLessonId}`);
   };
 
   const handleNext = () => {
-    // saveProgress();
+    saveProgress();
     router.push(`/lesson/${currentCourseId}/${prevAndNextLessonId?.nextLessonId}`);
   };
 
@@ -177,71 +183,73 @@ const MainComponent = () => {
     }
   );
 
-  const saveVideoProgressMutation = useSaveVideoProgress();
-
-  // Function to save video progress
-  // const saveProgress = useCallback(() => {
-  //   const lesson = currentLessonRef.current;
-  //   const time = currentTimeRef.current;
-  //   const token = accessTokenRef.current;
-
-  //   // Only save if we have valid data and video is not completed
-  //   if (!lesson?.id || !time || time < 1 || !token) return;
-
-  //   // Don't save if video is already completed (they can seek freely)
-  //   if (lesson.completed?.videoCompleted) return;
-
-  //   saveVideoProgressMutation.mutate({
-  //     accessToken: token,
-  //     lessonId: String(lesson.id),
-  //     currentTime: time,
-  //   });
-  // }, [saveVideoProgressMutation]);
-
   // Save progress on component unmount
-  // useEffect(() => {
-  //   return () => {
-  //     saveProgress();
-  //   };
-  // }, [saveProgress]);
+  useEffect(() => {
+    return () => {
+      saveProgress();
+    };
+  }, [currentLesson?.id, accessToken]);
 
-  // Save progress on page refresh/close
-  // useEffect(() => {
-  //   const handleBeforeUnload = () => {
-  //     const lesson = currentLessonRef.current;
-  //     const time = currentTimeRef.current;
-  //     const token = accessTokenRef.current;
-
-  //     if (!lesson?.id || !time || time < 1 || !token || lesson.completed?.videoCompleted) return;
-
-  //     // Use sendBeacon for reliable save on page unload
-  //     const url = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/lessons/${lesson.id}/progress/video_time`;
-  //     const data = JSON.stringify({ currentTime: time });
-  //     const blob = new Blob([data], { type: 'application/json' });
-
-  //     // Try sendBeacon first, fall back to sync XHR
-  //     if (navigator.sendBeacon) {
-  //       navigator.sendBeacon(url, blob);
-  //     }
-  //   };
-
-  //   window.addEventListener('beforeunload', handleBeforeUnload);
-
-  //   return () => {
-  //     window.removeEventListener('beforeunload', handleBeforeUnload);
-  //   };
-  // }, []);
+  const hasMarkedCompletionRef = useRef(false);
 
   useEffect(() => {
     if (!currentTime || !duration || !currentLesson) return;
+
     const currentProgress = currentTime / duration;
-    if (currentProgress >= 0.9 && !currentLesson.completed?.videoCompleted) {
+
+    // Only mark as completed once per lesson
+    if (currentProgress >= 0.9 &&
+      !currentLesson.completed?.videoCompleted &&
+      !hasMarkedCompletionRef.current) {
+      hasMarkedCompletionRef.current = true;
+
       markLearnVideoCompletedMutation.mutate({
         accessToken: accessToken,
         lessonId: String(currentLesson.id),
-      })
+      });
     }
-  }, [currentTime, duration])
+  }, [currentTime, duration, currentLesson, accessToken, markLearnVideoCompletedMutation]);
+
+  // Reset flag when lesson changes
+  useEffect(() => {
+    hasMarkedCompletionRef.current = false;
+  }, [currentLesson?.id]);
+
+  // Periodic progress save while video is playing (every 2 minutes)
+  useEffect(() => {
+    if (!accessToken) return;
+
+    console.log('🕐 Setting up auto-save interval (every 2 minutes)');
+
+    const interval = setInterval(() => {
+      console.log('⏰ Auto-save interval triggered');
+
+      const time = useVideoPlayerStore.getState().currentTime;
+      const lesson = useLessonStore.getState().currentLesson;
+
+      console.log('🔍 Auto-save check - time:', time, 'lessonId:', lesson?.id);
+
+      // Only save if we have valid data
+      if (!lesson?.id || !time || time < 1 || lesson.completed?.videoCompleted) {
+        console.log('⚠️ Auto-save skipped - missing data or video completed');
+        return;
+      }
+
+      console.log('✅ Auto-saving video progress:', { lessonId: lesson.id, currentTime: time });
+
+      // Call the mutation directly
+      saveVideoProgressMutation.mutate({
+        accessToken: accessToken,
+        lessonId: String(lesson.id),
+        currentTime: time,
+      });
+    }, 2 * 60 * 1000);
+
+    return () => {
+      console.log('🛑 Clearing auto-save interval');
+      clearInterval(interval);
+    };
+  }, [accessToken]); // Only depend on accessToken
 
   useEffect(() => {
     if (currentLesson && !currentLesson.completed?.videoCompleted && currentLesson.currentTime && currentLesson.currentTime > 0) {
