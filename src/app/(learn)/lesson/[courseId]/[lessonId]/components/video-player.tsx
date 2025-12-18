@@ -16,6 +16,7 @@ const VideoPlayer = () => {
     isPlaying,
     setIsPlaying,
     playbackRate,
+    setPlaybackRate,
     currentTime,
     setCurrentTime,
     changeCurrentSeekNumber,
@@ -31,6 +32,7 @@ const VideoPlayer = () => {
     isPlaying: state.isPlaying,
     setIsPlaying: state.setIsPlaying,
     playbackRate: state.playbackRate,
+    setPlaybackRate: state.setPlaybackRate,
     currentTime: state.currentTime,
     setCurrentTime: state.setCurrentTime,
     changeCurrentSeekNumber: state.changeCurrentSeekNumber,
@@ -47,6 +49,8 @@ const VideoPlayer = () => {
   useEffect(() => {
     setVideoRef(null);
     setCurrentTime(0);
+    setIsPlaying(false);
+    setPlaybackRate(1.0);
   }, [videoUrl, setVideoRef, setCurrentTime]);
 
   // Handle ready event to get internal player

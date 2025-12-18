@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/auth-store";
-import { Play } from "lucide-react";
+import { Telescope } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useShallow } from "zustand/shallow";
 
@@ -23,8 +23,8 @@ const DashboardHeader = () => {
         <p className="text-muted-foreground">Continue your journey</p>
       </div>
       <Button onClick={() => router.push('/course-catalog')}>
-        <Play className="mr-2 h-4 w-4" />
-        Continue Learning
+        <Telescope className="mr-2 h-4 w-4" />
+        Exploring Courses
       </Button>
     </div>
   );
