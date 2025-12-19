@@ -1,7 +1,7 @@
 import { kyInstance } from "@/config/ky";
 import { getAuthHeaders } from "@/lib/utils";
 import { ApiResult } from "../responses/api-res";
-import { TranscriptItem } from "@/types/main-flow";
+import { Answer, Quiz, QuizResult, TranscriptItem } from "@/types/main-flow";
 import { LessonPlaybackRes } from "../responses/lesson-res";
 import { MessageType } from "@/types/chat-types";
 
@@ -72,11 +72,51 @@ class LessonApis {
     const reqPath = `api/lessons/${req.lessonId}/progress/video_time`;
     await kyInstance.patch(
       reqPath,
-      { 
+      {
         headers: getAuthHeaders(req.accessToken),
         json: { currentTime: req.currentTime }
       }
     ).json<ApiResult<void>>();
+  }
+
+  public async getQuizOfLesson(req: {
+    accessToken: string;
+    lessonId: string;
+  }): Promise<Quiz> {
+    const reqPath = `api/lessons/${req.lessonId}/quiz`;
+    const res = await kyInstance.get(
+      reqPath,
+      { headers: getAuthHeaders(req.accessToken) }
+    ).json<ApiResult<Quiz>>();
+    return res.data;
+  }
+
+  public async submitQuizAnswers(req: {
+    accessToken: string;
+    lessonId: string;
+    answers: Answer[];
+  }): Promise<QuizResult> {
+    const reqPath = `api/lessons/${req.lessonId}/quiz/submit`;
+    const res = await kyInstance.post(
+      reqPath,
+      {
+        headers: getAuthHeaders(req.accessToken),
+        json: { answers: req.answers }
+      }
+    ).json<ApiResult<QuizResult>>();
+    return res.data;
+  }
+
+  public async getQuizAttemptHistory(req: {
+    accessToken: string;
+    lessonId: string;
+  }): Promise<QuizResult[]> {
+    const reqPath = `api/lessons/${req.lessonId}/quiz/history`;
+    const res = await kyInstance.get(
+      reqPath,
+      { headers: getAuthHeaders(req.accessToken) }
+    ).json<ApiResult<QuizResult[]>>();
+    return res.data;
   }
 }
 

@@ -88,17 +88,45 @@ export interface ActivityLog {
 }
 
 export type Question = {
-  id: string;
-  type: 'multiple-choice' | 'true-false';
+  id: string | number;
+  type: 'multiple_choice' | 'true_false';
   question: string;
-  options?: string[];
+  options: string[];
 }
 
 export type Quiz = {
-  id: string;
-  lessonId: string;
+  id: string | number;
   title: string;
+  description: string;
+  questionCount: number;
+  timeLimit: number;
   questions: Question[];
-  timeLimit?: number;
-  status?: 'not-started' | 'in-progress' | 'completed';
+}
+
+export type Answer = {
+  questionId: string | number;
+  answer: string;
+}
+
+export type QuestionResult = {
+  questionId: string | number;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
+export type QuizResult = {
+  attemptId: string | number;
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  passed: boolean;
+  results: QuestionResult[];
+}
+
+export type QuizAttemptHistory = {
+  id: string | number;
+  score: number;
+  attemptAt: string;
+  passed: boolean;
 }

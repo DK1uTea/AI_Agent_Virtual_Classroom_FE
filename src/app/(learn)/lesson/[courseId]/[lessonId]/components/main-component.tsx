@@ -361,7 +361,7 @@ const MainComponent = () => {
       </Dialog>
 
       {/* Dialog confirm continue learn */}
-      {currentLesson && !currentLesson.completed?.videoCompleted && currentLesson.currentTime && currentLesson.currentTime > 0 && (
+      {currentLesson && !currentLesson.completed?.videoCompleted && !!currentLesson.currentTime && currentLesson.currentTime > 0 && (
         <Dialog open={isConfirmContinueLearnDialogOpen} onOpenChange={toggleConfirmContinueLearnDialog}>
           <DialogContent onInteractOutside={(e) => e.preventDefault()}>
             <DialogHeader>

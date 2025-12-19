@@ -15,11 +15,10 @@ export default function TrueFalseQuestion({
   currentAnswer,
   onAnswer,
 }: TrueFalseQuestionProps) {
-  const options = ["True", "False"];
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      {options.map((option) => (
+      {question.options.map((option) => (
         <div
           key={option}
           className={cn(
@@ -28,15 +27,15 @@ export default function TrueFalseQuestion({
           )}
           onClick={() => onAnswer(option)}
         >
-           <div className={cn(
-              "p-2 rounded-full",
-              option === "True" 
-                ? "bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400" 
-                : "bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400"
-            )}>
-              {option === "True" ? <Check className="w-6 h-6" /> : <X className="w-6 h-6" />}
-            </div>
-            <span className="font-semibold text-lg">{option}</span>
+          <div className={cn(
+            "p-2 rounded-full",
+            option === "True"
+              ? "bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400"
+              : "bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400"
+          )}>
+            {option === "True" ? <Check className="w-6 h-6" /> : <X className="w-6 h-6" />}
+          </div>
+          <span className="font-semibold text-lg">{option}</span>
         </div>
       ))}
     </div>
