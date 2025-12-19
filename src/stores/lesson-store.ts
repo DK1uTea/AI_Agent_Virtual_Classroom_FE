@@ -21,7 +21,7 @@ type LessonStateAction = {
   setCurrentSidebarLessons: (lessons: SidebarLessonItem[]) => void;
   setCurrentTranscripts: (transcripts: TranscriptItem[]) => void;
   setCurrentLessonVideoCompleted: (videoCompleted: boolean) => void;
-  setCurrentLessonLessonCompleted: (lessonCompleted: boolean) => void;
+  setCurrentLessonCompleted: (lessonCompleted: boolean) => void;
 
   toggleMindMapDialog: (isOpen: boolean) => void;
   toggleConfirmLearnVideoCompletedDialog: (isOpen: boolean) => void;
@@ -64,7 +64,7 @@ export const useLessonStore = create<LessonStore>()(
           })
         },
 
-        setCurrentLessonLessonCompleted(lessonCompleted) {
+        setCurrentLessonCompleted(lessonCompleted) {
           set((state) => {
             if (state.currentLesson?.completed) {
               state.currentLesson.completed.quizCompleted = lessonCompleted;

@@ -4,7 +4,7 @@ import { Clock, CheckCircle2, AlertCircle } from "lucide-react";
 import QuizBreadcrumb from "./components/quiz-breadcrumb";
 import { use, useMemo, useState, useEffect } from "react";
 import { formatTimer } from "@/lib/utils";
-import BeforeStartQuiz from "./components/before-start_quiz";
+import BeforeStartQuiz from "./components/before-start-quiz";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,10 +14,14 @@ import { useAuthStore } from "@/stores/auth-store";
 import { useGetCourseDetail } from "@/hooks/useGetCourseDetail";
 import { useGetCurrentLesson } from "@/hooks/useGetCurrentLesson";
 import Loading from "@/components/ui/loading";
-import { Quiz } from "@/types/main-flow";
+import { Answer, Question, Quiz } from "@/types/main-flow";
 import MultipleChoiceQuestion from "./components/multiple-choice-question";
 import TrueFalseQuestion from "./components/true-false-question";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useGetQuizOfLesson, useSubmitQuizAnswers } from "@/hooks/useQuiz";
+import CompletedQuiz from "./components/completed-quiz";
+import ResultQuiz from "./components/result-quiz";
+import { useMarkLearnLessonCompleted } from "@/hooks/useProgress";
 
 type QuizPageProps = {
   params: Promise<{
@@ -25,61 +29,6 @@ type QuizPageProps = {
     lessonId: string
   }>;
 }
-
-const mockQuiz: Quiz = {
-  id: '1',
-  lessonId: '1',
-  title: 'Kiểm tra kiến thức về React',
-  status: 'not-started',
-  timeLimit: 300,
-  questions: [
-    {
-      id: '1',
-      type: 'multiple-choice',
-      question: 'React là gì?',
-      options: [
-        'Một ngôn ngữ lập trình',
-        'Một thư viện JavaScript',
-        'Một framework backend',
-        'Một database',
-      ],
-    },
-    {
-      id: '2',
-      type: 'true-false',
-      question: 'React được phát triển bởi Google',
-      options: ['True', 'False'],
-    },
-    {
-      id: '3',
-      type: 'multiple-choice',
-      question: 'Hook nào dùng để quản lý state trong functional component?',
-      options: [
-        'useEffect',
-        'useState',
-        'useContext',
-        'useReducer',
-      ],
-    },
-    {
-      id: '4',
-      type: 'true-false',
-      question: 'JSX là bắt buộc khi sử dụng React',
-      options: ['True', 'False'],
-    },
-    {
-      id: '5',
-      type: 'multiple-choice',
-      question: 'Phương thức nào được gọi sau khi component được render lần đầu?',
-      options: [
-        'componentWillMount',
-        'componentDidMount',
-        'componentDidUpdate',
-        'componentWillUnmount',
-      ],
-    },
-  ],
-};
 
 const QuizPage = ({ params }: QuizPageProps) => {
   const { courseId, lessonId } = use(params);
@@ -89,6 +38,12 @@ const QuizPage = ({ params }: QuizPageProps) => {
   } = useAuthStore(useShallow((state) => ({
     accessToken: state.accessToken,
   })));
+
+  const {
+    setCurrentLessonCompleted,
+  } = useLessonStore(useShallow((state) => ({
+    setCurrentLessonCompleted: state.setCurrentLessonCompleted,
+  })))
 
   const {
     data: currentCourseData,
@@ -106,12 +61,37 @@ const QuizPage = ({ params }: QuizPageProps) => {
     lessonId: lessonId,
   })
 
-  const [timeLeft, setTimeLeft] = useState<number>(mockQuiz.timeLimit || 300);
+  const {
+    data: quizForLessonData,
+    isLoading: isLoadingQuizForLesson,
+    refetch: refetchQuizForLesson,
+  } = useGetQuizOfLesson({
+    accessToken: accessToken,
+    lessonId: lessonId,
+  });
+
+  const submitQuizMutation = useSubmitQuizAnswers(
+    (res) => {
+      setIsSubmitted(true);
+      setShowConfirmSubmit(false);
+    }
+  );
+
+  const markLessonCompleteMutation = useMarkLearnLessonCompleted(
+    () => {
+      setCurrentLessonCompleted(true);
+    }
+  )
+
+  const [currentQuiz, setCurrentQuiz] = useState<Quiz | null>(null);
+  const [questionList, setQuestionList] = useState<Question[]>([]);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
   const [quizStarted, setQuizStarted] = useState<boolean>(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Answer[]>([]);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [showConfirmSubmit, setShowConfirmSubmit] = useState<boolean>(false);
+  const [showResults, setShowResults] = useState<boolean>(false);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -119,21 +99,41 @@ const QuizPage = ({ params }: QuizPageProps) => {
       timer = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0 && !isSubmitted) {
+    } else if (quizStarted && timeLeft === 0 && !isSubmitted) {
       handleSubmitQuiz();
     }
     return () => clearInterval(timer);
   }, [quizStarted, timeLeft, isSubmitted]);
 
-  const currentQuestion = mockQuiz.questions[currentQuestionIndex];
-  const isLastQuestion = currentQuestionIndex === mockQuiz.questions.length - 1;
-  const progress = ((currentQuestionIndex + 1) / mockQuiz.questions.length) * 100;
+  const currentQuestion = useMemo(() => {
+    return questionList[currentQuestionIndex];
+  }, [questionList, currentQuestionIndex])
+
+  const isLastQuestion = useMemo(() => {
+    return currentQuestionIndex === questionList.length - 1;
+  }, [questionList, currentQuestionIndex]);
+
+  const progress = useMemo(() => {
+    return ((answers.length) / questionList.length) * 100;
+  }, [answers, questionList]);
 
   const handleAnswer = (answer: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [currentQuestion.id]: answer,
-    }));
+    setAnswers((prev) => {
+      const existingAnswerIndex = prev.findIndex(a => a.questionId === currentQuestion.id);
+      if (existingAnswerIndex !== -1) {
+        const updatedAnswers = [...prev];
+        updatedAnswers[existingAnswerIndex] = {
+          questionId: currentQuestion.id,
+          answer: answer
+        };
+        return updatedAnswers;
+      } else {
+        return [...prev, {
+          questionId: currentQuestion.id,
+          answer: answer
+        }];
+      }
+    });
   };
 
   const handleNext = () => {
@@ -151,19 +151,53 @@ const QuizPage = ({ params }: QuizPageProps) => {
   };
 
   const handleSubmitQuiz = () => {
-    setIsSubmitted(true);
-    setShowConfirmSubmit(false);
-    // Here you would typically send the answers to the backend
-    console.log('Quiz submitted:', answers);
+    submitQuizMutation.mutate({
+      accessToken: accessToken,
+      lessonId: lessonId,
+      answers: answers
+    });
   };
 
-  if (isLoadingCourseDetail || isLoadingCurrentLesson) {
+  useEffect(() => {
+    if (quizForLessonData) {
+      setCurrentQuiz(quizForLessonData);
+      setQuestionList(quizForLessonData.questions);
+      setTimeLeft(quizForLessonData.timeLimit);
+    }
+  }, [quizForLessonData]);
+
+  useEffect(() => {
+    if (isSubmitted && submitQuizMutation.data?.passed) {
+      markLessonCompleteMutation.mutate({
+        accessToken: accessToken,
+        lessonId: lessonId,
+      });
+    }
+  }, [submitQuizMutation.data])
+
+  if (isLoadingCourseDetail || isLoadingCurrentLesson || isLoadingQuizForLesson) {
     return (
       <Loading />
     )
   }
 
-  if (!quizStarted) {
+  if (!currentQuiz || questionList.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-16">
+          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+            <AlertCircle className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h3>Quiz not available</h3>
+          <p className="text-muted-foreground">
+            No quiz questions found for this lesson.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!quizStarted && currentQuiz) {
     return (
       <BeforeStartQuiz
         setQuizStarted={setQuizStarted}
@@ -171,23 +205,41 @@ const QuizPage = ({ params }: QuizPageProps) => {
         lessonId={lessonId}
         courseTitle={currentCourseData?.title || "Unknown Course"}
         lessonTitle={currentLessonData?.lessonPlaybackInfo.title || "Unknown Lesson"}
+        questionsAmount={currentQuiz?.questionCount}
+        timeLimit={currentQuiz?.timeLimit}
+        quizTitle={currentQuiz?.title}
       />
     );
   }
 
-  if (isSubmitted) {
-     return (
-        <div className="space-y-6 p-6 flex flex-col items-center justify-center min-h-[60vh] text-center">
-            <div className="rounded-full bg-green-100 p-6 dark:bg-green-900/20">
-                <CheckCircle2 className="h-16 w-16 text-green-600 dark:text-green-400" />
-            </div>
-            <h2 className="text-2xl font-bold">Quiz Completed!</h2>
-            <p className="text-muted-foreground max-w-md">
-                You have successfully completed the quiz "{mockQuiz.title}". Results will be available shortly.
-            </p>
-            <Button onClick={() => window.location.reload()}>Retake Quiz</Button>
-        </div>
-     )
+  if (isSubmitted && !showResults) {
+    return (
+      <CompletedQuiz
+        currentQuizTitle={currentQuiz?.title || ''}
+        setShowResults={setShowResults}
+      />
+    )
+  }
+
+  const handleRetry = () => {
+    setQuizStarted(false);
+    setIsSubmitted(false);
+    setShowResults(false);
+    setAnswers([]);
+    setCurrentQuestionIndex(0);
+    setTimeLeft(currentQuiz?.timeLimit || 0);
+    refetchQuizForLesson();
+  }
+
+  if (currentQuiz && isSubmitted && showResults && submitQuizMutation.data) {
+    return (
+      <ResultQuiz
+        quizTitle={currentQuiz?.title}
+        quizResult={submitQuizMutation.data}
+        questions={questionList}
+        onRetry={handleRetry}
+      />
+    )
   }
 
   return (
@@ -202,13 +254,13 @@ const QuizPage = ({ params }: QuizPageProps) => {
         />
 
         <div className="flex items-center justify-between mt-4">
-            <h1 className="text-2xl font-bold">{mockQuiz.title}</h1>
-            <div className="flex items-center gap-2 text-muted-foreground font-mono bg-muted px-4 py-2 rounded-md">
+          <h1 className="text-2xl font-bold">{currentQuiz?.title}</h1>
+          <div className="flex items-center gap-2 text-muted-foreground font-mono bg-muted px-4 py-2 rounded-md">
             <Clock className="h-5 w-5" />
             <span className={timeLeft < 60 ? 'text-destructive font-bold' : ''}>
-                {formatTimer(timeLeft)}
+              {formatTimer(timeLeft)}
             </span>
-            </div>
+          </div>
         </div>
       </div>
 
@@ -216,7 +268,7 @@ const QuizPage = ({ params }: QuizPageProps) => {
         <div className="space-y-2">
           <div className="flex items-center justify-between text-muted-foreground text-sm">
             <span>
-              Question {currentQuestionIndex + 1} of {mockQuiz.questions.length}
+              Question {currentQuestionIndex + 1} of {questionList.length}
             </span>
             <span>
               {Math.round(progress)}% Completed
@@ -228,23 +280,23 @@ const QuizPage = ({ params }: QuizPageProps) => {
         <Card className="border-2">
           <CardHeader>
             <CardDescription className="text-primary font-medium uppercase tracking-wider text-xs">
-                {currentQuestion.type === 'multiple-choice' ? 'Multiple Choice' : 'True / False'}
+              {currentQuestion.type === 'multiple_choice' ? 'Multiple Choice' : 'True / False'}
             </CardDescription>
             <CardTitle className="text-xl">
               {currentQuestion.question}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {currentQuestion.type === 'multiple-choice' ? (
+            {currentQuestion.type === 'multiple_choice' ? (
               <MultipleChoiceQuestion
                 question={currentQuestion}
-                currentAnswer={answers[currentQuestion.id]}
+                currentAnswer={answers.find(a => a.questionId === currentQuestion.id)?.answer}
                 onAnswer={handleAnswer}
               />
             ) : (
-                <TrueFalseQuestion
+              <TrueFalseQuestion
                 question={currentQuestion}
-                currentAnswer={answers[currentQuestion.id]}
+                currentAnswer={answers.find(a => a.questionId === currentQuestion.id)?.answer}
                 onAnswer={handleAnswer}
               />
             )}
@@ -272,16 +324,16 @@ const QuizPage = ({ params }: QuizPageProps) => {
 
       <Dialog open={showConfirmSubmit} onOpenChange={setShowConfirmSubmit}>
         <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Submit Quiz?</DialogTitle>
-                <DialogDescription>
-                    Are you sure you want to submit your quiz? You won't be able to change your answers after submitting.
-                </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-                <Button variant="outline" onClick={() => setShowConfirmSubmit(false)}>Cancel</Button>
-                <Button onClick={handleSubmitQuiz}>Submit Quiz</Button>
-            </DialogFooter>
+          <DialogHeader>
+            <DialogTitle>Submit Quiz?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to submit your quiz? You won't be able to change your answers after submitting.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmSubmit(false)}>Cancel</Button>
+            <Button onClick={handleSubmitQuiz}>Submit Quiz</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

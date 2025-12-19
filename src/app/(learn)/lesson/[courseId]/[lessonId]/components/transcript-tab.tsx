@@ -82,52 +82,51 @@ const TranscriptTab = () => {
             </div>
           )}
 
-          {filteredTranscripts.length > 0 &&
-            filteredTranscripts.map((transcript) => {
-              const isActive =
-                currentTime >= transcript.start &&
-                currentTime <= transcript.end;
+          {filteredTranscripts.map((transcript) => {
+            const isActive =
+              currentTime >= transcript.start &&
+              currentTime <= transcript.end;
 
-              return (
-                <div
-                  key={transcript.id}
-                  ref={(el) => {
-                    itemRefs.current[transcript.id] = el;
-                  }}
-                  className={cn(
-                    "cursor-pointer rounded-lg p-3 transition-colors",
-                    {
-                      "bg-primary/10 border border-primary": isActive,
-                      "hover:bg-accent": !isActive,
-                    }
-                  )}
-                  onClick={() => {
-                    const isVideoCompleted = currentLesson?.completed?.videoCompleted;
+            return (
+              <div
+                key={transcript.id}
+                ref={(el) => {
+                  itemRefs.current[transcript.id] = el;
+                }}
+                className={cn(
+                  "cursor-pointer rounded-lg p-3 transition-colors",
+                  {
+                    "bg-primary/10 border border-primary": isActive,
+                    "hover:bg-accent": !isActive,
+                  }
+                )}
+                onClick={() => {
+                  const isVideoCompleted = currentLesson?.completed?.videoCompleted;
 
-                    if (!isVideoCompleted && transcript.start > currentTime) {
-                      toast.warning("You must watch the video to unlock this section.");
-                      return;
-                    }
+                  if (!isVideoCompleted && transcript.start > currentTime) {
+                    toast.warning("You must watch the video to unlock this section.");
+                    return;
+                  }
 
-                    requestAnimationFrame(() => {
-                      documentDispatchEvent("seekChange", {
-                        time: transcript.start,
-                      });
+                  requestAnimationFrame(() => {
+                    documentDispatchEvent("seekChange", {
+                      time: transcript.start,
                     });
-                  }}
-                >
-                  <div className="mb-1">
-                    <span className="text-primary">
-                      {formatTimer(transcript.start)} -{" "}
-                      {formatTimer(transcript.end)}
-                    </span>
-                  </div>
-                  <p className={cn({ "text-muted-foreground": isActive })}>
-                    {transcript.text}
-                  </p>
+                  });
+                }}
+              >
+                <div className="mb-1">
+                  <span className="text-primary">
+                    {formatTimer(transcript.start)} -{" "}
+                    {formatTimer(transcript.end)}
+                  </span>
                 </div>
-              );
-            })}
+                <p className={cn({ "text-muted-foreground": isActive })}>
+                  {transcript.text}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </ScrollArea>
     </div>

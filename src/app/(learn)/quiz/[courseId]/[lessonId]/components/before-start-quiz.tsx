@@ -16,8 +16,11 @@ type BeforeStartQuizProps = {
   lessonId: string;
   courseTitle: string;
   lessonTitle: string;
+  questionsAmount: number;
+  timeLimit: number;
+  quizTitle: string;
 }
-const BeforeStartQuiz = ({ setQuizStarted, courseId, lessonId, courseTitle, lessonTitle }: BeforeStartQuizProps) => {
+const BeforeStartQuiz = ({ setQuizStarted, courseId, lessonId, courseTitle, lessonTitle, questionsAmount, timeLimit, quizTitle }: BeforeStartQuizProps) => {
 
   return (
     <div className="space-y-6 p-6">
@@ -32,7 +35,7 @@ const BeforeStartQuiz = ({ setQuizStarted, courseId, lessonId, courseTitle, less
       <Card className="max-w-2xl mx-auto">
         <CardHeader className="text-center">
           <CardTitle>
-            {/* Quiz Title */}
+            {quizTitle}
           </CardTitle>
           <CardDescription>
             Check your knowledge with this quiz! Test your understanding of the lesson material and reinforce your learning.
@@ -43,13 +46,13 @@ const BeforeStartQuiz = ({ setQuizStarted, courseId, lessonId, courseTitle, less
             <div className="flex items-center justify-between rounded-lg border p-4">
               <span className="text-muted-foreground">Questions Amount</span>
               <span>
-                {/* Questions amount */}
+                {questionsAmount}
               </span>
             </div>
             <div className="flex items-center justify-between rounded-lg border p-4">
               <span className="text-muted-foreground">Time</span>
               <span>
-                {/* Time limit */}
+                {formatTimer(timeLimit)}
               </span>
             </div>
           </div>
@@ -57,7 +60,7 @@ const BeforeStartQuiz = ({ setQuizStarted, courseId, lessonId, courseTitle, less
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              You will have 20 minutes to complete 20 questions. The quiz will automatically submit when the time is up.
+              You will have {formatTimer(timeLimit)} to complete {questionsAmount} questions. The quiz will automatically submit when the time is up.
             </AlertDescription>
           </Alert>
 
