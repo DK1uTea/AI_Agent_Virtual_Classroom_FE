@@ -75,7 +75,7 @@ const QuizPage = ({ params }: QuizPageProps) => {
       setIsSubmitted(true);
       setShowConfirmSubmit(false);
     }
-  );
+  )
 
   const markLessonCompleteMutation = useMarkLearnLessonCompleted(
     () => {

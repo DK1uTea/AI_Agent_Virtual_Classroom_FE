@@ -1,17 +1,62 @@
+'use client'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardHeader from "./components/dashboard-header";
 import GeneralStat from "./components/general-stat";
 import ProgressStat from "./components/progress-stat";
 import { Flame } from "lucide-react";
+import { useEffect, useState } from "react";
+import { DashboardRes } from "@/apis/responses/dashboard-res";
+import { useGetDashboard } from "@/hooks/useDashboard";
+import { useAuthStore } from "@/stores/auth-store";
+import { useShallow } from "zustand/shallow";
+import Loading from "@/components/ui/loading";
+import RecentLessonItemComponent from "./components/recent-lesson-item-component";
 
-const Dashboard = async () => {
+const Dashboard = () => {
+
+  const {
+    accessToken
+  } = useAuthStore(useShallow((state) => ({
+    accessToken: state.accessToken,
+  })));
+
+  const [dashboardData, setDashboardData] = useState<DashboardRes | null>(null);
+
+  const {
+    data: DashboardData,
+    isLoading: isDashboardLoading,
+  } = useGetDashboard({
+    accessToken: accessToken || '',
+  })
+
+  useEffect(() => {
+    if (DashboardData) {
+      setDashboardData(DashboardData);
+    }
+  }, [DashboardData]);
+
+  console.log('Dashboard Data: ', dashboardData);
+
+  if (isDashboardLoading || !dashboardData) {
+    return (
+      <Loading />
+    )
+  }
+
   return (
     <div className="space-y-6 p-6">
       {/* Dashboard header */}
       <DashboardHeader />
       {/* Stats Grid */}
-      <GeneralStat />
-      <ProgressStat />
+      <GeneralStat
+        generalStatData={dashboardData.summary}
+      />
+      <ProgressStat
+        weeklyStudyHours={dashboardData.summary.weeklyStudyHours}
+        weeklyStudyData={dashboardData.weeklyStudyTime}
+        courseProgressData={dashboardData.courseProgress}
+      />
       {/* Recent Lessons */}
       <Card>
         <CardHeader>
@@ -20,7 +65,12 @@ const Dashboard = async () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* TODO: Map recent lessons */}
+            {dashboardData.recentLessons.map((item) => (
+              <RecentLessonItemComponent
+                key={item.lessonId}
+                recentLessonItemData={item}
+              />
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -29,10 +79,10 @@ const Dashboard = async () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Flame className="h-5 w-5 text-orange-500" />
-            Streak {5} days!
+            Streak {dashboardData.summary.streak} days!
           </CardTitle>
           <CardDescription>
-            You're on a {5}-day learning streak. Keep it up!
+            You're on a {dashboardData.summary.streak}-day learning streak. Keep it up!
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -45,7 +95,7 @@ const Dashboard = async () => {
                   : 'bg-muted text-muted-foreground'
                   }`}
               >
-                {i < 5 ? '🔥' : '·'}
+                {i < dashboardData.summary.streak ? '🔥' : '·'}
               </div>
             ))}
           </div>
