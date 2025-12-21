@@ -1,7 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Clock, Flame, Trophy } from "lucide-react";
 
-const GeneralStat = () => {
+type GeneralStatProps = {
+  generalStatData: {
+    enrolledCourses: number;
+    weeklyStudyHours: number;
+    avgQuizScore: number;
+    streak: number;
+  }
+}
+
+const GeneralStat = ({ generalStatData }: GeneralStatProps) => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -10,7 +19,7 @@ const GeneralStat = () => {
           <BookOpen className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div>10</div>
+          <div>{generalStatData.enrolledCourses}</div>
           <p className="text-muted-foreground">
             Total enrolled
           </p>
@@ -23,7 +32,7 @@ const GeneralStat = () => {
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div>17.5 hours</div>
+          <div>{generalStatData.weeklyStudyHours} hours</div>
           <p className="text-muted-foreground">
             This week
           </p>
@@ -36,7 +45,7 @@ const GeneralStat = () => {
           <Trophy className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div>85%</div>
+          <div>{generalStatData.avgQuizScore}%</div>
           <p className="text-muted-foreground">
             Across all courses
           </p>
@@ -49,7 +58,7 @@ const GeneralStat = () => {
           <Flame className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div>5 days</div>
+          <div>{generalStatData.streak} days</div>
           <p className="text-muted-foreground">
             In a row
           </p>

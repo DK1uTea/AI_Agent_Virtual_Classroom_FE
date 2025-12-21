@@ -2,19 +2,41 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import CourseProgressItem from "./course-progress-item";
+import { CourseProgressItem, WeeklyStudyItem } from "@/apis/responses/dashboard-res";
+import { useMemo } from "react";
+import CourseProgressItemComponent from "./course-progress-item-component";
 
-const ProgressStat = () => {
+type ProgressStatProps = {
+  weeklyStudyHours: number;
+  weeklyStudyData: WeeklyStudyItem[];
+  courseProgressData: CourseProgressItem[];
+}
 
-  const studyTimeData = [
-    { day: 'T2', hours: 2 },
-    { day: 'T3', hours: 1.5 },
-    { day: 'T4', hours: 3 },
-    { day: 'T5', hours: 2.5 },
-    { day: 'T6', hours: 1 },
-    { day: 'T7', hours: 4 },
-    { day: 'CN', hours: 3.5 },
-  ];
+const ProgressStat = (
+  { weeklyStudyHours, weeklyStudyData, courseProgressData }: ProgressStatProps
+) => {
+
+  const studyTimeData = useMemo(() => {
+    return weeklyStudyData.map((item) => ({
+      day: item.day,
+      hours: item.hours,
+      date: item.date,
+    }))
+  }, [weeklyStudyData]);
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-card border border-border rounded-lg p-2 shadow-sm">
+          <p className="text-sm font-medium">{payload[0].payload.date}</p>
+          <p className="text-sm text-muted-foreground">
+            {`Hours: ${payload[0].value}`}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
@@ -25,9 +47,11 @@ const ProgressStat = () => {
           <CardDescription>Courses you are currently enrolled in</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* {enrolledCourses.map((course) => (
-            <CourseProgressItem key={course.id} course={course} />
-          ))} */}
+          {courseProgressData.map((course) => (
+            <CourseProgressItemComponent
+              key={course.courseId}
+              course={course} />
+          ))}
         </CardContent>
       </Card>
 
@@ -35,7 +59,7 @@ const ProgressStat = () => {
       <Card>
         <CardHeader>
           <CardTitle>Total time study this week</CardTitle>
-          <CardDescription>Total: 17.5 hours</CardDescription>
+          <CardDescription>Total: {weeklyStudyHours} hours</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>
@@ -43,13 +67,7 @@ const ProgressStat = () => {
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis dataKey="day" className="text-muted-foreground" />
               <YAxis className="text-muted-foreground" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                }}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="hours" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
