@@ -112,6 +112,22 @@ class AuthApis {
       json: req
     })
   }
+
+  public async OAuthLogin(req: {
+    code: string;
+  }): Promise<AuthRes> {
+    const reqPath = `api/v1/auth/oauth2/exchange`
+    const params: Record<string, any> = {
+      code: req.code
+    }
+    const res = await kyInstance.post(
+      reqPath,
+      {
+        searchParams: params
+      }
+    ).json<ApiResult<AuthRes>>()
+    return res.data
+  }
 }
 
 export const authApis = new AuthApis();

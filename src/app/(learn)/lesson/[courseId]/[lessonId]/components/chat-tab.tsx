@@ -97,6 +97,7 @@ const ChatTab = () => {
         role: 'assistant',
         value: res.reply,
         intent: res.intent,
+        createdAt: res.createdAt
       }
       console.log('New AI Message: ', newAIMessage);
       setMessagesList((prev) => [...prev, newAIMessage]);
@@ -135,6 +136,11 @@ const ChatTab = () => {
       setMessagesList(chatQuery.data);
     }
   }, [chatQuery.data]);
+
+  useEffect(() => {
+    console.log('LessonListTab mounted');
+    return () => console.log('LessonListTab unmounted');
+  }, []);
 
   return (
     <div className="flex h-full flex-col rounded-lg outline-dashed outline-2 outline-muted-foreground/50">
@@ -189,10 +195,10 @@ const ChatTab = () => {
           />
           <PromptInputToolbar>
             <PromptInputTools>
-              <PromptInputButton>
+              {/* <PromptInputButton>
                 <MicIcon size={16} />
                 <span>Voice</span>
-              </PromptInputButton>
+              </PromptInputButton> */}
               {/* <PromptInputModelSelect onValueChange={setModel} value={model}>
                 <PromptInputModelSelectTrigger>
                   <PromptInputModelSelectValue />
