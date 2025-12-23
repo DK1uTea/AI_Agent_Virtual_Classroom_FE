@@ -333,7 +333,7 @@ const MainComponent = () => {
             <TabsContent value="transcript-text" className="h-full m-0">
               <TranscriptTab />
             </TabsContent>
-            <TabsContent value="chat" className="h-full m-0 p-2">
+            <TabsContent value="chat" className="h-full m-0 p-2 data-[state=inactive]:hidden" forceMount>
               <ChatTab />
             </TabsContent>
             <TabsContent value="mind-map" className="h-full m-0 p-2">
