@@ -4,7 +4,7 @@ import { useOAuth } from "@/hooks/useOAuth";
 import { useAuthStore } from "@/stores/auth-store";
 import { useSetAuthNextServerMutation } from "@/hooks/useSetAuthNextServer";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, Suspense } from "react";
+import { useEffect, Suspense, useRef } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useShallow } from "zustand/shallow";
@@ -13,6 +13,7 @@ function OAuthRedirectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
+  const hasProcessed = useRef(false);
 
   const { setAuthState } = useAuthStore(useShallow((state) => ({
     setAuthState: state.setAuthState,
@@ -63,13 +64,15 @@ function OAuthRedirectContent() {
   );
 
   useEffect(() => {
+    if (hasProcessed.current) return;
     if (code) {
+      hasProcessed.current = true;
       loginOAuth({ code });
     } else {
       toast.error('No authorization code found');
       router.push('/login');
     }
-  }, [code, loginOAuth, router]);
+  }, [code]);
 
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center gap-4">
