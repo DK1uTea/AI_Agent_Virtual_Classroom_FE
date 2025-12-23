@@ -3,6 +3,8 @@ import { Menu } from "lucide-react";
 import { Button } from "./button";
 import { useHeaderSidebarStore } from "@/stores/header-sidebar-store";
 import { useShallow } from "zustand/shallow";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const MenuButton = () => {
   const {
@@ -15,11 +17,16 @@ const MenuButton = () => {
     onClose: state.onClose,
   })))
 
+  const pathName = usePathname();
+
+  const isLessonPage = pathName.startsWith('/lesson');
+  const isQuizPage = pathName.startsWith('/quiz');
+
   return (
     <Button
       variant={"ghost"}
       size={"icon"}
-      className="lg:hidden"
+      className={cn('lg:hidden', { 'hidden': isLessonPage || isQuizPage })}
       onClick={() => {
         isOpen ? onClose() : onOpen()
       }}

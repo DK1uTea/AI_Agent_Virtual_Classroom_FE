@@ -14,6 +14,7 @@ import RequirementsTab from "../components/requirement-tab";
 import { cookies } from "next/headers";
 import { courseApis } from "@/apis/gateways/course-apis";
 import { Course } from "@/types/main-flow";
+import { formatTimer } from "@/lib/utils";
 
 type CourseDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -84,7 +85,7 @@ const CourseDetailPage = async ({ params }: CourseDetailPageProps) => {
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
-                <span>{course.duration}</span>
+                <span>{formatTimer(course.duration || 0)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />

@@ -36,11 +36,11 @@ const kyInstance = kyDefault.extend({
       },
     ],
     afterResponse: [
-      (_request, _option, response) => {
+      async (_request, _option, response) => {
         // 401: Unauthorized
         if (response.status === 401) {
           console.error("Session expired, please login again");
-          forcedSignOut()
+          await forcedSignOut()
         }
         return response
       },
@@ -67,11 +67,11 @@ const kyLocalInstance = kyDefault.extend({
       },
     ],
     afterResponse: [
-      (_request, _option, response) => {
+      async (_request, _option, response) => {
         // 401: Unauthorized
         if (response.status === 401) {
           console.error("Session expired, please login again");
-          forcedSignOut();
+          await forcedSignOut();
         }
         return response
       },

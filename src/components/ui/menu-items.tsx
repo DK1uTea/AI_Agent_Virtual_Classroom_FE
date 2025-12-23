@@ -15,7 +15,7 @@ const menuItems = [
   { id: 'reports', label: 'Reports', icon: BarChart3 },
   { id: 'profile', label: 'Profile', icon: User },
   { id: 'my-courses', label: 'My Courses', icon: BookOpenCheck },
-  { id: 'settings', label: 'Settings', icon: Settings },
+  // { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 const MenuItems = ({ onClose }: MenuItemProps) => {

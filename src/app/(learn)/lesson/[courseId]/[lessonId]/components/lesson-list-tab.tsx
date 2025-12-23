@@ -15,6 +15,12 @@ const LessonListTab = () => {
   const router = useRouter();
 
   const {
+    currentCourseId
+  } = useCourseStore(useShallow((state) => ({
+    currentCourseId: state.currentCourseId,
+  })));
+
+  const {
     currentLesson,
     currentSidebarLessons,
   } = useLessonStore(useShallow((state) => ({
@@ -34,6 +40,10 @@ const LessonListTab = () => {
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'hover:bg-accent'
                 }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/lesson/${currentCourseId}/${lesson.id}`);
+              }}
             >
               <div>
                 <p>Lesson {lesson.order}: {lesson.title}</p>
@@ -43,26 +53,14 @@ const LessonListTab = () => {
               </div>
               {
                 currentLesson?.id === lesson.id &&
-                // <Button
-                //   className="space-x-1"
-                //   variant={"secondary"}
-                //   onClick={(e) => {
-                //     e.stopPropagation();
-                //     if(currentLesson.status === 'completed') {
-                //       router.push(`/quiz/${currentLesson?.courseId}/${currentLesson?.id}`);
-                //     } else {
-
-                //       return;
-                //     }
-                //   }}
-                // >
-                //   <span>Take a quiz test</span>
-                //   <ArrowUpIcon className="h-4 w-4" />
-                // </Button>
                 (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="outline" className="flex justify-center items-center gap-2">
+                      <Button
+                        variant="secondary"
+                        className="flex justify-center items-center gap-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <span>Take a quiz test</span>
                         <ArrowUpIcon className="h-4 w-4" />
                       </Button>
@@ -82,7 +80,10 @@ const LessonListTab = () => {
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         {currentLesson?.completed?.videoCompleted && (
                           <AlertDialogAction
-                            onClick={() => router.push(`/quiz/${currentLesson?.courseId}/${currentLesson?.id}`)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/quiz/${currentLesson?.courseId}/${currentLesson?.id}`);
+                            }}
                           >Continue</AlertDialogAction>
                         )}
                       </AlertDialogFooter>

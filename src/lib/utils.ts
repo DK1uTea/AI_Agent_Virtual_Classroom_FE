@@ -1,7 +1,9 @@
 import { authApis } from "@/apis/gateways/auth-apis";
+import { useAuthStore } from "@/stores/auth-store";
 import { Course } from "@/types/main-flow";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { redirect } from 'next/navigation';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -21,9 +23,15 @@ export const refreshToken = async () => {
 export const forcedSignOut = async () => {
   try {
     await authApis.logoutNextServer({ forced: true });
-    console.log("Forced sign out successfully!");
   } catch (error) {
     console.error("Error during forced sign out: ", error);
+  }
+
+  if (typeof window !== 'undefined') {
+    useAuthStore.getState().clearAuthState();
+    window.location.href = "/";
+  } else {
+    redirect("/");
   }
 }
 

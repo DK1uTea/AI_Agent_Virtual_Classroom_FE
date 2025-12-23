@@ -264,7 +264,7 @@ const MainComponent = () => {
         {/* Video Player */}
         <div
           id="video-container"
-          className="relative aspect-video bg-black rounded-2xl w-full xl:max-w-[75%]"
+          className="relative aspect-video bg-black rounded-2xl w-full xl:max-w-[70%]"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
         >
