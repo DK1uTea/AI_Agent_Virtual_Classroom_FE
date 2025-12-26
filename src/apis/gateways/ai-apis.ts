@@ -1,6 +1,6 @@
 import { kyInstance } from "@/config/ky";
 import { AIChatReq } from "../requests/ai-req";
-import { AIChatRes, AIMindMapRes } from "../responses/ai-res";
+import { AIAnalyzeRes, AIChatRes, AIMindMapRes } from "../responses/ai-res";
 import { getAuthHeaders } from "@/lib/utils";
 import { ApiResult } from "../responses/api-res";
 
@@ -31,6 +31,20 @@ class AIApis {
         headers: getAuthHeaders(req.accessToken),
       }
     ).json<ApiResult<AIMindMapRes>>();
+    return res.data;
+  }
+
+  public async AIAnalyze(req: {
+    accessToken: string;
+    lessonId: string;
+  }): Promise<AIAnalyzeRes> {
+    const reqPath = `api/agent/analyzer/${req.lessonId}`;
+    const res = await kyInstance.get<AIAnalyzeRes>(
+      reqPath,
+      {
+        headers: getAuthHeaders(req.accessToken),
+      }
+    ).json<ApiResult<AIAnalyzeRes>>();
     return res.data;
   }
 }

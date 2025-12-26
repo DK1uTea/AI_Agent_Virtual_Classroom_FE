@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Course, Lesson } from "@/types/main-flow";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import LessonListTab from "./lesson-list-tab";
 import VideoPlayer from "./video-player";
@@ -24,6 +24,12 @@ import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { useMarkLearnVideoCompleted, useSaveVideoProgress } from "@/hooks/useProgress";
 import { useAuthStore } from "@/stores/auth-store";
 import { useCallback } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AIAnalyzeRes } from "@/apis/responses/ai-res";
+import { useAIAnalyze } from "@/hooks/useAIAgent";
+import { Message, MessageAvatar, MessageContent } from "@/components/ui/shadcn-io/ai/message";
+import { Response } from "@/components/ui/shadcn-io/ai/response";
+import DialogAnalyzeComponent from "./dialog-analyze-component";
 
 
 const MainComponent = () => {
@@ -50,6 +56,7 @@ const MainComponent = () => {
     toggleConfirmLearnVideoCompletedDialog,
     isConfirmContinueLearnDialogOpen,
     toggleConfirmContinueLearnDialog,
+    toggleAnalyzeDialog,
   } = useLessonStore(useShallow((state) => ({
     currentLesson: state.currentLesson,
     currentSidebarLessons: state.currentSidebarLessons,
@@ -58,6 +65,7 @@ const MainComponent = () => {
     toggleConfirmLearnVideoCompletedDialog: state.toggleConfirmLearnVideoCompletedDialog,
     isConfirmContinueLearnDialogOpen: state.ui.isConfirmContinueLearnDialogOpen,
     toggleConfirmContinueLearnDialog: state.toggleConfirmContinueLearnDialog,
+    toggleAnalyzeDialog: state.toggleAnalyzeDialog,
   })));
 
   const currentLessonOrder = useMemo(() => {
@@ -183,6 +191,22 @@ const MainComponent = () => {
     }
   );
 
+  const [analyzeData, setAnalyzeData] = useState<AIAnalyzeRes | null>(null);
+
+  const getAIAnalyzeQuery = useAIAnalyze(
+    {
+      accessToken: accessToken,
+      lessonId: String(currentLesson?.id)
+    },
+    (res) => {
+      toggleAnalyzeDialog(true);
+    }
+  )
+
+  const handleAnalyze = () => {
+    getAIAnalyzeQuery.refetch();
+  }
+
   // Save progress on component unmount
   useEffect(() => {
     return () => {
@@ -257,6 +281,12 @@ const MainComponent = () => {
     }
   }, [currentLesson?.id, currentLesson?.courseId])
 
+  useEffect(() => {
+    if (getAIAnalyzeQuery.data) {
+      setAnalyzeData(getAIAnalyzeQuery.data);
+    }
+  }, [getAIAnalyzeQuery.data])
+
   return (
     <div className="flex flex-col lg:flex-row flex-grow h-full overflow-hidden">
       {/* Video Section */}
@@ -288,9 +318,35 @@ const MainComponent = () => {
               onClick={handlePrevious}
               disabled={currentLessonOrder === currentSidebarLessons[0]?.order}
             >
-              <ChevronLeft className="mr-2 h-4 w-4" />
+              <ChevronLeft className="md:mr-2 h-4 w-4" />
               <span className="hidden md:inline">Previous Lesson</span>
             </Button>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-block">
+                    <Button
+                      variant="outline"
+                      onClick={handleAnalyze}
+                      disabled={currentLesson?.status !== 'completed' || getAIAnalyzeQuery.isLoading || getAIAnalyzeQuery.isFetching}
+                    >
+                      <BarChart3 className="md:mr-2 h-4 w-4" />
+                      <span className="hidden md:inline">{getAIAnalyzeQuery.isLoading || getAIAnalyzeQuery.isFetching ? 'Analyzing...' : 'Analyze'}</span>
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {currentLesson?.status !== 'completed' && (
+                  <TooltipContent>
+                    {!currentLesson?.completed?.videoCompleted && !currentLesson?.completed?.quizCompleted ? (
+                      <p>You can only analyze lesson after you complete watch video and quiz.</p>
+                    ) : (
+                      <p>You need to complete the quiz before analyzing the lesson.</p>
+                    )}
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
 
             <Button
               className="disabled:cursor-not-allowed"
@@ -302,7 +358,7 @@ const MainComponent = () => {
               }
             >
               <span className="hidden md:inline">Next Lesson</span>
-              <ChevronRight className="ml-2 h-4 w-4" />
+              <ChevronRight className="md:ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -386,7 +442,12 @@ const MainComponent = () => {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+
+      {/* Dialog analyze */}
+      <DialogAnalyzeComponent
+        analyzeData={analyzeData}
+      />
+    </div >
   );
 }
 

@@ -14,3 +14,9 @@ export type AIMindMapRes = {
   };
   topic: string;
 }
+
+export type AIAnalyzeRes = {
+  analysis: string;
+  level: string;
+  levelReason: string;
+}

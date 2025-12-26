@@ -1,6 +1,6 @@
 import { aiApis } from "@/apis/gateways/ai-apis";
 import { AIChatReq } from "@/apis/requests/ai-req";
-import { AIChatRes, AIMindMapRes } from "@/apis/responses/ai-res";
+import { AIAnalyzeRes, AIChatRes, AIMindMapRes } from "@/apis/responses/ai-res";
 import { getErrorJson, isHTTPError } from "@/lib/exception/http-error";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -60,6 +60,40 @@ export const useAIMindMap = (
       }
     },
     enabled: !!req.accessToken && !!req.lessonId,
+    refetchOnWindowFocus: false,
+  })
+}
+
+export const useAIAnalyze = (
+  req: {
+    accessToken: string,
+    lessonId: string
+  },
+  onSuccessExtra?: (res: AIAnalyzeRes) => void,
+  onErrorExtra?: (error: Error) => void
+) => {
+  return useQuery({
+    queryKey: ['ai-analyze', req.lessonId],
+    queryFn: async () => {
+      try {
+        const res = await aiApis.AIAnalyze({
+          accessToken: req.accessToken,
+          lessonId: req.lessonId
+        });
+        onSuccessExtra?.(res);
+        return res;
+      } catch (error) {
+        onErrorExtra?.(error as Error);
+        console.error('AI Analyze Error: ', error);
+        if (isHTTPError(error)) {
+          getErrorJson(error).then((res) => {
+            toast.error(res.message || 'An error occurred while generating the analysis.');
+          })
+        }
+        throw error;
+      }
+    },
+    enabled: false,
     refetchOnWindowFocus: false,
   })
 }
