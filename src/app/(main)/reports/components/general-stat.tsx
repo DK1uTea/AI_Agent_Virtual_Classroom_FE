@@ -1,19 +1,54 @@
+import { ReportProgressRes } from "@/apis/responses/dashboard-res";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useReportProgress } from "@/hooks/useDashboard";
+import { useAuthStore } from "@/stores/auth-store";
+import { stat } from "fs";
 import { Calendar, Clock, TrendingUp, Trophy } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useShallow } from "zustand/shallow";
 
-const GeneralStat = () => {
+import { GeneralStatSkeleton } from "./general-stat-skeleton";
+
+type GeneralStatProps = {
+  timeRange: string;
+};
+
+const GeneralStat = ({ timeRange }: GeneralStatProps) => {
+
+  const {
+    accessToken,
+  } = useAuthStore(useShallow((state) => ({
+    accessToken: state.accessToken,
+  })))
+
+  const reportProgressQuery = useReportProgress({
+    accessToken: accessToken,
+    period: timeRange,
+  })
+
+  const [statData, setStatData] = useState<ReportProgressRes | null>(null);
+
+  useEffect(() => {
+    if (reportProgressQuery.data) {
+      setStatData(reportProgressQuery.data);
+    }
+  }, [reportProgressQuery.data]);
+
+  if (reportProgressQuery.isLoading) {
+    return <GeneralStatSkeleton />;
+  }
 
   return (
-    <div className="gird gap-4 md:grid-cols-2 lag: grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lag: grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>Total Time</CardTitle>
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div>17.5 hours</div>
+          <div>{statData?.totalTime.value} hours</div>
           <p className="text-muted-foreground">
-            +2.5 hours compared to last week
+            {statData?.totalTime.change} {statData?.totalTime.comparisonText}
           </p>
         </CardContent>
       </Card>
@@ -24,9 +59,9 @@ const GeneralStat = () => {
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div>22 lessons</div>
+          <div>{statData?.lessonsCompleted.value} lessons</div>
           <p className="text-muted-foreground">
-            +5 lessons compared to last week
+            {statData?.lessonsCompleted.change} {statData?.lessonsCompleted.comparisonText}
           </p>
         </CardContent>
       </Card>
@@ -37,9 +72,9 @@ const GeneralStat = () => {
           <Trophy className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div>85%</div>
+          <div>{statData?.averageScore.value}%</div>
           <p className="text-muted-foreground">
-            +3% compared to last week
+            {statData?.averageScore.change} {statData?.averageScore.comparisonText}
           </p>
         </CardContent>
       </Card>
@@ -50,9 +85,9 @@ const GeneralStat = () => {
           <Calendar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div>5 days</div>
+          <div>{statData?.currentStreak.current} days</div>
           <p className="text-muted-foreground">
-            Record: 12 days
+            Record: {statData?.currentStreak.record} days
           </p>
         </CardContent>
       </Card>

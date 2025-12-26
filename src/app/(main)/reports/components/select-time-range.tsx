@@ -3,8 +3,12 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 
-const SelectTimeRange = () => {
-  const [timeRange, setTimeRange] = useState<string>('7');
+type SelectTimeRangeProps = {
+  timeRange: string;
+  setTimeRange: (range: string) => void;
+};
+
+const SelectTimeRange = ({ timeRange, setTimeRange }: SelectTimeRangeProps) => {
 
   return (
     <Select value={timeRange} onValueChange={setTimeRange}>
@@ -12,8 +16,9 @@ const SelectTimeRange = () => {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="7">Last 7 days</SelectItem>
-        <SelectItem value="30">Last 30 days</SelectItem>
+        <SelectItem value="7d">Last 7 days</SelectItem>
+        <SelectItem value="30d">Last 30 days</SelectItem>
+        <SelectItem value="all">All</SelectItem>
       </SelectContent>
     </Select>
   );

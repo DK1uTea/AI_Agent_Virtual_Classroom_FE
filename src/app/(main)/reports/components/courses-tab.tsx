@@ -1,12 +1,39 @@
 'use client'
 
+import { ReportCourseRes } from "@/apis/responses/dashboard-res";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
+import { useGetReportCourse } from "@/hooks/useDashboard";
+import { useAuthStore } from "@/stores/auth-store";
+import { useEffect, useState } from "react";
+import { useShallow } from "zustand/shallow";
+import CourseReportItemComponent from "./course-report-item-component";
+
+import { CoursesTabSkeleton } from "./courses-tab-skeleton";
 
 const CoursesTab = () => {
 
-  const router = useRouter();
+  const {
+    accessToken,
+  } = useAuthStore(useShallow((state) => ({
+    accessToken: state.accessToken,
+  })))
+
+  const reportCourseQuery = useGetReportCourse({
+    accessToken: accessToken,
+  })
+
+  const [courseReportData, setCourseReportData] = useState<ReportCourseRes | null>(null);
+
+  useEffect(() => {
+    if (reportCourseQuery.data) {
+      setCourseReportData(reportCourseQuery.data);
+    }
+  }, [reportCourseQuery.data]);
+
+  if (reportCourseQuery.isLoading) {
+    return <CoursesTabSkeleton />;
+  }
 
   return (
     <Card>
@@ -16,57 +43,12 @@ const CoursesTab = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4>React Programming for Beginners</h4>
-                <p className="text-muted-foreground">45% Completed</p>
-              </div>
-              <Button variant="outline" onClick={() => router.push('course-detail')}>
-                View Details
-              </Button>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-lg border p-4">
-                <p className="text-muted-foreground">Lessons</p>
-                <p>11/24</p>
-              </div>
-              <div className="rounded-lg border p-4">
-                <p className="text-muted-foreground">Duration</p>
-                <p>8.5 hours</p>
-              </div>
-              <div className="rounded-lg border p-4">
-                <p className="text-muted-foreground">Average Score</p>
-                <p>87%</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4>Python and Machine Learning</h4>
-                <p className="text-muted-foreground">12% Completed</p>
-              </div>
-              <Button variant="outline" onClick={() => router.push('course-detail')}>
-                View Details
-              </Button>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-lg border p-4">
-                <p className="text-muted-foreground">Lessons</p>
-                <p>5/40</p>
-              </div>
-              <div className="rounded-lg border p-4">
-                <p className="text-muted-foreground">Duration</p>
-                <p>4.2 hours</p>
-              </div>
-              <div className="rounded-lg border p-4">
-                <p className="text-muted-foreground">Average Score</p>
-                <p>82%</p>
-              </div>
-            </div>
-          </div>
+          {courseReportData?.courses.map((courseItem) => (
+            <CourseReportItemComponent
+              key={courseItem.courseId}
+              courseItem={courseItem}
+            />
+          ))}
         </div>
       </CardContent>
     </Card>

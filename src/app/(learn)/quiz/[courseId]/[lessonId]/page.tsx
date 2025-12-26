@@ -332,7 +332,9 @@ const QuizPage = ({ params }: QuizPageProps) => {
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowConfirmSubmit(false)}>Cancel</Button>
-            <Button onClick={handleSubmitQuiz}>Submit Quiz</Button>
+            <Button
+              disabled={submitQuizMutation.isPending}
+              onClick={handleSubmitQuiz}>{submitQuizMutation.isPending ? 'Submitting...' : 'Submit'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -10,7 +10,7 @@ import { DashboardRes } from "@/apis/responses/dashboard-res";
 import { useGetDashboard } from "@/hooks/useDashboard";
 import { useAuthStore } from "@/stores/auth-store";
 import { useShallow } from "zustand/shallow";
-import Loading from "@/components/ui/loading";
+import { DashboardSkeleton } from "./components/dashboard-skeleton";
 import RecentLessonItemComponent from "./components/recent-lesson-item-component";
 
 const Dashboard = () => {
@@ -40,7 +40,7 @@ const Dashboard = () => {
 
   if (isDashboardLoading || !dashboardData) {
     return (
-      <Loading />
+      <DashboardSkeleton />
     )
   }
 
