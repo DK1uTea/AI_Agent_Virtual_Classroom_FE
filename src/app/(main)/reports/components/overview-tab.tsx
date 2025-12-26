@@ -8,22 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useShallow } from "zustand/shallow";
 
-
-// const weekData = [
-//   { day: 'T2', hours: 2, lessons: 3 },
-//   { day: 'T3', hours: 1.5, lessons: 2 },
-//   { day: 'T4', hours: 3, lessons: 4 },
-//   { day: 'T5', hours: 2.5, lessons: 3 },
-//   { day: 'T6', hours: 1, lessons: 1 },
-//   { day: 'T7', hours: 4, lessons: 5 },
-//   { day: 'CN', hours: 3.5, lessons: 4 },
-// ];
-
-const courseProgressData = [
-  { name: 'React cơ bản', value: 45 },
-  { name: 'Python ML', value: 12 },
-  { name: 'Khác', value: 43 },
-];
+import { OverviewTabSkeleton } from "./overview-tab-skeleton";
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
 
@@ -74,6 +59,10 @@ const OverviewTab = ({ timeRange }: OverviewTabProps) => {
       setOverviewData(reportOverviewQuery.data);
     }
   }, [reportOverviewQuery.data]);
+
+  if (reportOverviewQuery.isLoading) {
+    return <OverviewTabSkeleton />;
+  }
 
   return (
     <div className="space-y-6">
@@ -152,7 +141,7 @@ const OverviewTab = ({ timeRange }: OverviewTabProps) => {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {courseProgressData.map((entry, index) => (
+                  {pieChartData?.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

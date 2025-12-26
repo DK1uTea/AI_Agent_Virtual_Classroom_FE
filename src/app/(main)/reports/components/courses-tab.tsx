@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
 import CourseReportItemComponent from "./course-report-item-component";
 
+import { CoursesTabSkeleton } from "./courses-tab-skeleton";
+
 const CoursesTab = () => {
 
   const {
@@ -28,6 +30,10 @@ const CoursesTab = () => {
       setCourseReportData(reportCourseQuery.data);
     }
   }, [reportCourseQuery.data]);
+
+  if (reportCourseQuery.isLoading) {
+    return <CoursesTabSkeleton />;
+  }
 
   return (
     <Card>

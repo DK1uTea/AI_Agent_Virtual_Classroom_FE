@@ -10,6 +10,8 @@ import { useShallow } from "zustand/shallow";
 import { useGetReportActivity } from "@/hooks/useDashboard";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 
+import { ActivityTabSkeleton } from "./activity-tab-skeleton";
+
 const ActivityTab = () => {
   const [selectedLog, setSelectedLog] = useState<{
     time: string;
@@ -89,6 +91,10 @@ const ActivityTab = () => {
       setTotalPages(reportActivityQuery.data.totalPages);
     }
   }, [reportActivityQuery.data])
+
+  if (reportActivityQuery.isLoading) {
+    return <ActivityTabSkeleton />;
+  }
 
 
   return (

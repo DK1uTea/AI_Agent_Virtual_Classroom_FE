@@ -7,6 +7,8 @@ import { Calendar, Clock, TrendingUp, Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
 
+import { GeneralStatSkeleton } from "./general-stat-skeleton";
+
 type GeneralStatProps = {
   timeRange: string;
 };
@@ -33,7 +35,7 @@ const GeneralStat = ({ timeRange }: GeneralStatProps) => {
   }, [reportProgressQuery.data]);
 
   if (reportProgressQuery.isLoading) {
-    return <div>Loading stats...</div>;
+    return <GeneralStatSkeleton />;
   }
 
   return (
