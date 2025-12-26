@@ -13,6 +13,7 @@ type LessonState = {
     isConfirmLearnVideoCompletedDialogOpen: boolean;
     isConfirmLearnLessonCompletedDialogOpen: boolean;
     isConfirmContinueLearnDialogOpen: boolean;
+    isAnalyzeDialogOpen: boolean;
   }
 }
 
@@ -27,6 +28,7 @@ type LessonStateAction = {
   toggleConfirmLearnVideoCompletedDialog: (isOpen: boolean) => void;
   toggleConfirmLearnLessonCompletedDialog: (isOpen: boolean) => void;
   toggleConfirmContinueLearnDialog: (isOpen: boolean) => void;
+  toggleAnalyzeDialog: (isOpen: boolean) => void;
 }
 
 type LessonStore = LessonState & LessonStateAction;
@@ -78,6 +80,7 @@ export const useLessonStore = create<LessonStore>()(
           isConfirmLearnVideoCompletedDialogOpen: false,
           isConfirmLearnLessonCompletedDialogOpen: false,
           isConfirmContinueLearnDialogOpen: false,
+          isAnalyzeDialogOpen: false,
         },
         toggleMindMapDialog: (isOpen: boolean) => {
           set((state) => {
@@ -97,6 +100,11 @@ export const useLessonStore = create<LessonStore>()(
         toggleConfirmContinueLearnDialog: (isOpen: boolean) => {
           set((state) => {
             state.ui.isConfirmContinueLearnDialogOpen = isOpen;
+          });
+        },
+        toggleAnalyzeDialog: (isOpen: boolean) => {
+          set((state) => {
+            state.ui.isAnalyzeDialogOpen = isOpen;
           });
         },
       })

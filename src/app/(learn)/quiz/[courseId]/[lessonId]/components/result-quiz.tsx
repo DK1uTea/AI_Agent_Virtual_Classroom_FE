@@ -1,13 +1,17 @@
 import { Question, QuizResult } from "@/types/main-flow";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, XCircle, AlertCircle, RotateCcw } from "lucide-react";
+import { CheckCircle2, XCircle, AlertCircle, RotateCcw, BarChart3 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useGetQuizOfLesson } from "@/hooks/useQuiz";
 import { useAuthStore } from "@/stores/auth-store";
 import { useShallow } from "zustand/shallow";
 import { useLessonStore } from "@/stores/lesson-store";
+import { useAIAnalyze } from "@/hooks/useAIAgent";
+import { useEffect, useState } from "react";
+import { AIAnalyzeRes } from "@/apis/responses/ai-res";
+import DialogAnalyzeComponent from "@/app/(learn)/lesson/[courseId]/[lessonId]/components/dialog-analyze-component";
 
 type ResultQuizProps = {
   quizTitle: string;
@@ -17,6 +21,44 @@ type ResultQuizProps = {
 }
 
 const ResultQuiz = ({ quizTitle, quizResult, questions, onRetry }: ResultQuizProps) => {
+
+  const {
+    accessToken
+  } = useAuthStore(useShallow((state) => ({
+    accessToken: state.accessToken,
+  })));
+
+  const {
+    currentLesson,
+    toggleAnalyzeDialog,
+  } = useLessonStore(useShallow((state) => ({
+    currentLesson: state.currentLesson,
+    toggleAnalyzeDialog: state.toggleAnalyzeDialog,
+  })));
+
+  console.log('currentLesson', currentLesson);
+
+  const [analyzeData, setAnalyzeData] = useState<AIAnalyzeRes | null>(null);
+
+  const getAIAnalyzeQuery = useAIAnalyze(
+    {
+      accessToken: accessToken,
+      lessonId: String(currentLesson?.id)
+    },
+    (res) => {
+      toggleAnalyzeDialog(true);
+    }
+  )
+
+  const handleAnalyze = () => {
+    getAIAnalyzeQuery.refetch();
+  }
+
+  useEffect(() => {
+    if (getAIAnalyzeQuery.data) {
+      setAnalyzeData(getAIAnalyzeQuery.data);
+    }
+  }, [getAIAnalyzeQuery.data])
 
   return (
     <div className="space-y-6 p-6 animate-in fade-in duration-500">
@@ -58,7 +100,17 @@ const ResultQuiz = ({ quizTitle, quizResult, questions, onRetry }: ResultQuizPro
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
+      <div className="flex flex-col md:flex-row md:justify-end gap-4">
+        <Button
+          onClick={handleAnalyze}
+          disabled={getAIAnalyzeQuery.isLoading || getAIAnalyzeQuery.isFetching}
+          className="w-full sm:w-auto gap-2"
+          size="lg"
+        >
+          <BarChart3 className="h-4 w-4" />
+          <span>{getAIAnalyzeQuery.isLoading || getAIAnalyzeQuery.isFetching ? 'Analyzing...' : 'Analyze'}</span>
+        </Button>
+
         <Button onClick={onRetry} size="lg" className="w-full sm:w-auto gap-2">
           <RotateCcw className="h-4 w-4" />
           Retry Quiz
@@ -110,6 +162,9 @@ const ResultQuiz = ({ quizTitle, quizResult, questions, onRetry }: ResultQuizPro
           })}
         </div>
       </div>
+      <DialogAnalyzeComponent
+        analyzeData={analyzeData}
+      />
     </div>
   );
 }

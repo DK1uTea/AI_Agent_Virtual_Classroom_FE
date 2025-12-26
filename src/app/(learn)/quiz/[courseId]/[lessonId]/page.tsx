@@ -41,8 +41,10 @@ const QuizPage = ({ params }: QuizPageProps) => {
 
   const {
     setCurrentLessonCompleted,
+    setCurrentLesson,
   } = useLessonStore(useShallow((state) => ({
     setCurrentLessonCompleted: state.setCurrentLessonCompleted,
+    setCurrentLesson: state.setCurrentLesson,
   })))
 
   const {
@@ -59,7 +61,12 @@ const QuizPage = ({ params }: QuizPageProps) => {
   } = useGetCurrentLesson({
     accessToken: accessToken,
     lessonId: lessonId,
-  })
+  },
+    ({ lessonPlaybackInfo, lessonTranscripts }) => {
+      const { sidebarLessons, ...currentLessonData } = lessonPlaybackInfo;
+      setCurrentLesson(currentLessonData);
+    },
+  )
 
   const {
     data: quizForLessonData,
