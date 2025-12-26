@@ -6,20 +6,33 @@ import dayjs from "dayjs";
 import { Eye } from "lucide-react";
 
 type ActivityLogProps = {
-  log: ActivityLog;
-  setSelectedLog: (log: ActivityLog) => void;
+  log: {
+    time: string;
+    activity: string;
+    details: string;
+    lessonId: number | string;
+    courseId: number | string;
+  };
+  index: number;
+  setSelectedLog: (log: {
+    time: string;
+    activity: string;
+    details: string;
+    lessonId: number | string;
+    courseId: number | string;
+  }) => void;
 }
 
-const ActivityLogItem = ({ log, setSelectedLog }: ActivityLogProps) => {
+const ActivityLogItem = ({ log, index, setSelectedLog }: ActivityLogProps) => {
   return (
-    <TableRow key={log.id}>
+    <TableRow key={`${log.activity}-${index}`}>
       <TableCell className="text-muted-foreground">
-        {dayjs(log.timestamp).format('DD/MM/YYYY HH:mm')}
+        {dayjs(log.time).format('DD/MM/YYYY HH:mm')}
       </TableCell>
       <TableCell>
-        {log.type === 'lesson-complete' && '✅ Lessons Completed'}
-        {log.type === 'quiz-complete' && '📝 Quiz Completed'}
-        {log.type === 'video-watch' && '▶️ Video Watched'}
+        {log.activity === 'Lessons Completed' && '✅ Lessons Completed'}
+        {log.activity === 'Quiz Completed' && '📝 Quiz Completed'}
+        {log.activity === 'Video Watched' && '▶️ Video Watched'}
       </TableCell>
       <TableCell>{log.details}</TableCell>
       <TableCell className="text-right">
@@ -29,7 +42,7 @@ const ActivityLogItem = ({ log, setSelectedLog }: ActivityLogProps) => {
           onClick={() => setSelectedLog(log)}
         >
           <Eye className="h-4 w-4 mr-2" />
-          Chi tiết
+          Details
         </Button>
       </TableCell>
     </TableRow>

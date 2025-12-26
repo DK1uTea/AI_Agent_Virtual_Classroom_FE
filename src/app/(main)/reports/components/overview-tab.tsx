@@ -1,18 +1,23 @@
 'use client'
 
+import { ReportOverviewRes } from "@/apis/responses/dashboard-res";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGetReportOverview } from "@/hooks/useDashboard";
+import { useAuthStore } from "@/stores/auth-store";
+import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { useShallow } from "zustand/shallow";
 
 
-const weekData = [
-  { day: 'T2', hours: 2, lessons: 3 },
-  { day: 'T3', hours: 1.5, lessons: 2 },
-  { day: 'T4', hours: 3, lessons: 4 },
-  { day: 'T5', hours: 2.5, lessons: 3 },
-  { day: 'T6', hours: 1, lessons: 1 },
-  { day: 'T7', hours: 4, lessons: 5 },
-  { day: 'CN', hours: 3.5, lessons: 4 },
-];
+// const weekData = [
+//   { day: 'T2', hours: 2, lessons: 3 },
+//   { day: 'T3', hours: 1.5, lessons: 2 },
+//   { day: 'T4', hours: 3, lessons: 4 },
+//   { day: 'T5', hours: 2.5, lessons: 3 },
+//   { day: 'T6', hours: 1, lessons: 1 },
+//   { day: 'T7', hours: 4, lessons: 5 },
+//   { day: 'CN', hours: 3.5, lessons: 4 },
+// ];
 
 const courseProgressData = [
   { name: 'React cơ bản', value: 45 },
@@ -22,18 +27,65 @@ const courseProgressData = [
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
 
-const OverviewTab = () => {
+type OverviewTabProps = {
+  timeRange: string;
+};
+
+const OverviewTab = ({ timeRange }: OverviewTabProps) => {
+
+  const {
+    accessToken,
+  } = useAuthStore(useShallow((state) => ({
+    accessToken: state.accessToken,
+  })))
+
+  const reportOverviewQuery = useGetReportOverview({
+    accessToken: accessToken,
+    period: timeRange,
+  })
+
+  const [overviewData, setOverviewData] = useState<ReportOverviewRes | null>(null);
+
+  const barChartData = useMemo(() => {
+    return overviewData?.studyTimeByDay?.map((item) => ({
+      day: item.day,
+      hours: item.value,
+      date: item.date,
+    }))
+  }, [overviewData])
+
+  const lineChartData = useMemo(() => {
+    return overviewData?.lessonsCompletedByDay?.map((item) => ({
+      day: item.day,
+      lessons: item.value,
+      date: item.date,
+    }))
+  }, [overviewData])
+
+  const pieChartData = useMemo(() => {
+    return overviewData?.studyTimeDistribution?.map((item) => ({
+      name: item.courseTitle,
+      value: item.percentage,
+    }))
+  }, [overviewData])
+
+  useEffect(() => {
+    if (reportOverviewQuery.data) {
+      setOverviewData(reportOverviewQuery.data);
+    }
+  }, [reportOverviewQuery.data]);
+
   return (
-    <>
+    <div className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Study Time by Day</CardTitle>
-            <CardDescription>Last 7 days</CardDescription>
+            <CardDescription>Last {timeRange} days</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={weekData}>
+              <BarChart data={barChartData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="day" className="text-muted-foreground" />
                 <YAxis className="text-muted-foreground" />
@@ -53,11 +105,11 @@ const OverviewTab = () => {
         <Card>
           <CardHeader>
             <CardTitle>Lessons Completed</CardTitle>
-            <CardDescription>Last 7 days</CardDescription>
+            <CardDescription>Last {timeRange} days</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={weekData}>
+              <LineChart data={lineChartData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="day" className="text-muted-foreground" />
                 <YAxis className="text-muted-foreground" />
@@ -91,7 +143,7 @@ const OverviewTab = () => {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={courseProgressData}
+                  data={pieChartData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -109,7 +161,7 @@ const OverviewTab = () => {
             </ResponsiveContainer>
 
             <div className="space-y-2 w-full lg:w-auto">
-              {courseProgressData.map((item, index) => (
+              {pieChartData?.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div
                     className="h-4 w-4 rounded"
@@ -123,7 +175,7 @@ const OverviewTab = () => {
           </div>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
 

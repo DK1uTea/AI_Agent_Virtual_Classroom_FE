@@ -32,3 +32,70 @@ export type DashboardRes = {
   weeklyStudyTime: WeeklyStudyItem[];
   recentLessons: RecentLessonItem[];
 }
+
+export type ReportProgressRes = {
+  totalTime: {
+    value: number;
+    change: string;
+    comparisonText: string;
+  };
+  lessonsCompleted: {
+    value: number;
+    change: string;
+    comparisonText: string;
+  };
+  averageScore: {
+    value: number;
+    change: string;
+    comparisonText: string;
+  };
+  currentStreak: {
+    current: number;
+    record: number;
+  }
+}
+
+export type ReportOverviewRes = {
+  studyTimeByDay: {
+    day: string;
+    date: string;
+    value: number;
+  }[];
+  lessonsCompletedByDay: {
+    day: string;
+    date: string;
+    value: number;
+  }[];
+  studyTimeDistribution: {
+    courseId: number | string;
+    courseTitle: string;
+    hours: number;
+    percentage: number;
+  }[];
+}
+
+export type ReportActivityRes = {
+  items: {
+    time: string;
+    activity: string;
+    details: string;
+    lessonId: number | string;
+    courseId: number | string;
+  }[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export type ReportCourseRes = {
+  courses: {
+    courseId: number | string;
+    title: string;
+    progressPercent: number;
+    completedLessons: number;
+    totalLessons: number;
+    duration: number;
+    averageScore: number;
+  }[];
+}

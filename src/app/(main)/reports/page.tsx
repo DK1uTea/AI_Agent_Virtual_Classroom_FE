@@ -1,11 +1,16 @@
+'use client'
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import GeneralStat from "./components/general-stat";
 import SelectTimeRange from "./components/select-time-range";
 import OverviewTab from "./components/overview-tab";
 import ActivityTab from "./components/activity-tab";
 import CoursesTab from "./components/courses-tab";
+import { useState } from "react";
 
 const ReportPage = () => {
+  const [timeRange, setTimeRange] = useState<string>('7d');
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
@@ -15,11 +20,16 @@ const ReportPage = () => {
             Track your learning progress
           </p>
         </div>
-        <SelectTimeRange />
+        <SelectTimeRange
+          timeRange={timeRange}
+          setTimeRange={setTimeRange}
+        />
       </div>
 
       {/* Stat Grid */}
-      <GeneralStat />
+      <GeneralStat
+        timeRange={timeRange}
+      />
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">
@@ -34,7 +44,9 @@ const ReportPage = () => {
         </TabsList>
 
         <TabsContent value="overview">
-          <OverviewTab />
+          <OverviewTab
+            timeRange={timeRange}
+          />
         </TabsContent>
 
         <TabsContent value="activity">
