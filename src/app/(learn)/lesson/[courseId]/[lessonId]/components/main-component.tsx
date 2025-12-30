@@ -8,6 +8,7 @@ import { BarChart3, ChevronLeft, ChevronRight } from "lucide-react";
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import LessonListTab from "./lesson-list-tab";
 import VideoPlayer from "./video-player";
+import MobileVideoOverlay from "./mobile-video-overlay";
 import VideoControls from "./video-controls";
 import { useVideoPlayerStore } from "@/stores/video-player-store";
 import { useShallow } from "zustand/shallow";
@@ -149,15 +150,10 @@ const MainComponent = () => {
     // Get current time from store to avoid dependencies
     const time = useVideoPlayerStore.getState().currentTime;
 
-    console.log('🔍 saveProgress called - time:', time, 'lessonId:', currentLesson?.id, 'hasToken:', !!accessToken);
-
     // Only save if we have valid data
     if (!currentLesson?.id || !time || time < 1 || !accessToken) {
-      console.log('⚠️ saveProgress skipped - missing data');
       return;
     }
-
-    console.log('✅ Saving video progress:', { lessonId: currentLesson.id, currentTime: time });
 
     saveVideoProgressMutation.mutate({
       accessToken: accessToken,
@@ -243,24 +239,13 @@ const MainComponent = () => {
   useEffect(() => {
     if (!accessToken) return;
 
-    console.log('🕐 Setting up auto-save interval (every 2 minutes)');
-
     const interval = setInterval(() => {
-      console.log('⏰ Auto-save interval triggered');
-
       const time = useVideoPlayerStore.getState().currentTime;
       const lesson = useLessonStore.getState().currentLesson;
-
-      console.log('🔍 Auto-save check - time:', time, 'lessonId:', lesson?.id);
-
       // Only save if we have valid data
       if (!lesson?.id || !time || time < 1 || lesson.completed?.videoCompleted) {
-        console.log('⚠️ Auto-save skipped - missing data or video completed');
         return;
       }
-
-      console.log('✅ Auto-saving video progress:', { lessonId: lesson.id, currentTime: time });
-
       // Call the mutation directly
       saveVideoProgressMutation.mutate({
         accessToken: accessToken,
@@ -270,7 +255,6 @@ const MainComponent = () => {
     }, 2 * 60 * 1000);
 
     return () => {
-      console.log('🛑 Clearing auto-save interval');
       clearInterval(interval);
     };
   }, [accessToken]); // Only depend on accessToken
@@ -299,6 +283,7 @@ const MainComponent = () => {
           onMouseLeave={handleMouseLeave}
         >
           <VideoPlayer />
+          <MobileVideoOverlay />
           <VideoControls />
         </div>
         {/* Progress And Navigation */}
