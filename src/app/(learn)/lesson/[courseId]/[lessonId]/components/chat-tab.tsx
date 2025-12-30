@@ -57,6 +57,12 @@ const ConversationContentSkeleton = () => {
   );
 }
 
+const reasoningSteps = [
+  'Let me think about this problem step by step.',
+  '\n\nFirst, I need to understand what the user is asking for.',
+  '\n\nPlease wait until I finish.',
+].join('');
+
 const ChatTab = () => {
 
   const {
@@ -219,7 +225,7 @@ const ChatTab = () => {
                   {(chatMutation.isPending || status === 'streaming') && (
                     <AIMessageComponent status={status} message={{
                       role: 'assistant',
-                      value: 'Let me think about this step by step...Please wait until I finish.',
+                      value: reasoningSteps,
                     }} />
                   )}
                   {(chatMutation.isError || status === 'error') && (
