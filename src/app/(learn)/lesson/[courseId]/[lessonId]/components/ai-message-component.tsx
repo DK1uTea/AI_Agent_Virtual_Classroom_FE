@@ -23,12 +23,12 @@ const AIMessageComponent = ({ status, message }: AIMessageComponentProps) => {
   const getRandomChunkSize = (min = 3, max = 4) =>
     Math.floor(Math.random() * (max - min + 1)) + min;
 
-  const chunkIntoTokens = useCallback((text: string): string[] => {
+  const chunkIntoTokens = useCallback((text: string, min?: number, max?: number): string[] => {
     const tokens: string[] = [];
     let index = 0;
 
     while (index < text.length) {
-      const size = getRandomChunkSize();
+      const size = getRandomChunkSize(min, max);
       tokens.push(text.slice(index, index + size));
       index += size;
     }
@@ -53,7 +53,7 @@ const AIMessageComponent = ({ status, message }: AIMessageComponentProps) => {
     const timer = setTimeout(() => {
       setContentReasoning((prev) => prev + reasoningTokens[currentReasoningTokenIndex]);
       setCurrentReasoningTokenIndex((prev) => prev + 1);
-    }, 25);
+    }, 50);
 
     return () => {
       clearTimeout(timer);
@@ -65,7 +65,7 @@ const AIMessageComponent = ({ status, message }: AIMessageComponentProps) => {
 
     let currentContent = '';
     let index = 0;
-    const tokens = chunkIntoTokens(message.value);
+    const tokens = chunkIntoTokens(message.value, 4, 5);
 
     const interval = setInterval(() => {
       if (index < tokens.length) {
@@ -104,7 +104,7 @@ const AIMessageComponent = ({ status, message }: AIMessageComponentProps) => {
         {message && !status && (
           <MessageContent>
             <Response className="max-h-[50rem] overflow-y-auto">
-              {message.value}
+              {contentMessage}
             </Response>
           </MessageContent>
         )}

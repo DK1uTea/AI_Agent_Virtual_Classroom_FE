@@ -82,14 +82,14 @@ const TranscriptTab = () => {
             </div>
           )}
 
-          {filteredTranscripts.map((transcript) => {
+          {filteredTranscripts.map((transcript, index) => {
             const isActive =
               currentTime >= transcript.start &&
               currentTime <= transcript.end;
 
             return (
               <div
-                key={transcript.id}
+                key={`${transcript.id}-${index}`}
                 ref={(el) => {
                   itemRefs.current[transcript.id] = el;
                 }}
