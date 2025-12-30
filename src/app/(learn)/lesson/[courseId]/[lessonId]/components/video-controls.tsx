@@ -238,7 +238,7 @@ const VideoControls = () => {
   return (
     <div
       className={cn(
-        "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity rounded-2xl",
+        "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 md:p-4 transition-opacity rounded-2xl z-20",
         showControls ? "opacity-100" : "opacity-0"
       )}
     >
