@@ -218,7 +218,7 @@ const ChatTab = () => {
                     }
                     if (message.role === 'assistant') {
                       return (
-                        <AIMessageComponent key={`ai-message-${index}`} message={message} />
+                        <AIMessageComponent key={`ai-message-${index}`} message={message} indexMessage={index} messagesListLength={messagesList.length} />
                       )
                     }
                   })}
