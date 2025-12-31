@@ -5,12 +5,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useGetReportOverview } from "@/hooks/useDashboard";
 import { useAuthStore } from "@/stores/auth-store";
 import { useEffect, useMemo, useState } from "react";
-import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { useShallow } from "zustand/shallow";
 
 import { OverviewTabSkeleton } from "./overview-tab-skeleton";
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
+const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)'];
+
+const chartConfig = {
+  hours: {
+    label: "Study Time (Hours)",
+    color: "var(--primary)",
+  },
+  lessons: {
+    label: "Lessons Completed",
+    color: "var(--primary)",
+  },
+  value: {
+    label: "Distribution (%)",
+  }
+} satisfies ChartConfig;
 
 type OverviewTabProps = {
   timeRange: string;
@@ -73,21 +88,18 @@ const OverviewTab = ({ timeRange }: OverviewTabProps) => {
             <CardDescription>Last {timeRange} days</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ChartContainer config={chartConfig} className="h-[300px] w-full">
               <BarChart data={barChartData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
                 <XAxis dataKey="day" className="text-muted-foreground" />
                 <YAxis className="text-muted-foreground" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
                 />
-                <Bar dataKey="hours" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="hours" fill="var(--color-hours)" radius={[8, 8, 0, 0]} />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
 
@@ -97,27 +109,24 @@ const OverviewTab = ({ timeRange }: OverviewTabProps) => {
             <CardDescription>Last {timeRange} days</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ChartContainer config={chartConfig} className="h-[300px] w-full">
               <LineChart data={lineChartData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
                 <XAxis dataKey="day" className="text-muted-foreground" />
                 <YAxis className="text-muted-foreground" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
                 />
                 <Line
                   type="monotone"
                   dataKey="lessons"
-                  stroke="hsl(var(--primary))"
+                  stroke="var(--color-lessons)"
                   strokeWidth={2}
-                  dot={{ fill: 'hsl(var(--primary))' }}
+                  dot={{ fill: 'var(--color-lessons)' }}
                 />
               </LineChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </div>
@@ -129,7 +138,7 @@ const OverviewTab = ({ timeRange }: OverviewTabProps) => {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col lg:flex-row items-center gap-8">
-            <ResponsiveContainer width="100%" height={300}>
+            <ChartContainer config={chartConfig} className="h-[300px] w-full">
               <PieChart>
                 <Pie
                   data={pieChartData}
@@ -145,9 +154,12 @@ const OverviewTab = ({ timeRange }: OverviewTabProps) => {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
               </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
 
             <div className="space-y-2 w-full lg:w-auto">
               {pieChartData?.map((item, index) => (
