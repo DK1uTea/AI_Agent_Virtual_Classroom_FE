@@ -90,6 +90,7 @@ const ChatTab = () => {
     'submitted' | 'streaming' | 'ready' | 'error'
   >('ready');
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+  const [newMessageId, setNewMessageId] = useState<string | null>(null); // Track tin nhắn mới
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastScrollTopRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -105,6 +106,7 @@ const ChatTab = () => {
   const chatMutation = useAIChat(
     (res) => {
       setStatus('ready');
+      const messageId = `ai-${Date.now()}`; // Tạo ID unique cho tin nhắn mới
       const newAIMessage: MessageType = {
         role: 'assistant',
         value: res.reply,
@@ -113,6 +115,9 @@ const ChatTab = () => {
       }
       console.log('New AI Message: ', newAIMessage);
       setMessagesList((prev) => [...prev, newAIMessage]);
+      setNewMessageId(messageId); // Đánh dấu tin nhắn này là mới
+      // Reset newMessageId sau khi animation hoàn thành
+      setTimeout(() => setNewMessageId(null), 5000);
     },
     (error) => {
       setStatus('error');
@@ -217,8 +222,17 @@ const ChatTab = () => {
                       )
                     }
                     if (message.role === 'assistant') {
+                      // Chỉ tin nhắn cuối cùng và là tin nhắn mới thì mới có animation
+                      const isLastMessage = index === messagesList.length - 1;
+                      const isNew = isLastMessage && newMessageId !== null;
                       return (
-                        <AIMessageComponent key={`ai-message-${index}`} message={message} indexMessage={index} messagesListLength={messagesList.length} />
+                        <AIMessageComponent
+                          key={`ai-message-${index}`}
+                          message={message}
+                          indexMessage={index}
+                          messagesListLength={messagesList.length}
+                          isNewMessage={isNew}
+                        />
                       )
                     }
                   })}

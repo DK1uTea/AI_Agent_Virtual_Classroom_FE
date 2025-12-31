@@ -11,9 +11,10 @@ type AIMessageComponentProps = {
   status?: string;
   indexMessage?: number;
   messagesListLength?: number;
+  isNewMessage?: boolean; // Để phân biệt tin nhắn mới với tin nhắn từ lịch sử
 }
 
-const AIMessageComponent = ({ status, message, indexMessage, messagesListLength }: AIMessageComponentProps) => {
+const AIMessageComponent = ({ status, message, indexMessage, messagesListLength, isNewMessage = false }: AIMessageComponentProps) => {
   const [currentReasoningTokenIndex, setCurrentReasoningTokenIndex] = useState<number>(0);
   const [reasoningTokens, setReasoningTokens] = useState<string[]>([]);
   const [contentReasoning, setContentReasoning] = useState<string>('');
@@ -62,7 +63,7 @@ const AIMessageComponent = ({ status, message, indexMessage, messagesListLength 
   }, [status, currentReasoningTokenIndex, reasoningTokens])
 
   useEffect(() => {
-    if (status || !indexMessage || !messagesListLength || indexMessage !== messagesListLength - 1) {
+    if (status || !isNewMessage) {
       setContentMessage(message.value);
       return;
     };
@@ -84,7 +85,7 @@ const AIMessageComponent = ({ status, message, indexMessage, messagesListLength 
     return () => {
       clearInterval(interval);
     };
-  }, [status]);
+  }, [status, isNewMessage, message.value, chunkIntoTokens]);
 
   return (
     <>
@@ -107,7 +108,7 @@ const AIMessageComponent = ({ status, message, indexMessage, messagesListLength 
         )}
         {message && !status && (
           <MessageContent>
-            <Response className="max-h-[50rem] overflow-y-auto">
+            <Response >
               {contentMessage}
             </Response>
           </MessageContent>
