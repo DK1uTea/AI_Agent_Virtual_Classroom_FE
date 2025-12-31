@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Brain, Video, MessageSquare, LineChart, Sparkles, BookOpenCheck, Bot, ShieldCheck, GraduationCap, Network } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const features = [
   {
@@ -61,29 +62,101 @@ const sellingPoints = [
 ];
 
 const steps = [
-  { n: 1, title: "Tell us your goal", body: "Pick a path (e.g., Web Dev, Data, IELTS)." },
-  { n: 2, title: "Baseline check", body: "Quick diagnostic to place you at the right level." },
-  { n: 3, title: "Adaptive roadmap", body: "Personalized modules with videos, readings, and projects." },
-  { n: 4, title: "Learn with AI help", body: "Agent explains, reviews, and generates mindmaps & notes." },
-  { n: 5, title: "Validate & certify", body: "Finish capstone; earn a certificate you can share." },
+  {
+    n: 1,
+    title: "Discover your course",
+    body: "Explore courses and choose the one that matches your goal."
+  },
+  {
+    n: 2,
+    title: "Start learning",
+    body: "Follow structured lessons with videos, readings, and exercises."
+  },
+  {
+    n: 3,
+    title: "Learn with AI support",
+    body: "Use an AI chatbot to ask questions, generate mindmaps."
+  },
+  {
+    n: 4,
+    title: "Practice & improve",
+    body: "Practice with quizzes and assignments, while AI analyzes your results and suggests improvements."
+  },
+  {
+    n: 5,
+    title: "Complete & achieve",
+    body: "Finish the course and track your learning progress."
+  }
 ];
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "AI Virtual Classroom",
-  url: "https://example.com",
-  logo: "https://example.com/logo.png",
-  sameAs: ["https://twitter.com/ai_virtual_classroom"],
-  offers: {
-    "@type": "OfferCatalog",
-    name: "Courses",
-    itemListElement: [
-      { "@type": "Course", name: "Web Development", provider: { "@type": "Organization", name: "AI Virtual Classroom" } },
-      { "@type": "Course", name: "Data Analysis", provider: { "@type": "Organization", name: "AI Virtual Classroom" } },
-    ],
-  },
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://ai-agent-virtual-classroom-fe.vercel.app/#organization",
+      name: "AI Virtual Classroom",
+      url: "https://ai-agent-virtual-classroom-fe.vercel.app",
+      logo: "https://ai-agent-virtual-classroom-fe.vercel.app/AI_Classroom_Logo.png",
+      offers: {
+        "@type": "OfferCatalog",
+        name: "Courses",
+        itemListElement: [
+          { "@type": "Course", name: "Web Development" },
+          { "@type": "Course", name: "Data Analysis" },
+          { "@type": "Course", name: "Math" },
+          { "@type": "Course", name: "English" },
+        ],
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://ai-agent-virtual-classroom-fe.vercel.app/#website",
+      url: "https://ai-agent-virtual-classroom-fe.vercel.app",
+      name: "AI Virtual Classroom",
+      publisher: {
+        "@id": "https://ai-agent-virtual-classroom-fe.vercel.app/#organization",
+      },
+      potentialAction: {
+        "@type": "SearchAction",
+        target:
+          "https://ai-agent-virtual-classroom-fe.vercel.app/course-catalog?title={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
 };
+
+const socialProof = [
+  {
+    name: "Dũng Bùi",
+    role: "Computer Science Student",
+    avatar: "/avatars/dungbui.jpg",
+    comment:
+      "AI Virtual Classroom đã giúp mình rất nhiều trong việc học lập trình. Các khóa học rất chi tiết và dễ hiểu, cùng với sự hỗ trợ từ AI giúp mình giải quyết các vấn đề nhanh chóng.",
+  },
+  {
+    name: "Tuấn Đỗ",
+    role: "Frontend Developer",
+    avatar: "/avatars/tuando.jpg",
+    comment:
+      "Tôi thấy ứng dụng có giao diện đẹp mắt, thân thiện với người dùng và rất dễ sử dụng. Cùng với nội dung phong phú và đa dạng, AI Virtual Classroom thực sự là một công cụ học tập tuyệt vời.",
+  },
+  {
+    name: "Thái Hoa Nhài",
+    role: "IELTS Learner",
+    avatar: "/avatars/thaihoanhai.jpg",
+    comment:
+      "Là một người học IELTS, tôi thấy AI Virtual Classroom rất hữu ích trong việc cải thiện kỹ năng viết và nói của mình thông qua phản hồi chi tiết từ AI.",
+  },
+  {
+    name: "Bé Tùng",
+    role: "Student",
+    avatar: "/avatars/betung.jpg",
+    comment:
+      "Em rất thích khóa học toán trên AI Virtual Classroom vì nó giúp em hiểu bài nhanh hơn và có nhiều bài tập thực hành.",
+  },
+];
 
 
 
@@ -129,14 +202,14 @@ export default function LandingPage() {
               href="/register"
               className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-white font-semibold shadow hover:shadow-md transition"
             >
-              Start free trial
+              Explore now!
             </Link>
-            <Link
+            {/* <Link
               href="/course-catalog"
               className="inline-flex items-center gap-2 rounded-full border px-6 py-3 text-sm"
             >
               Explore courses
-            </Link>
+            </Link> */}
           </div>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2" id="features">
@@ -211,13 +284,52 @@ export default function LandingPage() {
       {/* ---- SOCIAL PROOF ---- */}
       <section className="mt-16">
         <div className="rounded-2xl border p-6 md:p-8 bg-background/60 backdrop-blur">
-          <p className="text-sm text-muted-foreground">Trusted by learners from</p>
-          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 opacity-80">
-            <div className="h-10 rounded bg-muted" />
-            <div className="h-10 rounded bg-muted" />
-            <div className="h-10 rounded bg-muted" />
-            <div className="h-10 rounded bg-muted" />
-          </div>
+          <p className="text-sm text-muted-foreground">
+            Trusted by learners worldwide
+          </p>
+
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="mt-6"
+          >
+            <CarouselContent>
+              {socialProof.map((item) => (
+                <CarouselItem
+                  key={item.name}
+                  className="sm:basis-1/2 lg:basis-1/3"
+                >
+                  <div className="h-full rounded-xl border p-5 bg-background">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                        <Image
+                          src={item.avatar}
+                          alt={`${item.name} avatar`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-semibold">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">{item.role}</p>
+                      </div>
+                    </div>
+
+                    <blockquote className="mt-3 text-sm text-muted-foreground leading-relaxed sm:text-justify">
+                      “{item.comment}”
+                    </blockquote>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+
+          </Carousel>
         </div>
       </section>
 
@@ -227,11 +339,11 @@ export default function LandingPage() {
         <p className="mt-2 text-muted-foreground">Join thousands leveling up with adaptive, AI‑powered learning.</p>
         <div className="mt-5 flex items-center justify-center gap-4">
           <Link href="/register" className="rounded-full bg-primary px-6 py-3 text-white font-semibold shadow">
-            Start free trial
+            Explore now!
           </Link>
-          <Link href="/course-catalog" className="rounded-full border px-6 py-3">
+          {/* <Link href="/course-catalog" className="rounded-full border px-6 py-3">
             Explore courses
-          </Link>
+          </Link> */}
         </div>
       </section>
 

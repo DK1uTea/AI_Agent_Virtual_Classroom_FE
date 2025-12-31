@@ -150,8 +150,8 @@ const MainComponent = () => {
     // Get current time from store to avoid dependencies
     const time = useVideoPlayerStore.getState().currentTime;
 
-    // Only save if we have valid data
-    if (!currentLesson?.id || !time || time < 1 || !accessToken) {
+    // Only save if we have valid data and current time is greater than saved time
+    if (!currentLesson?.id || !time || time < 1 || !accessToken || time <= (currentLesson?.currentTime || 0)) {
       return;
     }
 
@@ -160,7 +160,7 @@ const MainComponent = () => {
       lessonId: String(currentLesson.id),
       currentTime: time,
     });
-  }, [currentLesson?.id, accessToken, saveVideoProgressMutation]);
+  }, [currentLesson?.id, currentLesson?.currentTime, accessToken, saveVideoProgressMutation]);
 
   const handlePrevious = () => {
     saveProgress();
@@ -242,8 +242,8 @@ const MainComponent = () => {
     const interval = setInterval(() => {
       const time = useVideoPlayerStore.getState().currentTime;
       const lesson = useLessonStore.getState().currentLesson;
-      // Only save if we have valid data
-      if (!lesson?.id || !time || time < 1 || lesson.completed?.videoCompleted) {
+      // Only save if we have valid data and current time is greater than saved time
+      if (!lesson?.id || !time || time < 1 || lesson.completed?.videoCompleted || time <= (lesson?.currentTime || 0)) {
         return;
       }
       // Call the mutation directly
