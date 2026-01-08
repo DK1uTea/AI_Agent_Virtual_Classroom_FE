@@ -63,26 +63,27 @@ const LessonPage = ({ params }: LessonPageProps) => {
   })
 
   const {
+    data,
     isLoading: isLoadingCurrentLesson,
   } = useGetCurrentLesson(
     {
       accessToken: accessToken || '',
       lessonId,
-    },
-    ({ lessonPlaybackInfo, lessonTranscripts }) => {
-      console.log('Fetched lesson playback info:', lessonPlaybackInfo);
-      console.log('Fetched lesson transcripts:', lessonTranscripts);
+    }
+  );
+
+  const { lessonPlaybackInfo, lessonTranscripts } = data || {};
+
+  useEffect(() => {
+    if (lessonPlaybackInfo && lessonTranscripts) {
+      console.log('Syncing lesson data to store:', lessonPlaybackInfo);
       setCurrentSidebarLessons(lessonPlaybackInfo.sidebarLessons);
       const { sidebarLessons, ...currentLessonData } = lessonPlaybackInfo;
       setCurrentLesson(currentLessonData);
       setCurrentTranscripts(lessonTranscripts);
       setVideoUrl(currentLessonData.url);
-    },
-    () => {
-      console.error('Error fetching current lesson data');
     }
-
-  );
+  }, [lessonPlaybackInfo, lessonTranscripts, setCurrentLesson, setCurrentSidebarLessons, setCurrentTranscripts, setVideoUrl]);
 
   useEffect(() => {
     setCurrentCourseId(courseId);

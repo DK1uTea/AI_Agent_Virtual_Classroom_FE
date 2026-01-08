@@ -48,10 +48,10 @@ const HeaderComponent = () => {
   return (
     <div className="flex items-center gap-2">
       <ModeToggle />
-      <Button variant="ghost" size="icon" className="relative">
+      {/* <Button variant="ghost" size="icon" className="relative">
         <Bell className="h-5 w-5" />
         <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive" />
-      </Button>
+      </Button> */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -72,9 +72,9 @@ const HeaderComponent = () => {
           <DropdownMenuItem onClick={() => router.push('/profile')}>
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/settings')}>
+          {/* <DropdownMenuItem onClick={() => router.push('/settings')}>
             Settings
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={onClickLogout}>
             Logout
