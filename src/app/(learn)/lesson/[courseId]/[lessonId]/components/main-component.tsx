@@ -263,7 +263,7 @@ const MainComponent = () => {
     if (currentLesson && !currentLesson.completed?.videoCompleted && currentLesson.currentTime && currentLesson.currentTime > 0) {
       toggleConfirmContinueLearnDialog(true);
     }
-  }, [currentLesson?.id, currentLesson?.courseId])
+  }, [currentLesson?.id, currentLesson?.courseId, currentLesson?.currentTime])
 
   useEffect(() => {
     if (getAIAnalyzeQuery.data) {

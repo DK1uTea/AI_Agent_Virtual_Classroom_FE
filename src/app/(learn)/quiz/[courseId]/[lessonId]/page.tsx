@@ -61,12 +61,15 @@ const QuizPage = ({ params }: QuizPageProps) => {
   } = useGetCurrentLesson({
     accessToken: accessToken,
     lessonId: lessonId,
-  },
-    ({ lessonPlaybackInfo, lessonTranscripts }) => {
-      const { sidebarLessons, ...currentLessonData } = lessonPlaybackInfo;
-      setCurrentLesson(currentLessonData);
-    },
-  )
+  })
+
+  useEffect(() => {
+    if (!currentLessonData) return;
+
+    const { lessonPlaybackInfo } = currentLessonData;
+    const { sidebarLessons, ...lessonData } = lessonPlaybackInfo;
+    setCurrentLesson(lessonData);
+  }, [currentLessonData, setCurrentLesson])
 
   const {
     data: quizForLessonData,

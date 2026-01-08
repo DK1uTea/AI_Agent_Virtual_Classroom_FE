@@ -35,14 +35,14 @@ const Sidebar = () => {
             </Button>
           </div>
           <MenuItems onClose={onClose} />
-          <div className="border-t p-4">
+          {/* <div className="border-t p-4">
             <div className="rounded-lg bg-accent p-3">
               <p className="mb-2">💡 Study tips</p>
               <p className="text-muted-foreground">
                 Study regularly every day to maintain your streak!
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
       </aside>
     </>

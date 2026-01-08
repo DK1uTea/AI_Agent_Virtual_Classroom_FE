@@ -1,5 +1,5 @@
 import { lessonApis } from "@/apis/gateways/lesson-apis";
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { on } from "events";
 
 export const useMarkLearnVideoCompleted = (
@@ -50,6 +50,8 @@ export const useSaveVideoProgress = (
   onSuccessExtra?: () => void,
   onErrorExtra?: (error: Error) => void
 ) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ['save-video-progress'],
     mutationFn: async (req: {
@@ -59,7 +61,8 @@ export const useSaveVideoProgress = (
     }) => {
       await lessonApis.saveVideoProgress(req);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['current-lesson', variables.lessonId] });
       onSuccessExtra?.();
     },
     onError: (error: Error) => {

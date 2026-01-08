@@ -20,7 +20,8 @@ const Header = async () => {
           </div>
           <span className="hidden sm:inline-block">AI Virtual Classroom</span>
         </Link>
-        <HeaderSearch />
+        <div className="flex-1"></div>
+        {/* <HeaderSearch /> */}
         <HeaderComponent />
       </div>
     </header>
