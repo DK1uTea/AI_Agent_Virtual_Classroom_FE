@@ -7,8 +7,9 @@
     <a href="#key-features">Key Features</a> •
     <a href="#tech-stack">Tech Stack</a> •
     <a href="#installation">Installation</a> •
-    <a href="#demo">Video Demo</a> •
-    <a href="#repository-links">Related Repos</a>
+    <a href="#project-report">Project Report</a> •
+    <a href="#team-members">Team Members</a> •
+    <a href="#xem-them">Related Repos</a>
   </p>
 </div>
 
@@ -16,21 +17,21 @@
 
 ## 🚀 Overview
 
-**AI Agent Virtual Classroom** is a cutting-edge educational platform designed to enhance the learning experience through artificial intelligence. It provides students with an interactive environment where they can watch lessons, engage with an AI assistant, and visualize complex concepts through dynamically generated mind maps.
+**AI Agent Virtual Classroom** là đồ án tốt nghiệp khóa **D21** tại **Học viện Công nghệ Bưu chính Viễn thông (PTIT) Hà Nội**. Rất may mắn, đồ án đã đạt được điểm số **9.0**, đánh dấu một cột mốc quan trọng trong quá trình học tập và nghiên cứu.
 
-## 📺 Demo
+Đây là một nền tảng giáo dục tiên tiến được thiết kế để nâng cao trải nghiệm học tập thông qua trí tuệ nhân tạo. Hệ thống cung cấp cho sinh viên một môi trường tương tác hiện đại, nơi họ có thể xem bài giảng, tương tác với trợ lý AI và trực quan hóa các khái niệm phức tạp thông qua bản đồ tư duy được tạo tự động.
 
-> [!NOTE]
-> *A video demonstration of the project will be available soon.*
+## 📄 Project Report
 
-<!-- VIDEO_DEMO_START -->
-<!-- [Insert video demo link or GIF here] -->
+> [!TIP]
+> Bạn có thể xem chi tiết báo cáo đồ án tốt nghiệp để hiểu rõ hơn về kiến trúc và quy trình phát triển hệ thống.
+
 <div align="center">
-  <p align="center">
-    <strong>[Video Demo Placeholder]</strong>
-  </p>
+  <a href="public/Bao_cao_Do_an_Tot_nghiep.pdf" target="_blank">
+    <img src="https://img.shields.io/badge/View_Report-PDF-red?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white" alt="View Project Report" />
+  </a>
+  <p><i>Click vào nút trên để mở báo cáo trong tab mới</i></p>
 </div>
-<!-- VIDEO_DEMO_END -->
 
 ## ✨ Key Features
 
@@ -87,12 +88,26 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 🔗 Repository Links
+## 👥 Team Members
+
+Dưới đây là các thành viên đã tham gia thực hiện đồ án này:
+
+| Name | Role | GitHub |
+| :--- | :--- | :--- |
+| **Đỗ Quang Tuấn** | Frontend Developer | [@DK1uTea](https://github.com/DK1uTea) |
+| **Phạm Huy Thái** | AI Developer | [@huythai1602](https://github.com/huythai1602) |
+| **Bùi Trung Dũng** | Backend Developer | [@YoloApple](https://github.com/YoloApple) |
+| **Phạm Thanh Tùng** | Backend Developer | [@PTungzz](https://github.com/PTungzz) |
+
+## 🔗 Xem thêm
+
+Bạn có thể tham khảo thêm các phần khác của hệ thống tại đây:
 
 | Component | Repository Link |
 | :--- | :--- |
-| **Backend** | [Backend Repository Link Placeholder] |
-| **AI Service** | [AI Repository Link Placeholder] |
+| **Auth & User Service + API Gateway** | [Auth & User Service + Gateway Repo](https://github.com/YoloApple/Do_An_2025) |
+| **Course Service** | [Course Service Repo](https://github.com/PTungzz/BE_DOAN2025) |
+| **AI Service** | [AI Service Repo](https://github.com/huythai1602/Virtual-Classroom-AI-Agent) |
 
 ---
 
